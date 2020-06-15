@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace MyLab.Redis.Commands
+namespace MyLab.Redis.CommandModel
 {
     /// <summary>
     /// Containes command parameters 

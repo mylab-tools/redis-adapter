@@ -18,10 +18,6 @@ namespace MyLab.Redis.Values
         /// </summary>
         public string Message { get; }
         
-        
-        /// <inheritdoc />
-        public bool FinishNewLineSelfControl { get; } = false;
-
         /// <summary>
         /// Initializes a new instance of <see cref="ErrorRedisValue"/>
         /// </summary>

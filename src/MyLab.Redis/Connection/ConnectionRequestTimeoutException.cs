@@ -7,7 +7,8 @@ namespace MyLab.Redis.Connection
     /// </summary>
     public class ConnectionRequestTimeoutException : RedisException
     {
-        public ConnectionRequestTimeoutException(TimeSpan timeout) : base("Connection request expired in " + timeout.ToString("g"))
+        public ConnectionRequestTimeoutException(TimeSpan timeout) 
+            : base("Connection request expired in " + timeout.ToString("g"))
         {
         }
     }

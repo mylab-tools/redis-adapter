@@ -26,5 +26,10 @@
         /// Timeout in seconds until connection will be provided. 30 by default.
         /// </summary>
         public int ConnectionRequestTimeout { get; set; } = 30;
+
+        /// <summary>
+        /// Encoding. UTF8 bu default.
+        /// </summary>
+        public string Encoding { get; set; }
     }
 }

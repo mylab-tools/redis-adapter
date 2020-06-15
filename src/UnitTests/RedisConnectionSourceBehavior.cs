@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Sockets;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using MyLab.Redis.Connection;
@@ -13,16 +14,20 @@ namespace UnitTests
         public void ShouldProvideConnectionExclusive()
         {
             //Arrange
-            var src = new RedisConnectionSource(new TestTcpClientProvider(), TimeSpan.FromMilliseconds(1000));
+            var src = new RedisConnectionSource(
+                new TestTcpClientProvider(), 
+                new DefaultRedisConnectionFactory(Encoding.UTF8), 
+                TimeSpan.FromMilliseconds(1000),
+                15, null);
 
             bool task1HasConnection= false;
             bool task2HasConnection = false;
 
             bool hasCollision = false;
 
-            Action task1Action = () =>
+            Func<Task> task1Action = async () =>
             {
-                using (var c = src.ProvideConnection())
+                using (var c = await src.ProvideConnectionAsync())
                 {
                     task1HasConnection = true;
 
@@ -35,9 +40,9 @@ namespace UnitTests
                 task1HasConnection = false;
             };
 
-            Action task2Action = () =>
+            Func<Task> task2Action = async () =>
             {
-                using (var c = src.ProvideConnection())
+                using (var c = await src.ProvideConnectionAsync())
                 {
                     task2HasConnection = true;
 
@@ -66,22 +71,27 @@ namespace UnitTests
         public void ShouldThrowExceptionWhenConnectionRequestTimeout()
         {
             //Arrange
-            var src = new RedisConnectionSource(new TestTcpClientProvider(), TimeSpan.FromMilliseconds(100));
+            var src = new RedisConnectionSource(
+                new TestTcpClientProvider(), 
+                new DefaultRedisConnectionFactory(Encoding.UTF8), 
+                TimeSpan.FromMilliseconds(100),
+                15, null);
+
             Exception task2Exception = null;
 
-            Action task1Action = () =>
+            Func<Task> task1Action = async () =>
             {
-                using (var c = src.ProvideConnection())
+                using (var c = await src.ProvideConnectionAsync())
                 {
                     Thread.Sleep(200);
                 }
             };
 
-            Action task2Action = () =>
+            Func<Task> task2Action = async () =>
             {
                 try
                 {
-                    using (var c = src.ProvideConnection())
+                    using (var c = await src.ProvideConnectionAsync())
                     {
                     }
                 }
@@ -107,9 +117,14 @@ namespace UnitTests
 
         class TestTcpClientProvider : ITcpClientProvider
         {
-            public TcpClient Provide()
+            public TcpClient Provide(out bool isNew)
             {
+                isNew = false;
                 return new TcpClient();
+            }
+
+            public void Dispose()
+            {
             }
         }
     }
