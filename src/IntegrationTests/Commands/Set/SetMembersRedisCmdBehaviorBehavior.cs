@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using MyLab.Redis.Commands.Set;
 using Xunit;
@@ -36,7 +37,8 @@ namespace IntegrationTests.Commands.Set
             var items = await membersCmd.PerformAsync(c);
 
             //Assert
-            Assert.Equal(members, items);
+            Assert.Equal(members.Length, items.Length);
+            Assert.True(members.All(m => items.Contains(m)));
         }
     }
 }

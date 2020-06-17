@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
@@ -62,6 +63,15 @@ namespace IntegrationTests
             return key;
         }
 
+        public string NewKeyForTheory(MethodBase method)
+        {
+            var key = TestKey.NewForTheory(method);
+
+            _usedKeys.Add(key);
+
+            return key;
+        }
+
         public Task InitializeAsync()
         {
             return Task.CompletedTask;
@@ -71,8 +81,11 @@ namespace IntegrationTests
         {
             Output = null;
 
-            var delKey = new DeleteKeyRedisCmd(_usedKeys);
-            await delKey.PerformAsync(await Source.ProvideConnectionAsync());
+            if (_usedKeys.Count > 0)
+            {
+                var delKey = new DeleteKeyRedisCmd(_usedKeys);
+                await delKey.PerformAsync(await Source.ProvideConnectionAsync());
+            }
 
             Source?.Dispose();
         }
@@ -106,7 +119,9 @@ namespace IntegrationTests
             public async Task<IRedisValue> PerformCommandAsync(ArrayRedisValue command)
             {
                 var resp = await _inner.PerformCommandAsync(command);
-                await Report(command, resp);
+                
+                if(!(command.Items.FirstOrDefault() is BulkStringRedisValue strVal && strVal.Value == "SELECT"))
+                    await Report(command, resp);
 
                 return resp;
             }

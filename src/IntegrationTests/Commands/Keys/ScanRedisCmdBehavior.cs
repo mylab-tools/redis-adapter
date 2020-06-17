@@ -52,10 +52,10 @@ namespace IntegrationTests.Commands.Keys
             var cmd2 = new ScanRedisCmd(result1.NewCursor) { Count = 3 };
             
             //Act
-            var result2 = await cmd2.PerformAsync(c);
+            var result2 = (await cmd2.PerformAsync(c)).Items.ToArray();
 
             //Assert
-            Assert.Equal(result1.Items, result2.Items);
+            Assert.True(result1.Items.All(itm => result2.All(r => r != itm)));
         }
 
         public async Task InitializeAsync()

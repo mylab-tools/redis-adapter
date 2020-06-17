@@ -26,7 +26,7 @@ namespace IntegrationTests.Commands.List
             //Arrange
             using var c = await _fixture.Source.ProvideConnectionAsync();
             var items = new[] { "foo", "bar", "baz", "bat" };
-            var key = _fixture.NewKey(MethodBase.GetCurrentMethod());
+            var key = _fixture.NewKeyForTheory(MethodBase.GetCurrentMethod());
 
             var cmd = new ListRightPushRedisCmd(key);
             cmd.Items.AddRange(items);
