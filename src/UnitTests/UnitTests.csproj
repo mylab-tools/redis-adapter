@@ -17,8 +17,4 @@
     <ProjectReference Include="..\MyLab.Redis\MyLab.Redis.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Values\" />
-  </ItemGroup>
-
 </Project>
