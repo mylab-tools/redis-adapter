@@ -2,6 +2,12 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Authors>Andrey O.</Authors>
+    <Company>Andrey O.</Company>
+    <PackageProjectUrl>https://github.com/ozzy-ext-mylab/redis-adapter</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/ozzy-ext-mylab/redis-adapter.git</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
