@@ -45,7 +45,6 @@ namespace MyLab.Redis
         /// <param name="pageSize">The page size to iterate by.</param>
         /// <param name="cursor">The cursor position to resume at.</param>
         /// <param name="pageOffset">The page offset to start at.</param>
-        /// <param name="flags">The command flags to use.</param>
         /// <remarks>Warning: consider KEYS as a command that should only be used in production environments with extreme care.</remarks>
         /// <remarks>https://redis.io/commands/keys</remarks>
         /// <remarks>https://redis.io/commands/scan</remarks>

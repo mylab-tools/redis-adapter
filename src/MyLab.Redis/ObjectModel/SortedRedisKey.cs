@@ -30,7 +30,7 @@ namespace MyLab.Redis.ObjectModel
         public Task<RedisValue[]> SortAsync(long skip = 0, long take = -1, Order order = Order.Ascending,
             SortType sortType = SortType.Numeric, RedisValue by = default, RedisValue[] get = null)
         {
-            return RedisDb.SortAsync(KeyName, skip, take, order, sortType, by, get));
+            return RedisDb.SortAsync(KeyName, skip, take, order, sortType, by, get);
         }
 
         /// <summary>
