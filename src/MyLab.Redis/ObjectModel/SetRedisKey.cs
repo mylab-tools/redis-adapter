@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using StackExchange.Redis;
 
 namespace MyLab.Redis.ObjectModel
@@ -6,12 +7,12 @@ namespace MyLab.Redis.ObjectModel
     /// <summary>
     /// Represent Redis SET
     /// </summary>
-    public class SetRedisKeyBase : RedisKeyBase
+    public class SetRedisKey : RedisKeyBase
     {
         /// <summary>
-        /// Initializes a new instance of <see cref="SetRedisKeyBase"/>
+        /// Initializes a new instance of <see cref="SetRedisKey"/>
         /// </summary>
-        public SetRedisKeyBase(IDatabaseAsync redisDb, string keyName)
+        public SetRedisKey(IDatabaseAsync redisDb, string keyName)
             :base(redisDb, keyName)
         {
             
@@ -151,6 +152,20 @@ namespace MyLab.Redis.ObjectModel
         public Task<long> RemoveMembersAsync(RedisValue[] values)
         {
             return RedisDb.SetRemoveAsync(KeyName, values);
+        }
+
+        /// <summary>
+        /// The SSCAN command is used to incrementally iterate over set; note: to resume an iteration via <i>cursor</i>, cast the original enumerable or enumerator to <i>IScanningCursor</i>.
+        /// </summary>
+        /// <param name="pattern">The pattern to match.</param>
+        /// <param name="pageSize">The page size to iterate by.</param>
+        /// <param name="cursor">The cursor position to start at.</param>
+        /// <param name="pageOffset">The page offset to start at.</param>
+        /// <returns>Yields all matching elements of the set.</returns>
+        /// <remarks>https://redis.io/commands/sscan</remarks>
+        public IAsyncEnumerable<RedisValue> ScanAsync(RedisValue pattern, int pageSize = 250, long cursor = 0, int pageOffset = 0)
+        {
+            return RedisDb.SetScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
         }
     }
 }

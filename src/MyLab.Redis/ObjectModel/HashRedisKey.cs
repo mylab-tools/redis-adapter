@@ -32,7 +32,7 @@ namespace MyLab.Redis.ObjectModel
             return RedisDb.HashDecrementAsync(KeyName, hashField, value);
         }
 
-        /// <summary>
+        /// <summary>s
         /// Decrement the specified field of an hash stored at key, and representing a floating point number, by the specified decrement. If the field does not exist, it is set to 0 before performing the operation.
         /// </summary>
         /// <param name="hashField">The field in the hash to decrement.</param>
@@ -50,7 +50,7 @@ namespace MyLab.Redis.ObjectModel
         /// </summary>
         /// <param name="hashField">The field in the hash to delete.</param>
         /// <remarks>https://redis.io/commands/hdel</remarks>
-        Task DeleteFieldAsync(string hashField)
+        public Task DeleteFieldAsync(string hashField)
         {
             return RedisDb.HashDeleteAsync(KeyName, hashField);
         }

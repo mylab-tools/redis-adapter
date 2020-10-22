@@ -37,7 +37,7 @@ namespace MyLab.Redis.ObjectModel
         /// <param name="key">The key to dump.</param>
         /// <returns>the serialized value.</returns>
         /// <remarks>https://redis.io/commands/dump</remarks>
-        public Task<byte[]> DumpAsync(RedisKey key)
+        public Task<byte[]> DumpAsync(StackExchange.Redis.RedisKey key)
         {
             return RedisDb.KeyDumpAsync(KeyName);
         }
@@ -110,7 +110,7 @@ namespace MyLab.Redis.ObjectModel
         /// <param name="key">The key to restore.</param>
         /// <param name="value">The value of the key.</param>
         /// <remarks>https://redis.io/commands/restore</remarks>
-        public Task RestoreAsync(RedisKey key, byte[] value)
+        public Task RestoreAsync(StackExchange.Redis.RedisKey key, byte[] value)
         {
             return RedisDb.KeyRestoreAsync(KeyName, value);
         }
