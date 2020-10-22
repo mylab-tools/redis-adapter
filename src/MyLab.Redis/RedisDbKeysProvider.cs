@@ -16,7 +16,7 @@ namespace MyLab.Redis
         }
 
         /// <summary>
-        /// Gets string key
+        /// Gets STRING key
         /// </summary>
         public StringRedisKey String(string key)
         {
@@ -24,19 +24,35 @@ namespace MyLab.Redis
         }
 
         /// <summary>
-        /// Gets string key with numeric (int64) content
+        /// Gets HASH key
         /// </summary>
-        public Int64RedisKey Int64(string key)
+        public HashRedisKey Hash(string key)
         {
-            return new Int64RedisKey(_redisDb, key);
+            return new HashRedisKey(_redisDb, key);
         }
 
         /// <summary>
-        /// Gets string key with numeric (double) content
+        /// Gets SET key
         /// </summary>
-        public DoubleRedisKey Double(string key)
+        public SetRedisKey Set(string key)
         {
-            return new DoubleRedisKey(_redisDb, key);
+            return new SetRedisKey(_redisDb, key);
+        }
+
+        /// <summary>
+        /// Gets SORTED SET key
+        /// </summary>
+        public SortedSetRedisKey SortedSet(string key)
+        {
+            return new SortedSetRedisKey(_redisDb, key);
+        }
+
+        /// <summary>
+        /// Gets LIST key
+        /// </summary>
+        public ListRedisKey List(string key)
+        {
+            return new ListRedisKey(_redisDb, key);
         }
     }
 }
