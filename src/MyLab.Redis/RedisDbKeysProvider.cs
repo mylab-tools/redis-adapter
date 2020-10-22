@@ -3,14 +3,11 @@ using StackExchange.Redis;
 
 namespace MyLab.Redis
 {
-    /// <summary>
-    /// Provides Redis key object model
-    /// </summary>
     public class RedisDbKeysProvider
     {
-        private readonly IDatabase _redisDb;
+        private readonly IDatabaseAsync _redisDb;
 
-        public RedisDbKeysProvider(IDatabase redisDb)
+        public RedisDbKeysProvider(IDatabaseAsync redisDb)
         {
             _redisDb = redisDb;
         }

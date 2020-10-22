@@ -22,9 +22,14 @@ namespace MyLab.Redis
             _connection = ConnectionMultiplexer.Connect(cs);
         }
 
-        public RedisDbKeysProvider Keys()
+        public RedisDbToolsProvider Keys()
         {
-            return new RedisDbKeysProvider(_connection.GetDatabase());
+            return new RedisDbToolsProvider(_connection.GetDatabase());
+        }
+
+        public RedisDbToolsProvider Keys(int dbIndex)
+        {
+            return new RedisDbToolsProvider(_connection.GetDatabase(dbIndex));
         }
 
         public RedisServerToolsProvider Server()

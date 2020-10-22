@@ -8,9 +8,14 @@ namespace MyLab.Redis
     public interface IRedisService
     {
         /// <summary>
-        /// Gets DB keys provider
+        /// Gets DB keys provider for default database
         /// </summary>
-        RedisDbKeysProvider Keys();
+        RedisDbToolsProvider Keys();
+
+        /// <summary>
+        /// Gets DB keys provider for specified database
+        /// </summary>
+        RedisDbToolsProvider Keys(int dbIndex);
 
         /// <summary>
         /// Provides tools for default server

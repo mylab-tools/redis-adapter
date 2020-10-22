@@ -55,5 +55,23 @@ namespace MyLab.Redis
             return _redisServer.KeysAsync(database, pattern, pageSize, cursor, pageOffset);
         }
 
+        /// <summary>
+        /// Delete all the keys of all databases on the server.
+        /// </summary>
+        /// <remarks>https://redis.io/commands/flushall</remarks>
+        public Task FlushAllDatabasesAsync()
+        {
+            return _redisServer.FlushAllDatabasesAsync();
+        }
+
+        /// <summary>
+        /// Delete all the keys of the database.
+        /// </summary>
+        /// <param name="database">The database ID.</param>
+        /// <remarks>https://redis.io/commands/flushdb</remarks>
+        public Task FlushDatabaseAsync(int database = -1)
+        {
+            return _redisServer.FlushDatabaseAsync(database);
+        }
     }
 }
