@@ -1,5 +1,6 @@
-﻿using Microsoft.Extensions.Options;
-using MyLab.Redis.ObjectModel;
+﻿using System.Linq;
+using System.Net;
+using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
 namespace MyLab.Redis
@@ -21,19 +22,21 @@ namespace MyLab.Redis
             _connection = ConnectionMultiplexer.Connect(cs);
         }
 
-        public StringRedisKey StringKey(string key)
+        public RedisDbKeysProvider Keys()
         {
-            return new StringRedisKey(_connection.GetDatabase(), key);
+            return new RedisDbKeysProvider(_connection.GetDatabase());
         }
 
-        public Int64RedisKey Int64Key(string key)
+        public RedisServerToolsProvider Server()
         {
-            return new Int64RedisKey(_connection.GetDatabase(), key);
+            var defaultEndpoint = _connection.GetEndPoints().First();
+            return Server(defaultEndpoint);
         }
 
-        public DoubleRedisKey DoubleKey(string key)
+        public RedisServerToolsProvider Server(EndPoint endPoint)
         {
-            return new DoubleRedisKey(_connection.GetDatabase(), key);
+            var defaultServer = _connection.GetServer(endPoint);
+            return new RedisServerToolsProvider(defaultServer);
         }
     }
 }

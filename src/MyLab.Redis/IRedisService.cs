@@ -1,4 +1,4 @@
-﻿using MyLab.Redis.ObjectModel;
+﻿using System.Net;
 
 namespace MyLab.Redis
 {
@@ -7,8 +7,18 @@ namespace MyLab.Redis
     /// </summary>
     public interface IRedisService
     {
-        StringRedisKey StringKey(string key);
-        Int64RedisKey Int64Key(string key);
-        DoubleRedisKey DoubleKey(string key);
+        /// <summary>
+        /// Gets DB keys provider
+        /// </summary>
+        RedisDbKeysProvider Keys();
+
+        /// <summary>
+        /// Provides tools for default server
+        /// </summary>
+        RedisServerToolsProvider Server();
+        /// <summary>
+        /// Provides tools for server with specified endpoint
+        /// </summary>
+        RedisServerToolsProvider Server(EndPoint endPoint);
     }
 }

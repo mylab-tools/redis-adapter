@@ -9,21 +9,23 @@ namespace MyLab.Redis
     /// </summary>
     public static class RedisIntegration
     {
-        public static IServiceCollection AddRedisUsage(this IServiceCollection services, IConfiguration configuration, string sectionName = "Redis")
+        public static IServiceCollection AddRedisService(this IServiceCollection services, IConfiguration configuration, string sectionName = "Redis")
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (sectionName == null) throw new ArgumentNullException(nameof(sectionName));
             
-            return services.Configure<RedisOptions>(configuration.GetSection(sectionName));
+            return services.Configure<RedisOptions>(configuration.GetSection(sectionName))
+                .AddSingleton<IRedisService, RedisService>();
         }
 
-        public static IServiceCollection AddRedisUsage(this IServiceCollection services, RedisOptions options)
+        public static IServiceCollection AddRedisService(this IServiceCollection services, RedisOptions options)
         {
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (options == null) throw new ArgumentNullException(nameof(options));
 
-            return services.Configure(options.CreateCopyAction());
+            return services.Configure(options.CreateCopyAction())
+                .AddSingleton<IRedisService, RedisService>();
         }
     }
 }
