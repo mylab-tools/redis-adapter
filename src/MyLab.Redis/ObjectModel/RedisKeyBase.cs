@@ -23,7 +23,7 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Removes the specified key. A key is ignored if it does not exist. If UNLINK is available (Redis 4.0+), it will be used.
         /// </summary>
-        public async Task DeleteAsync()
+        public async Task DeleteKeyAsync()
         {
             await RedisDb.KeyDeleteAsync(KeyName);
         }
@@ -47,7 +47,7 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Returns true if key exists.
         /// </summary>
-        public async Task<bool> IsExistsAsync()
+        public async Task<bool> KeyExistsAsync()
         {
             return await RedisDb.KeyExistsAsync(KeyName);
         }
