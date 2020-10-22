@@ -12,7 +12,7 @@ namespace MyLab.Redis.ObjectModel
         protected readonly IDatabaseAsync RedisDb;
         public string KeyName { get; }
 
-        public RedisKeyBase(IDatabaseAsync redisDb, string keyName)
+        protected RedisKeyBase(IDatabaseAsync redisDb, string keyName)
         {
             if (string.IsNullOrEmpty(keyName))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(keyName));

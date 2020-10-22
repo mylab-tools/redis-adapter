@@ -6,7 +6,7 @@ namespace MyLab.Redis.ObjectModel
     /// <summary>
     /// Represent Redis LIST
     /// </summary>
-    public class ListRedisKey : RedisKeyBase
+    public class ListRedisKey : SortedRedisKey
     {
         /// <summary>
         /// Initializes a new instance of <see cref="ListRedisKey"/>
