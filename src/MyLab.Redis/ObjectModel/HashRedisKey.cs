@@ -73,7 +73,7 @@ namespace MyLab.Redis.ObjectModel
         /// <param name="hashField">The field in the hash to check.</param>
         /// <returns>1 if the hash contains field. 0 if the hash does not contain field, or key does not exist.</returns>
         /// <remarks>https://redis.io/commands/hexists</remarks>
-        Task<bool> FieldExistsAsync(string hashField)
+        public Task<bool> FieldExistsAsync(string hashField)
         {
             return RedisDb.HashExistsAsync(KeyName, hashField);
         }
