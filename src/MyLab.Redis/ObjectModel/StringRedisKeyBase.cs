@@ -110,7 +110,7 @@ namespace MyLab.Redis.ObjectModel
         /// Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type.
         /// </summary>
         /// <param name="value">The value to set.</param>
-        /// <returns>True if the string was set, false otherwise.</returns>
+        /// <returns>`true` - if the string was set, `false` - otherwise.</returns>
         /// <remarks>https://redis.io/commands/set</remarks>
         public Task<bool> SetAsync(RedisValue value)
         {

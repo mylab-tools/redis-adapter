@@ -10,7 +10,7 @@ namespace MyLab.Redis.ObjectModel
     public class RedisKeyBase
     {
         protected readonly IDatabaseAsync RedisDb;
-        protected readonly string KeyName;
+        public string KeyName { get; }
 
         public RedisKeyBase(IDatabaseAsync redisDb, string keyName)
         {
@@ -56,7 +56,7 @@ namespace MyLab.Redis.ObjectModel
         /// Set a timeout on key. After the timeout has expired, the key will automatically be deleted. A key with an associated timeout is said to be volatile in Redis terminology.
         /// </summary>
         /// <param name="expiry">The timeout to set.</param>
-        /// <returns>True - if the timeout was set. False - if key does not exist or the timeout could not be set.</returns>
+        /// <returns>`true` - if the timeout was set. `false` - if key does not exist or the timeout could not be set.</returns>
         /// <remarks>If key is updated before the timeout has expired, then the timeout is removed as if the PERSIST command was invoked on key.
         /// For Redis versions &lt; 2.1.3, existing timeouts cannot be overwritten. So, if key already has an associated timeout, it will do nothing and return 0. Since Redis 2.1.3, you can update the timeout of a key. It is also possible to remove the timeout using the PERSIST command. See the page on key expiry for more information.</remarks>
         /// <remarks>https://redis.io/commands/expire</remarks>
@@ -71,7 +71,7 @@ namespace MyLab.Redis.ObjectModel
         /// Set a timeout on key. After the timeout has expired, the key will automatically be deleted. A key with an associated timeout is said to be volatile in Redis terminology.
         /// </summary>
         /// <param name="expiry">The exact date to expiry to set.</param>
-        /// <returns>True - if the timeout was set. False - if key does not exist or the timeout could not be set.</returns>
+        /// <returns>`true` - if the timeout was set. `false` - if key does not exist or the timeout could not be set.</returns>
         /// <remarks>If key is updated before the timeout has expired, then the timeout is removed as if the PERSIST command was invoked on key.
         /// For Redis versions &lt; 2.1.3, existing timeouts cannot be overwritten. So, if key already has an associated timeout, it will do nothing and return 0. Since Redis 2.1.3, you can update the timeout of a key. It is also possible to remove the timeout using the PERSIST command. See the page on key expiry for more information.</remarks>
         /// <remarks>https://redis.io/commands/expireat</remarks>
@@ -95,7 +95,7 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Remove the existing timeout on key, turning the key from volatile (a key with an expire set) to persistent (a key that will never expire as no timeout is associated).
         /// </summary>
-        /// <returns>True - if the timeout was removed. False - if key does not exist or does not have an associated timeout.</returns>
+        /// <returns>`true` - if the timeout was removed. `false` - if key does not exist or does not have an associated timeout.</returns>
         /// <remarks>https://redis.io/commands/persist</remarks>
         public Task<bool> PersistAsync()
         {
