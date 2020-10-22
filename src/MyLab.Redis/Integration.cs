@@ -14,8 +14,16 @@ namespace MyLab.Redis
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
             if (sectionName == null) throw new ArgumentNullException(nameof(sectionName));
-
+            
             return services.Configure<RedisOptions>(configuration.GetSection(sectionName));
+        }
+
+        public static IServiceCollection AddRedisUsage(this IServiceCollection services, RedisOptions options)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (options == null) throw new ArgumentNullException(nameof(options));
+
+            return services.Configure(options.CreateCopyAction());
         }
     }
 }

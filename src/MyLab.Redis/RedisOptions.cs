@@ -1,4 +1,6 @@
-﻿namespace MyLab.Redis
+﻿using System;
+
+namespace MyLab.Redis
 {
     /// <summary>
     /// Contains Redis configuration
@@ -15,5 +17,14 @@
         /// Overrides password from <see cref="ConnectionString"/>
         /// </summary>
         public string Password { get; set; }
+
+        public Action<RedisOptions> CreateCopyAction()
+        {
+            return o =>
+            {
+                o.ConnectionString = ConnectionString;
+                o.Password = Password;
+            };
+        }
     }
 }
