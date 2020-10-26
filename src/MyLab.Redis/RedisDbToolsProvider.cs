@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MyLab.Redis.ObjectModel;
 using StackExchange.Redis;
 
 namespace MyLab.Redis
@@ -10,11 +11,21 @@ namespace MyLab.Redis
     public class RedisDbToolsProvider : RedisDbKeysProvider
     {
         private readonly IDatabase _redisDb;
+        private readonly RedisCacheProvider _redisCacheProvider;
 
-        public RedisDbToolsProvider(IDatabase redisDb)
+        public RedisDbToolsProvider(IDatabase redisDb, RedisCacheProvider redisCacheProvider)
             :base(redisDb)
         {
             _redisDb = redisDb;
+            _redisCacheProvider = redisCacheProvider;
+        }
+
+        /// <summary>
+        /// Provides Redis base cache by name
+        /// </summary>
+        public RedisCache Cache(string name)
+        {
+            return _redisCacheProvider.Provide(name);
         }
 
         /// <summary>

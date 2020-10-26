@@ -7,6 +7,7 @@ namespace MyLab.Redis
 {
     class RedisService : IRedisService
     {
+        private readonly RedisOptions _options;
         private readonly ConnectionMultiplexer _connection;
 
         public RedisService(IOptions<RedisOptions> options)
@@ -17,31 +18,60 @@ namespace MyLab.Redis
 
         public RedisService(RedisOptions options)
         {
+            _options = options;
             var cs = new RedisConfigurationOptionsBuilder(options).Build();
 
             _connection = ConnectionMultiplexer.Connect(cs);
         }
 
-        public RedisDbToolsProvider Keys()
+        public RedisDbToolsProvider Db()
         {
-            return new RedisDbToolsProvider(_connection.GetDatabase());
+            var db = _connection.GetDatabase();
+
+            return new RedisDbToolsProvider(
+                db,
+                new RedisCacheProvider(
+                    new RedisDbLink
+                    {
+                        Index = -1,
+                        Object = db
+                    },
+                    _options)
+            );
         }
 
-        public RedisDbToolsProvider Keys(int dbIndex)
+        public RedisDbToolsProvider Db(int dbIndex)
         {
-            return new RedisDbToolsProvider(_connection.GetDatabase(dbIndex));
+            var db = _connection.GetDatabase();
+
+            return new RedisDbToolsProvider(
+                db,
+                new RedisCacheProvider(
+                    new RedisDbLink
+                    {
+                        Index = dbIndex,
+                        Object = db
+                    },
+                    _options)
+            );
         }
 
         public RedisServerToolsProvider Server()
         {
-            var defaultEndpoint = _connection.GetEndPoints().First();
-            return Server(defaultEndpoint);
+            return new RedisServerToolsProvider(GetServer());
         }
 
         public RedisServerToolsProvider Server(EndPoint endPoint)
         {
-            var defaultServer = _connection.GetServer(endPoint);
-            return new RedisServerToolsProvider(defaultServer);
+            return new RedisServerToolsProvider(GetServer(endPoint));
+        }
+
+        IServer GetServer(EndPoint endpoint = null)
+        {
+            return _connection.GetServer(
+                endpoint ?? 
+                _connection.GetEndPoints().First()
+                );
         }
     }
 }

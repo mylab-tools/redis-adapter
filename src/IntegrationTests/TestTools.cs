@@ -7,14 +7,42 @@ namespace IntegrationTests
 {
     static class TestTools
     {
+        public const string Cache100MsName = "100msCache";
+        public const string Cache1000MsName = "1000msCache";
+        public const string Cache1MinName = "1minCache";
+        public const string CacheDefaultName = Cache100MsName;
+
         public static RedisOptions Options => new RedisOptions()
         {
-            ConnectionString = "localhost:9110,allowAdmin=true"
+            ConnectionString = "localhost:9110,allowAdmin=true",
+            Cache = new []
+            {
+                new CacheOptions
+                {
+                    Name = Cache100MsName,
+                    DefaultExpiry = TimeSpan.FromMilliseconds(100).ToString(),
+                    Key = "cache:" + Cache100MsName
+                },
+                new CacheOptions
+                {
+                    Name = Cache1000MsName,
+                    DefaultExpiry = TimeSpan.FromMilliseconds(1000).ToString(),
+                    Key = "cache:" + Cache1000MsName
+                },
+                new CacheOptions
+                {
+                    Name = Cache1MinName,
+                    DefaultExpiry = TimeSpan.FromMinutes(1).ToString(),
+                    Key = "cache:" + Cache1MinName
+                },
+            }
+
         };
 
         public static IRedisService CreateRedisManager()
         {
             var serviceCollection = new ServiceCollection();
+            
             serviceCollection.AddRedisService(Options);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -23,10 +51,10 @@ namespace IntegrationTests
 
         public static string NewKeyName()
         {
-            return "new_" + Guid.NewGuid().ToString("N");
+            return "foo_" + Guid.NewGuid().ToString("N");
         }
 
-        public static async Task PerformTest(Func<IRedisService, string, Task> testAct)
+        public static async Task PerformTest(TestInvocation testAct)
         {
             var redis = CreateRedisManager();
 
@@ -34,10 +62,13 @@ namespace IntegrationTests
             {
                 await testAct(redis, NewKeyName());
             }
-            catch (Exception e)
+            catch
             {
                 await redis.Server().FlushDatabaseAsync();
+                throw;
             }
         }
     }
+
+    delegate Task TestInvocation(IRedisService redis, string testKey);
 }

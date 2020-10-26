@@ -11,7 +11,7 @@ namespace IntegrationTests
         {
             //Arrange
             var redis = TestTools.CreateRedisManager();
-            var fooKey = redis.Keys().String(TestTools.NewKeyName());
+            var fooKey = redis.Db().String(TestTools.NewKeyName());
             await fooKey.SetAsync("bar");
             await fooKey.ExpireAsync(TimeSpan.FromSeconds(10));
 

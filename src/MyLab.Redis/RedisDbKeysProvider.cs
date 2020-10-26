@@ -1,4 +1,5 @@
-﻿using MyLab.Redis.ObjectModel;
+﻿using System;
+using MyLab.Redis.ObjectModel;
 using StackExchange.Redis;
 
 namespace MyLab.Redis

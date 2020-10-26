@@ -10,7 +10,7 @@ namespace IntegrationTests
         {
             //Arrange   
             var redis = TestTools.CreateRedisManager();
-            var key = redis.Keys().String("foo");
+            var key = redis.Db().String("foo");
 
             //Act
             await key.SetAsync("bar");
