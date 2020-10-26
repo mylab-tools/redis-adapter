@@ -8,6 +8,33 @@ namespace IntegrationTests
     public class RedisCacheBehavior
     {
         [Fact]
+        public async Task ShouldAddItem()
+        {
+            await TestTools.PerformTest(async (redis, testKey) =>
+            {
+                //Arrange
+                var cache = redis.Db().Cache(TestTools.CacheDefaultName);
+                var cacheItem = new CacheItem
+                {
+                    Id = 0
+                };
+
+                //Act
+                await cache.AddAsync("foo", cacheItem);
+
+                var cacheItemRes = await cache.FetchAsync("foo", () => new CacheItem
+                {
+                    Id = 1
+                });
+
+                //Assert
+                Assert.NotNull(cacheItemRes);
+                Assert.Equal(0, cacheItemRes.Id);
+
+            });
+        }
+
+        [Fact]
         public async Task ShouldAddItemIfNotExists()
         {
             await TestTools.PerformTest(async (redis, testKey) =>
@@ -17,15 +44,49 @@ namespace IntegrationTests
                 //Act
                 var cacheItem = await cache.FetchAsync("foo", () => new CacheItem
                 {
-                    Id = 1,
-                    Value = 2
+                    Id = 1
                 });
 
                 //Assert
                 Assert.NotNull(cacheItem);
                 Assert.Equal(1, cacheItem.Id);
-                Assert.Equal(2, cacheItem.Value);
 
+            });
+        }
+
+        [Fact]
+        public async Task ShouldProvideDefaultWhenTryFetchAndItemNotExists()
+        {
+            await TestTools.PerformTest(async (redis, testKey) =>
+            {
+                //Arrange
+                var cache = redis.Db().Cache(TestTools.CacheDefaultName);
+                //Act
+                var cacheItem = await cache.TryFetchAsync<CacheItem>("foo");
+
+                //Assert
+                Assert.Null(cacheItem);
+            });
+        }
+
+        [Fact]
+        public async Task ShouldProvideItemWhenTryFetchAndItemExists()
+        {
+            await TestTools.PerformTest(async (redis, testKey) =>
+            {
+                //Arrange
+                var cache = redis.Db().Cache(TestTools.CacheDefaultName);
+                await cache.AddAsync("foo", new CacheItem
+                {
+                    Id = 5
+                });
+
+                //Act
+                var cacheItem = await cache.TryFetchAsync<CacheItem>("foo");
+
+                //Assert
+                Assert.NotNull(cacheItem);
+                Assert.Equal(5, cacheItem.Id);
             });
         }
 

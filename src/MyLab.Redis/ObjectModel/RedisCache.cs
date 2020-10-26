@@ -40,6 +40,21 @@ namespace MyLab.Redis.ObjectModel
         /// </summary>
         /// <typeparam name="T">cached object type</typeparam>
         /// <param name="id">identifier</param>
+        /// <param name="item">item for caching</param>
+        /// <param name="newItemExpiry">cache item expiry for new item</param>
+        /// <returns>cached object</returns>
+        public Task AddAsync<T>(string id, T item, TimeSpan? newItemExpiry = null)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
+
+            return InnerAdd(id, item, newItemExpiry);
+        }
+
+        /// <summary>
+        /// Retrieve object from cache by id or create new and add into cache
+        /// </summary>
+        /// <typeparam name="T">cached object type</typeparam>
+        /// <param name="id">identifier</param>
         /// <param name="creator">function to create new object when cache is missed</param>
         /// <param name="newItemExpiry">cache item expiry for new item</param>
         /// <returns>cached object</returns>
@@ -49,6 +64,19 @@ namespace MyLab.Redis.ObjectModel
             if (creator == null) throw new ArgumentNullException(nameof(creator));
 
             return InnerFetchAsync(id, creator, newItemExpiry);
+        }
+
+        /// <summary>
+        /// Try retrieve object from cache by id 
+        /// </summary>
+        /// <typeparam name="T">cached object type</typeparam>
+        /// <param name="id">identifier</param>
+        /// <returns>cached object or default value</returns>
+        public Task<T> TryFetchAsync<T>(string id)
+        {
+            if (id == null) throw new ArgumentNullException(nameof(id));
+
+            return InnerTryFetchAsync<T>(id);
         }
 
         /// <summary>
@@ -68,21 +96,6 @@ namespace MyLab.Redis.ObjectModel
             var key = GetKey(itemId);
             await key.DeleteAsync();
         }
-
-        public async Task<bool> IsCountLessThen(int value)
-        {
-            if (value <= 0)
-                return await Task.FromResult(false);
-
-            var ep = await _redisDb.IdentifyEndpointAsync();
-            var server = _redisDb.Multiplexer.GetServer(ep);
-
-            var found = server.KeysAsync(_redisDbIndex, _baseKey + ":*", value);
-            var foundCount = await found.CountAsync();
-
-            return foundCount < value;
-        }
-
 
         public async Task<int> Count()
         {
@@ -117,6 +130,28 @@ namespace MyLab.Redis.ObjectModel
             }
 
             return res;
+        }
+
+        private async Task InnerAdd<T>(string itemId, T item, TimeSpan? newItemExpiry)
+        {
+            var key = GetKey(itemId);
+
+            var newKeyValue = JsonConvert.SerializeObject(item);
+
+            if (!await key.SetAsync(newKeyValue))
+                throw new InvalidOperationException("Can't save new item in cache");
+            if (!await key.ExpireAsync(newItemExpiry ?? DefaultExpiry))
+                throw new InvalidOperationException("Can't set expiry for new item in cache");
+        }
+
+        private async Task<T> InnerTryFetchAsync<T>(string itemId)
+        {
+            var key = GetKey(itemId);
+            var keyValue = await key.GetAsync();
+
+            return !keyValue.IsNull 
+                ?JsonConvert.DeserializeObject<T>(keyValue.ToString()) 
+                : default(T);
         }
 
         StringRedisKey GetKey(string itemId)

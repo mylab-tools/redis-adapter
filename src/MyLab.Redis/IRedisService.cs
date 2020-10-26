@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using MyLab.Redis.ObjectModel;
 
 namespace MyLab.Redis
 {
@@ -14,7 +13,7 @@ namespace MyLab.Redis
         RedisDbToolsProvider Db();
 
         /// <summary>
-        /// Gets DB toold provider for specified database
+        /// Gets DB tools provider for specified database
         /// </summary>
         RedisDbToolsProvider Db(int dbIndex);
 

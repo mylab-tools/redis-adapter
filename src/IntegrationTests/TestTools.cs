@@ -67,6 +67,8 @@ namespace IntegrationTests
                 await redis.Server().FlushDatabaseAsync();
                 throw;
             }
+
+            await Task.Delay(100);
         }
     }
 

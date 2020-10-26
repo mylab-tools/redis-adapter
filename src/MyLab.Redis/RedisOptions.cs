@@ -19,7 +19,7 @@ namespace MyLab.Redis
         public string Password { get; set; }
 
         /// <summary>
-        /// RedisCache options
+        /// Cache options
         /// </summary>
         public CacheOptions[] Cache { get; set; }
 
@@ -35,17 +35,17 @@ namespace MyLab.Redis
     }
 
     /// <summary>
-    /// RedisCache options
+    /// Cache options
     /// </summary>
     public class CacheOptions
     {
         /// <summary>
-        /// RedisCache name
+        /// Cache name
         /// </summary>
         public string Name { get; set; }
 
         /// <summary>
-        /// RedisCache Redis key name
+        /// Cache key name
         /// </summary>
         public string Key{ get; set; }
 
