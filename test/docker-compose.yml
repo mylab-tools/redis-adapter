@@ -1,8 +1,8 @@
 version: '3.2'
 
 services:
-  redis:
-    container_name: redis
+  mylab-redis-adapter-test:
+    container_name: mylab-redis-adapter-test
     image: redis:6
     ports: 
     - 9110:6379
