@@ -26,7 +26,7 @@ namespace MyLab.Redis
 
         public RedisDbToolsProvider Db()
         {
-            var db = _connection.GetDatabase();
+            var db = _connection.GetDatabase(-1);
 
             return new RedisDbToolsProvider(
                 db,
@@ -42,7 +42,7 @@ namespace MyLab.Redis
 
         public RedisDbToolsProvider Db(int dbIndex)
         {
-            var db = _connection.GetDatabase();
+            var db = _connection.GetDatabase(dbIndex);
 
             return new RedisDbToolsProvider(
                 db,
