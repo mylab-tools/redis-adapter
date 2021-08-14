@@ -143,17 +143,17 @@ await _redis.Db().String("foo").SetAsync("bar");
 * **Hash** - `_redis.Db().Hash(string key)`
 * **Set** - `_redis.Db().Set(string key)`
 * **SortedSet** - `_redis.Db().SortedSet(string key)`
-* **List** - `_redis.Db().String(string key)`
+* **List** - `_redis.Db().List(string key)`
 
 Пример:
 
 ```C#
-redis.Db().String("foo").ExpireAsync(TimeSpan.FromMilliseconds(100));
+await redis.Db().String("foo").ExpireAsync(TimeSpan.FromMilliseconds(100));
 ```
 
 ### Транзакции
 
-loading ...
+Этот функционал временно недоступен.
 
 ### RedisCache 
 

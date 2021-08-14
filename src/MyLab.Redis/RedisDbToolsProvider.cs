@@ -28,36 +28,13 @@ namespace MyLab.Redis
             return _redisCacheProvider.Provide(name);
         }
 
-        /// <summary>
-        /// Creates Redis transaction
-        /// </summary>
-        /// <returns></returns>
-        public RedisTransaction BeginTransaction()
-        {
-            return new RedisTransaction(_redisDb.CreateTransaction());
-        }
-
-        /// <summary>
-        /// Performs Redis transaction 
-        /// </summary>
-        /// <param name="act">transaction content</param>
-        public Task PerformTransactionAsync(RedisTransactionAct act)
-        {
-            if (act == null) throw new ArgumentNullException(nameof(act));
-
-            return InternalPerformTransactionAsync(act);
-        }
-
-        async Task InternalPerformTransactionAsync(RedisTransactionAct act)
-        {
-            await using var t = BeginTransaction();
-
-            await act(t);
-        }
+        ///// <summary>
+        ///// Creates Redis transaction
+        ///// </summary>
+        ///// <returns></returns>
+        //public RedisTransaction BeginTransaction()
+        //{
+        //    return new RedisTransaction(_redisDb.CreateTransaction());
+        //}
     }
-
-    /// <summary>
-    /// Transaction action 
-    /// </summary>
-    public delegate Task RedisTransactionAct(RedisDbKeysProvider keys);
 }
