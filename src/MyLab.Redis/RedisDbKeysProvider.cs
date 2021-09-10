@@ -6,11 +6,11 @@ namespace MyLab.Redis
 {
     public class RedisDbKeysProvider
     {
-        private readonly IDatabaseAsync _redisDb;
+        private readonly RedisDbProvider _dbProvider;
 
-        public RedisDbKeysProvider(IDatabaseAsync redisDb)
+        public RedisDbKeysProvider(RedisDbProvider dbProvider)
         {
-            _redisDb = redisDb;
+            _dbProvider = dbProvider;
         }
 
         /// <summary>
@@ -18,7 +18,7 @@ namespace MyLab.Redis
         /// </summary>
         public StringRedisKey String(string key)
         {
-            return new StringRedisKey(_redisDb, key);
+            return new StringRedisKey(_dbProvider, key);
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace MyLab.Redis
         /// </summary>
         public HashRedisKey Hash(string key)
         {
-            return new HashRedisKey(_redisDb, key);
+            return new HashRedisKey(_dbProvider, key);
         }
 
         /// <summary>
@@ -34,7 +34,7 @@ namespace MyLab.Redis
         /// </summary>
         public SetRedisKey Set(string key)
         {
-            return new SetRedisKey(_redisDb, key);
+            return new SetRedisKey(_dbProvider, key);
         }
 
         /// <summary>
@@ -42,7 +42,7 @@ namespace MyLab.Redis
         /// </summary>
         public SortedSetRedisKey SortedSet(string key)
         {
-            return new SortedSetRedisKey(_redisDb, key);
+            return new SortedSetRedisKey(_dbProvider, key);
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace MyLab.Redis
         /// </summary>
         public ListRedisKey List(string key)
         {
-            return new ListRedisKey(_redisDb, key);
+            return new ListRedisKey(_dbProvider, key);
         }
     }
 }

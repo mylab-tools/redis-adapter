@@ -12,7 +12,7 @@ namespace MyLab.Redis.ObjectModel
     /// </summary>
     public class RedisCache
     {
-        private readonly IDatabaseAsync _redisDb;
+        private readonly RedisDbProvider _redisDbProvider;
         private readonly int _redisDbIndex;
         private readonly string _baseKey;
 
@@ -31,7 +31,7 @@ namespace MyLab.Redis.ObjectModel
 
             if (redisDb == null)
                 throw new ArgumentNullException(nameof(redisDb));
-            _redisDb = redisDb.Object;
+            _redisDbProvider = redisDb.Provider;
             _redisDbIndex = redisDb.Index;
         }
 
@@ -99,8 +99,10 @@ namespace MyLab.Redis.ObjectModel
 
         public async Task<int> Count()
         {
-            var ep = await _redisDb.IdentifyEndpointAsync();
-            var server = _redisDb.Multiplexer.GetServer(ep);
+            var db = _redisDbProvider.Provide();
+
+            var ep = await db.IdentifyEndpointAsync();
+            var server = db.Multiplexer.GetServer(ep);
 
             return await server.KeysAsync(_redisDbIndex, _baseKey + ":*").CountAsync();
         }
@@ -156,7 +158,7 @@ namespace MyLab.Redis.ObjectModel
 
         StringRedisKey GetKey(string itemId)
         {
-            return new StringRedisKey(_redisDb, _baseKey + ":" + itemId);
+            return new StringRedisKey(_redisDbProvider, _baseKey + ":" + itemId);
         }
     }
 }

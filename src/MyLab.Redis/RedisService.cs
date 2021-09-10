@@ -1,56 +1,41 @@
-﻿using System.Linq;
+﻿using System;
 using System.Net;
 using Microsoft.Extensions.Options;
-using StackExchange.Redis;
+using MyLab.Redis.Services;
 
 namespace MyLab.Redis
 {
     class RedisService : IRedisService
     {
+        private readonly IRedisConnectionProvider _connectionProvider;
         private readonly RedisOptions _options;
-        private readonly ConnectionMultiplexer _connection;
 
-        public RedisService(IOptions<RedisOptions> options)
-            : this(options.Value)
+        public RedisService(IRedisConnectionProvider connectionProvider, IOptions<RedisOptions> opt)
+            :this(connectionProvider, opt.Value)
         {
 
         }
-
-        public RedisService(RedisOptions options)
+        public RedisService(IRedisConnectionProvider connectionProvider, RedisOptions opt)
         {
-            _options = options;
-            var cs = new RedisConfigurationOptionsBuilder(options).Build();
-
-            _connection = ConnectionMultiplexer.Connect(cs);
+            _options = opt;
+            _connectionProvider = connectionProvider ?? throw new ArgumentNullException(nameof(connectionProvider));
         }
 
         public RedisDbToolsProvider Db()
         {
-            var db = _connection.GetDatabase(-1);
-
-            return new RedisDbToolsProvider(
-                db,
-                new RedisCacheProvider(
-                    new RedisDbLink
-                    {
-                        Index = -1,
-                        Object = db
-                    },
-                    _options)
-            );
+            return Db(-1);
         }
 
         public RedisDbToolsProvider Db(int dbIndex)
         {
-            var db = _connection.GetDatabase(dbIndex);
-
+            var dbProvider = new RedisDbProvider(_connectionProvider, dbIndex);
             return new RedisDbToolsProvider(
-                db,
+                dbProvider,
                 new RedisCacheProvider(
                     new RedisDbLink
                     {
                         Index = dbIndex,
-                        Object = db
+                        Provider = dbProvider
                     },
                     _options)
             );
@@ -58,20 +43,14 @@ namespace MyLab.Redis
 
         public RedisServerToolsProvider Server()
         {
-            return new RedisServerToolsProvider(GetServer());
+            return Server(null);
         }
 
         public RedisServerToolsProvider Server(EndPoint endPoint)
         {
-            return new RedisServerToolsProvider(GetServer(endPoint));
-        }
-
-        IServer GetServer(EndPoint endpoint = null)
-        {
-            return _connection.GetServer(
-                endpoint ?? 
-                _connection.GetEndPoints().First()
-                );
+            return new RedisServerToolsProvider(new RedisServerProvider(_connectionProvider, endPoint));
         }
     }
+
+    
 }

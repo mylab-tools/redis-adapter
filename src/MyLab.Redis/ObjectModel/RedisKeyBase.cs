@@ -9,14 +9,16 @@ namespace MyLab.Redis.ObjectModel
     /// </summary>
     public class RedisKeyBase
     {
-        protected readonly IDatabaseAsync RedisDb;
+        private readonly RedisDbProvider _dbProvider;
         public string KeyName { get; }
 
-        protected RedisKeyBase(IDatabaseAsync redisDb, string keyName)
+        protected IDatabase RedisDb => _dbProvider.Provide();
+
+        protected RedisKeyBase(RedisDbProvider dbProvider, string keyName)
         {
             if (string.IsNullOrEmpty(keyName))
                 throw new ArgumentException("Value cannot be null or empty.", nameof(keyName));
-            RedisDb = redisDb ?? throw new ArgumentNullException(nameof(redisDb));
+            _dbProvider = dbProvider ?? throw new ArgumentNullException(nameof(dbProvider));
             KeyName = keyName;
         }
 
@@ -26,9 +28,9 @@ namespace MyLab.Redis.ObjectModel
         /// </summary>
         /// <remarks>https://redis.io/commands/del</remarks>
         /// <remarks>https://redis.io/commands/unlink</remarks>
-        public async Task DeleteAsync()
+        public Task DeleteAsync()
         {
-            await RedisDb.KeyDeleteAsync(KeyName);
+            return RedisDb.KeyDeleteAsync(KeyName);
         }
 
         /// <summary>

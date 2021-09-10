@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using StackExchange.Redis;
 
@@ -10,11 +11,13 @@ namespace MyLab.Redis
     /// </summary>
     public class RedisServerToolsProvider
     {
-        private readonly IServer _redisServer;
+        private readonly RedisServerProvider _redisServerProvider;
 
-        public RedisServerToolsProvider(IServer redisServer)
+        private IServer RedisServer => _redisServerProvider.Provide();
+
+        public RedisServerToolsProvider(RedisServerProvider redisServerProvider)
         {
-            _redisServer = redisServer;
+            _redisServerProvider = redisServerProvider;
         }
 
         /// <summary>
@@ -22,9 +25,9 @@ namespace MyLab.Redis
         /// </summary>
         /// <returns>The observed latency.</returns>
         /// <remarks>https://redis.io/commands/ping</remarks>
-        public async Task<TimeSpan> PingAsync()
+        public Task<TimeSpan> PingAsync()
         {
-            return await _redisServer.PingAsync();
+            return RedisServer.PingAsync();
         }
 
         /// <summary>
@@ -34,7 +37,7 @@ namespace MyLab.Redis
         /// <remarks>https://redis.io/commands/echo</remarks>
         public Task<RedisValue> EchoAsync(RedisValue message)
         {
-            return _redisServer.EchoAsync(message);
+            return RedisServer.EchoAsync(message);
         }
 
         /// <summary>
@@ -52,7 +55,7 @@ namespace MyLab.Redis
             int pageSize = 250, long cursor = 0,
             int pageOffset = 0)
         {
-            return _redisServer.KeysAsync(database, pattern, pageSize, cursor, pageOffset);
+            return RedisServer.KeysAsync(database, pattern, pageSize, cursor, pageOffset);
         }
 
         /// <summary>
@@ -61,7 +64,7 @@ namespace MyLab.Redis
         /// <remarks>https://redis.io/commands/flushall</remarks>
         public Task FlushAllDatabasesAsync()
         {
-            return _redisServer.FlushAllDatabasesAsync();
+            return RedisServer.FlushAllDatabasesAsync();
         }
 
         /// <summary>
@@ -71,7 +74,9 @@ namespace MyLab.Redis
         /// <remarks>https://redis.io/commands/flushdb</remarks>
         public Task FlushDatabaseAsync(int database = -1)
         {
-            return _redisServer.FlushDatabaseAsync(database);
+            return RedisServer.FlushDatabaseAsync(database);
         }
+
+        
     }
 }

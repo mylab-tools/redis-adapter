@@ -14,8 +14,8 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Initializes a new instance of <see cref="HashRedisKey"/>
         /// </summary>
-        public HashRedisKey(IDatabaseAsync redisDb, string keyName)
-            :base(redisDb, keyName)
+        public HashRedisKey(RedisDbProvider dbProvider, string keyName)
+            :base(dbProvider, keyName)
         {
             
         }
@@ -178,7 +178,7 @@ namespace MyLab.Redis.ObjectModel
         /// <remarks>https://redis.io/commands/hmset</remarks>
         public Task SetAsync(HashEntry[] hashFields)
         {
-            return RedisDb.HashSetAsync(KeyName, hashFields);
+             return RedisDb.HashSetAsync(KeyName, hashFields);
         }
 
         /// <summary>
@@ -189,9 +189,9 @@ namespace MyLab.Redis.ObjectModel
         /// <param name="when">Which conditions under which to set the field value (defaults to always).</param>
         /// <remarks>https://redis.io/commands/hset</remarks>
         /// <remarks>https://redis.io/commands/hsetnx</remarks>
-        public async Task SetAsync(string hashField, RedisValue value)
+        public Task SetAsync(string hashField, RedisValue value)
         {
-            await RedisDb.HashSetAsync(hashField, hashField, value);
+            return RedisDb.HashSetAsync(hashField, hashField, value);
         }
 
         /// <summary>
