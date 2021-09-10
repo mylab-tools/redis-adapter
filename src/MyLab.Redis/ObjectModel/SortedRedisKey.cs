@@ -8,7 +8,7 @@ namespace MyLab.Redis.ObjectModel
     /// </summary>
     public class SortedRedisKey : RedisKeyBase
     {
-        protected SortedRedisKey(IDatabaseAsync redisDb, string keyName) : base(redisDb, keyName)
+        protected SortedRedisKey(RedisDbProvider dbProvider, string keyName) : base(dbProvider, keyName)
         {
         }
 

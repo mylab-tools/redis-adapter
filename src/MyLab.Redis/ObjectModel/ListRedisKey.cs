@@ -11,8 +11,8 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Initializes a new instance of <see cref="ListRedisKey"/>
         /// </summary>
-        public ListRedisKey(IDatabaseAsync redisDb, string keyName)
-            :base(redisDb, keyName)
+        public ListRedisKey(RedisDbProvider dbProvider, string keyName)
+            :base(dbProvider, keyName)
         {
             
         }

@@ -10,13 +10,13 @@ namespace MyLab.Redis
     /// </summary>
     public class RedisDbToolsProvider : RedisDbKeysProvider
     {
-        private readonly IDatabase _redisDb;
+        private readonly RedisDbProvider _redisDbProvider;
         private readonly RedisCacheProvider _redisCacheProvider;
 
-        public RedisDbToolsProvider(IDatabase redisDb, RedisCacheProvider redisCacheProvider)
-            :base(redisDb)
+        public RedisDbToolsProvider(RedisDbProvider dbProvider, RedisCacheProvider redisCacheProvider)
+            :base(dbProvider)
         {
-            _redisDb = redisDb;
+            _redisDbProvider = dbProvider;
             _redisCacheProvider = redisCacheProvider;
         }
 
@@ -27,14 +27,5 @@ namespace MyLab.Redis
         {
             return _redisCacheProvider.Provide(name);
         }
-
-        ///// <summary>
-        ///// Creates Redis transaction
-        ///// </summary>
-        ///// <returns></returns>
-        //public RedisTransaction BeginTransaction()
-        //{
-        //    return new RedisTransaction(_redisDb.CreateTransaction());
-        //}
     }
 }

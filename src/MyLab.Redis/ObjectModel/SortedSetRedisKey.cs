@@ -12,8 +12,8 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Initializes a new instance of <see cref="SortedSetRedisKey"/>
         /// </summary>
-        public SortedSetRedisKey(IDatabaseAsync redisDb, string keyName)
-            :base(redisDb, keyName)
+        public SortedSetRedisKey(RedisDbProvider dbProvider, string keyName)
+            :base(dbProvider, keyName)
         {
             
         }

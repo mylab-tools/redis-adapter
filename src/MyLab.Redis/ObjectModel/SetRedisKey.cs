@@ -12,8 +12,8 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Initializes a new instance of <see cref="SetRedisKey"/>
         /// </summary>
-        public SetRedisKey(IDatabaseAsync redisDb, string keyName)
-            :base(redisDb, keyName)
+        public SetRedisKey(RedisDbProvider dbProvider, string keyName)
+            :base(dbProvider, keyName)
         {
             
         }

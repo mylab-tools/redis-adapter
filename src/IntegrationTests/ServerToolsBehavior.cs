@@ -7,7 +7,7 @@ namespace IntegrationTests
     public class ServerToolsBehavior
     {
         [Fact]
-        public async Task ShouldSelectDB()
+        public async Task ShouldSelectDb()
         {
             //Arrange
             var redis = TestTools.CreateRedisManager();
