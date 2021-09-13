@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Redis;
+using MyLab.Redis.Services;
 
 namespace IntegrationTests
 {
@@ -12,10 +13,10 @@ namespace IntegrationTests
         public const string Cache1MinName = "1minCache";
         public const string CacheDefaultName = Cache100MsName;
 
-        public static RedisOptions Options => new RedisOptions()
+        public static Action<RedisOptions> ConfigureOptions => o =>
         {
-            ConnectionString = "localhost:9110,allowAdmin=true",
-            Cache = new []
+            o.ConnectionString = "localhost:9110,allowAdmin=true";
+            o.Cache = new[]
             {
                 new CacheOptions
                 {
@@ -35,7 +36,7 @@ namespace IntegrationTests
                     DefaultExpiry = TimeSpan.FromMinutes(1).ToString(),
                     Key = "cache:" + Cache1MinName
                 },
-            }
+            };
 
         };
 
@@ -43,7 +44,8 @@ namespace IntegrationTests
         {
             var serviceCollection = new ServiceCollection();
             
-            serviceCollection.AddRedisService(Options);
+            serviceCollection.AddRedis(RedisConnectionStrategy.Lazy);
+            serviceCollection.ConfigureRedis(ConfigureOptions);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             return (IRedisService) serviceProvider.GetService(typeof(IRedisService));

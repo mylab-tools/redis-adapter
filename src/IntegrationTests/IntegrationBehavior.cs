@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using MyLab.Redis;
+using MyLab.Redis.Services;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -23,7 +24,8 @@ namespace IntegrationTests
             var serviceCollection = new ServiceCollection();
             
             //Act
-            serviceCollection.AddRedisService(TestTools.Options);
+            serviceCollection.AddRedis(RedisConnectionStrategy.Lazy);
+            serviceCollection.ConfigureRedis(TestTools.ConfigureOptions);
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var service = ActivatorUtilities.CreateInstance<PingService>(serviceProvider);
