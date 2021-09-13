@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Net;
 using Microsoft.Extensions.Options;
-using MyLab.Redis.Services;
 
-namespace MyLab.Redis
+namespace MyLab.Redis.Services
 {
     class RedisService : IRedisService
     {

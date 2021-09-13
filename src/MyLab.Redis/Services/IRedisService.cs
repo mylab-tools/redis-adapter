@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace MyLab.Redis
+namespace MyLab.Redis.Services
 {
     /// <summary>
     /// Provides Redis interaction features

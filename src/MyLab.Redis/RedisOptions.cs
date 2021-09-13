@@ -19,19 +19,14 @@ namespace MyLab.Redis
         public string Password { get; set; }
 
         /// <summary>
+        /// Retry period in seconds when background connection mode
+        /// </summary>
+        public int BackgroundRetryPeriodSec { get; set; } = 10;
+
+        /// <summary>
         /// Cache options
         /// </summary>
         public CacheOptions[] Cache { get; set; }
-
-        public Action<RedisOptions> CreateCopyAction()
-        {
-            return o =>
-            {
-                o.ConnectionString = ConnectionString;
-                o.Password = Password;
-                o.Cache = Cache;
-            };
-        }
     }
 
     /// <summary>

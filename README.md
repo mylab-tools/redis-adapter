@@ -27,7 +27,9 @@ public class Startup
     {
         //...
         
-        serviceCollection.AddRedisService(Configuration);
+        serviceCollection
+            .AddRedis(RedisConnectionStrategy.Lazy)
+            .ConfigureRedis(Configuration);
             
         //...
     }
@@ -66,28 +68,38 @@ public class Startup
     {
         //...
         
-        serviceCollection.AddRedisService(Configuration);
+        serviceCollection.AddRedis(RedisConnectionStrategy.Lazy)
             
         //...
     }
 }
 ```
 
+В целевые классы инструменты библиотеки интегрируются через сервис с интерфейсом `MyLab.Redis.IRedisService`.
+
+В методе `AddRedis` требуется указание стратегии подключения к `Redis`  типа `RedisConnectionStrategy`:
+
+* `Lazy` - подключение устанавливается при попытке отправить запрос в `Redis`, если подключение не установлено. Особенности:
+  * происодит блокировка потоков в момент проверки состояния подключения и на время процесса подключения;
+  * попытка подключения происходит по требованию: если `Redis` не используется, то и подключение не будет установлено;
+* `Background` - подключение устанавливается сразу после запуска приложения. Особенности:
+  * при неудачах, повторные попытки первичного подключения будут повторяться бесконечно;
+  * при разрыве, будут осуществляться бесконечные попытки восстановить подключение;
+  * при попытке сделать запрос в `Redis`, если подключение не устновлено, будет выдано исключение `RedisNotConnectedException`.
+
+## Конфигурация
+
 По умолчанию конфигурация загружается из секции `Redis`. Ниже приведён пример указания кастомной секции:
 
 ```c#
-serviceCollection.AddRedisService(Configuration, "CustomSection");
+serviceCollection.ConfigureRedis(Configuration, "CustomSection");
 ```
 
- Кроме того, опции настройки сервиса можно передать целиком:
+ Кроме того, опции настройки сервиса можно определять в коде:
 
+```c#
+serviceCollection.ConfigureRedis(opt => opt.Password = "***");
 ```
-serviceCollection.AddRedisService(options);
-```
-
-В целевые классы инструменты библиотеки интегрируются через сервис с интерфейсом `MyLab.Redis.IRedisService`.
-
-## Конфигурация
 
 Класс настроек:
 
@@ -107,12 +119,21 @@ public class RedisOptions
     /// Overrides password from <see cref="ConnectionString"/>
     /// </summary>
     public string Password { get; set; }
+    
+    /// <summary>
+    /// Retry period in seconds when background connection mode
+    /// </summary>
+    public int BackgroundRetryPeriodSec { get; set; } = 10;
 
     //...
 }
 ```
 
 Если указано поле `Password`, оно переопределяет значения пароля из строки подключения `ConnectionString`. 
+
+Смотрите так же:
+
+* [Конфигурирование кэша](#Конфигурирование-кэша)
 
 ## Инструменты сервера
 
