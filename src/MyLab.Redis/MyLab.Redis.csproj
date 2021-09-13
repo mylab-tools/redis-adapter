@@ -26,11 +26,11 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.18" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.8" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.18" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.18" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="3.1.8" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.8" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.8" />
     <PackageReference Include="MyLab.Log.Dsl" Version="3.1.2" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
