@@ -60,9 +60,6 @@ namespace MyLab.Redis.Services
                 try
                 {
                     _connection = await _connector.ConnectAsync();
-
-                    _log?.Action("Connection established")
-                        .Write();
                 }
                 catch (Exception e)
                 {
