@@ -1178,22 +1178,22 @@
             <param name="database">The database ID.</param>
             <remarks>https://redis.io/commands/flushdb</remarks>
         </member>
-        <member name="T:MyLab.Redis.Services.IRedisConnectionManager">
+        <member name="T:MyLab.Redis.Services.IBackgroundRedisConnectionManager">
             <summary>
             Manage Redis connection
             </summary>
         </member>
-        <member name="E:MyLab.Redis.Services.IRedisConnectionManager.Connected">
+        <member name="E:MyLab.Redis.Services.IBackgroundRedisConnectionManager.Connected">
             <summary>
             Occurred when Redis connected
             </summary>
         </member>
-        <member name="M:MyLab.Redis.Services.IRedisConnectionManager.ProvideConnection">
+        <member name="M:MyLab.Redis.Services.IBackgroundRedisConnectionManager.ProvideConnection">
             <summary>
             Provides established connection
             </summary>
         </member>
-        <member name="M:MyLab.Redis.Services.IRedisConnectionManager.ConnectAsync">
+        <member name="M:MyLab.Redis.Services.IBackgroundRedisConnectionManager.ConnectAsync">
             <summary>
             Initiate connection
             </summary>

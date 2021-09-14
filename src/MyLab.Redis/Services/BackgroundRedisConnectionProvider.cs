@@ -4,9 +4,9 @@ namespace MyLab.Redis.Services
 {
     class BackgroundRedisConnectionProvider : IRedisConnectionProvider
     {
-        private readonly IRedisConnectionManager _connectionManager;
+        private readonly IBackgroundRedisConnectionManager _connectionManager;
 
-        public BackgroundRedisConnectionProvider(IRedisConnectionManager connectionManager)
+        public BackgroundRedisConnectionProvider(IBackgroundRedisConnectionManager connectionManager)
         {
             _connectionManager = connectionManager;
         }

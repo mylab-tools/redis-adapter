@@ -25,7 +25,7 @@ namespace MyLab.Redis
                 case RedisConnectionStrategy.Background:
                     services
                         .AddSingleton<IRedisConnectionProvider, BackgroundRedisConnectionProvider>()
-                        .AddSingleton<IRedisConnectionManager, RedisBackgroundConnectionManager>()
+                        .AddSingleton<IBackgroundRedisConnectionManager, BackgroundRedisConnectionManager>()
                         .AddHostedService<RedisConnectionStarter>();
                     break;
                 default:
