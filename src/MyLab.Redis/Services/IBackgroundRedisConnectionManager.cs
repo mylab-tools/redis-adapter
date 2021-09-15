@@ -7,7 +7,7 @@ namespace MyLab.Redis.Services
     /// <summary>
     /// Manage Redis connection
     /// </summary>
-    public interface IRedisConnectionManager
+    public interface IBackgroundRedisConnectionManager
     {
         /// <summary>
         /// Occurred when Redis connected
