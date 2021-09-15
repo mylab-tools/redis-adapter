@@ -6,6 +6,7 @@ namespace IntegrationTests
 {
     public class RedisKeyBaseBehavior
     {
+
         [Fact]
         public async Task ShouldSetExpiry()
         {
@@ -16,13 +17,17 @@ namespace IntegrationTests
             await fooKey.SetAsync("bar");
 
             //Act
-            await fooKey.ExpireAsync(TimeSpan.FromMilliseconds(100));
+            await fooKey.ExpireAsync(TimeSpan.FromSeconds(0.5));
 
-            await Task.Delay(150);
-            var exists = await fooKey.ExistsAsync();
+            var exists1 = await fooKey.ExistsAsync();
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            var exists2 = await fooKey.ExistsAsync();
 
             //Assert
-            Assert.False(exists);
+            Assert.True(exists1);
+            Assert.False(exists2);
         }
     }
 }
