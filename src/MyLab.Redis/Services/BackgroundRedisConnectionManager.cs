@@ -10,20 +10,21 @@ using StackExchange.Redis;
 
 namespace MyLab.Redis.Services
 {
-    class RedisBackgroundConnectionManager : IRedisConnectionManager, IDisposable
+    class BackgroundRedisConnectionManager : IBackgroundRedisConnectionManager, IDisposable
     {
         private IConnectionMultiplexer _connection;
         private readonly RedisConnector _connector;
         private readonly IDslLogger _log;
         private TimeSpan _retryDelay;
+        private bool _isDisposing;
 
-        public RedisBackgroundConnectionManager(IOptions<RedisOptions> options, ILogger<RedisBackgroundConnectionManager> logger = null)
+        public BackgroundRedisConnectionManager(IOptions<RedisOptions> options, ILogger<BackgroundRedisConnectionManager> logger = null)
             : this(options.Value, logger)
         {
 
         }
 
-        public RedisBackgroundConnectionManager(RedisOptions options, ILogger<RedisBackgroundConnectionManager> logger = null)
+        public BackgroundRedisConnectionManager(RedisOptions options, ILogger<BackgroundRedisConnectionManager> logger = null)
         {
             _retryDelay = TimeSpan.FromSeconds(options.BackgroundRetryPeriodSec);
             _log = logger?.Dsl();
@@ -60,8 +61,7 @@ namespace MyLab.Redis.Services
                 {
                     _connection = await _connector.ConnectAsync();
 
-                    _log?.Action("Connection established")
-                        .Write();
+                    hasError = false;
                 }
                 catch (Exception e)
                 {
@@ -81,6 +81,7 @@ namespace MyLab.Redis.Services
 
         public void Dispose()
         {
+            _isDisposing = true;
             _connection?.Dispose();
         }
 
@@ -95,7 +96,8 @@ namespace MyLab.Redis.Services
                 .AndFactIs("failure-type", e.FailureType)
                 .Write();
 
-            Connect();
+            if(!_isDisposing)
+                Connect();
         }
 
         void Connect()

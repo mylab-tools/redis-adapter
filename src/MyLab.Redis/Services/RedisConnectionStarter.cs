@@ -8,11 +8,11 @@ namespace MyLab.Redis.Services
 {
     class RedisConnectionStarter : IHostedService
     {
-        private readonly IRedisConnectionManager _connectionManager;
+        private readonly IBackgroundRedisConnectionManager _connectionManager;
         private readonly IDslLogger _log;
 
         public RedisConnectionStarter(
-            IRedisConnectionManager connectionManager, 
+            IBackgroundRedisConnectionManager connectionManager, 
             ILogger<RedisConnectionStarter> logger = null)
         {
             _connectionManager = connectionManager;

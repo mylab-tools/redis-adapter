@@ -34,7 +34,7 @@ namespace IntegrationTests
                 .Build();
 
             var redisService = (IRedisService)host.Services.GetService(typeof(IRedisService));
-            var connManager = (IRedisConnectionManager)host.Services.GetService(typeof(IRedisConnectionManager));
+            var connManager = (IBackgroundRedisConnectionManager)host.Services.GetService(typeof(IBackgroundRedisConnectionManager));
 
             var ev = new ManualResetEvent(false);
 

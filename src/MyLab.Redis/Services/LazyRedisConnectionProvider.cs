@@ -11,13 +11,13 @@ namespace MyLab.Redis.Services
         private IConnectionMultiplexer _connection;
         private readonly object _connectionLock = new object();
 
-        public LazyRedisConnectionProvider(IOptions<RedisOptions> options, ILogger<RedisBackgroundConnectionManager> logger = null)
+        public LazyRedisConnectionProvider(IOptions<RedisOptions> options, ILogger<BackgroundRedisConnectionManager> logger = null)
             : this(options.Value, logger)
         {
 
         }
 
-        public LazyRedisConnectionProvider(RedisOptions options, ILogger<RedisBackgroundConnectionManager> logger = null)
+        public LazyRedisConnectionProvider(RedisOptions options, ILogger<BackgroundRedisConnectionManager> logger = null)
         {
             _connector = new RedisConnector(options)
             {
