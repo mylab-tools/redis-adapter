@@ -314,6 +314,16 @@ var found = await cache.FetchAsync("foo",
     });
 ```
 
+### Проверка работоспособности
+
+Проверка работоспособности заключается в проверке наличия подключения к `Redis` и осуществляется через механизм [HealthCheck](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-3.1).
+
+Для подключения проверки необходимо использовать метод `AddRedis` для построителя проверок, как показано на примере ниже:
+
+```c#
+services.AddHealthChecks().AddRedis();
+```
+
 
 
 
