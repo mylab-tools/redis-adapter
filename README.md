@@ -11,7 +11,7 @@
 При работе с инструментами `Redis` применяется подход с уклоном в DSL (Domain Specific Language):
 
  ```C#
-await _redis.Db().String("foo").SetAsync("bar"); 
+await redis.Db().String("foo").SetAsync("bar"); 
  ```
 
 ### Пример применения
@@ -140,7 +140,7 @@ public class RedisOptions
 Для выполнения команд уровня сервера, такие как `ECHO`, `PING`, `KEYS`, `SCAN`, получите доступ через метод `Server` сервиса Redis:
 
 ```c#
-await _redis.Server().PingAsync();
+await redis.Server().PingAsync();
 ```
 
 Метод `Server` предоставляет доступ к серверу по умолчанию - первому в списке серверов в строке подключения. Для выбора конкретного сервера, необходимо воспользоваться перегрузкой этого метода: `Server(EndPoint endPoint)`.
@@ -150,7 +150,7 @@ await _redis.Server().PingAsync();
 Доступ к инструментам уровня баз данных получите через метод `Db` сервиса Redis:
 
 ```C#
-await _redis.Db().String("foo").SetAsync("bar");
+await redis.Db().String("foo").SetAsync("bar");
 ```
 
 Метод `Db` предоставляет доступ к базе данных по умолчанию - с индексом 0 или соответствующим значением из строки подключения. Для выбора конкретной бfps данных, необходимо воспользоваться перегрузкой этого метода: `Db(int dbIndex)`.
@@ -260,13 +260,13 @@ public class CacheOptions
 Добавляет или заменяет значение в кэше, обновляет `TTL` на значение по умолчанию:
 
 ```C#
-await _redis.Db().Cache("test").AddAsync("foo", obj);
+await redis.Db().Cache("test").AddAsync("foo", obj);
 ```
 
 Можно указать кастомное значение `TTL`:
 
 ```C#
-await _redis.Db().Cache("test").AddAsync("foo", obj, TimeSpan.FromSeconds(5));
+await redis.Db().Cache("test").AddAsync("foo", obj, TimeSpan.FromSeconds(5));
 ```
 
 ##### Удаление элемента `RemoveAsync`
@@ -274,7 +274,7 @@ await _redis.Db().Cache("test").AddAsync("foo", obj, TimeSpan.FromSeconds(5));
 Удаляет элемент из кэша:
 
 ```C#
-await _redis.Db().Cache("test").Remove("foo")
+await redis.Db().Cache("test").Remove("foo")
 ```
 
 ##### Изменение TTL `UpdateExpiryAsync`
@@ -282,7 +282,7 @@ await _redis.Db().Cache("test").Remove("foo")
 Изменяет время жизни элемента кэша:
 
 ```C#
-await _redis.Db().Cache("test").UpdateExpiryAsync("foo", TimeSpan.FromSeconds(5));
+await redis.Db().Cache("test").UpdateExpiryAsync("foo", TimeSpan.FromSeconds(5));
 ```
 
 ##### Попытка получить элемент `TryFetchAsync`
@@ -290,7 +290,7 @@ await _redis.Db().Cache("test").UpdateExpiryAsync("foo", TimeSpan.FromSeconds(5)
 Получает значение из кэша или значение по умолчанию:
 
 ```C#
-var found = await _redis.Db().Cache("test").TryFetchAsync<T>("foo");
+var found = await redis.Db().Cache("test").TryFetchAsync<T>("foo");
 
 if(found != null)
 {
@@ -312,6 +312,86 @@ var found = await cache.FetchAsync("foo",
     {
     	Id = 1
     });
+```
+
+### LUA скрипты
+
+Инструменты для работы со скриптами доступны из объекта БД через метод `Script()`:
+
+```C#
+var scripting = redis.Db().Script();
+```
+
+#### Выполнение скрипта
+
+Для выполнения скрипта используется DSL-методы сборки и выполнения запроса. DSL выражение начинется с определния целевого скрипта. Целевой скрипт может быть передан в качестве аргумента ([EVAL](https://redis.io/commands/eval)) или предварительно загружен в кэш `Redis` ([EVALSHA](https://redis.io/commands/evalsha)).
+
+Пример указания скрипта по месту:
+
+```C#
+redis.Db().Script().Inline("return 10");
+```
+
+Пример указания предварительно загруженного к кэш скрипта:
+
+```c#
+redis.Db().Script().BySha("eb29cbbc2f5f39dfd02b7b8d3046d9ee7754d966");
+```
+
+Остальная часть выражения состоит из необязательных указаний используемых в скрипте ключей и аргументов. Завершает выражение метод выполнения команды.
+
+Пример выполнения скрипта с передачей ключа и аргумента:
+
+```c#
+await redis.Db().Script()
+    .Inline("return redis.call('set', KEYS[1], ARGV[1])")
+    .WithKey(key)
+    .WithArgs("foo")
+    .EvaluateAsync();
+```
+
+#### Загрузка скрипта в кэш
+
+Реализовано с использованием [SCRIPT LOAD](https://redis.io/commands/script-load).
+
+```c#
+var sha1 = await redis.Db().Script().LoadAsync("return 10");
+```
+
+#### Остановка текущего скрипта
+
+Реализовано с использованием [SCRIPT KILL](https://redis.io/commands/script-kill).
+
+```C#
+await redis.Db().Script().KillCurrentAsync();
+```
+
+#### Проверка скрипта в кэше
+
+Реализовано с использованием [SCRIPT EXISTS](https://redis.io/commands/script-exists).
+
+Пример для одного аргумента:
+
+```c#
+bool exists = await redis.Db().Script().ExistsAsync("eb29cbbc2f5f39dfd02b7b8d3046d9ee7754d966");
+```
+
+Пример для проверки нескольких скриптов:
+
+```c#
+bool[] exists = await redis.Db().Script().ExistsAsync(
+    "eb29cbbc2f5f39dfd02b7b8d3046d9ee7754d966",
+    "ed84a94a3ba9d63db7a4255cb8940890ef4a08fc",
+    "70a65c9e5784d36b4f42389fa93da5bbe9578be5"
+);
+```
+
+#### Очистка кэша
+
+Реализовано с использованием [SCRIPT FLUSH SYNC](https://redis.io/commands/script-flush).
+
+```c#
+await redis.Db().Script().FlushCacheAsync();
 ```
 
 ### Проверка работоспособности

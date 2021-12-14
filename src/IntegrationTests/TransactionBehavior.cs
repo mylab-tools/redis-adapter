@@ -13,7 +13,7 @@
 //        public async Task ShouldApplyTransaction()
 //        {
 //            //Arrange   
-//            var redis = TestTools.CreateRedisManager();
+//            var redis = TestTools.CreateRedisService();
 //            var key = redis.Db().String("foo");
             
 //            RedisValue resultKeyVal = default;
@@ -41,7 +41,7 @@
 //        public async Task ShouldNotApplyTransactionWhenNotCommitted()
 //        {
 //            //Arrange   
-//            var redis = TestTools.CreateRedisManager();
+//            var redis = TestTools.CreateRedisService();
             
 //            var key = redis.Db().String("foo");
 //            await key.SetAsync("foo_val");

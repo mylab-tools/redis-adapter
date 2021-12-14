@@ -1,16 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
     public class ServerToolsBehavior
     {
+        private readonly ITestOutputHelper _output;
+
+        public ServerToolsBehavior(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public async Task ShouldSelectDb()
         {
             //Arrange
-            var redis = TestTools.CreateRedisManager();
+            var redis = TestTools.CreateRedisService(_output);
 
             var keyName = TestTools.NewKeyName();
 
@@ -31,7 +39,7 @@ namespace IntegrationTests
         public async Task ShouldFlushDb()
         {
             //Arrange
-            var redis = TestTools.CreateRedisManager();
+            var redis = TestTools.CreateRedisService(_output);
             var fooKey = redis.Db().String(TestTools.NewKeyName());
             await fooKey.SetAsync("bar");
             await fooKey.ExpireAsync(TimeSpan.FromSeconds(10));
