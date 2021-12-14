@@ -1060,6 +1060,12 @@
             Provides Redis base cache by name
             </summary>
         </member>
+        <member name="M:MyLab.Redis.RedisDbToolsProvider.Script">
+            <summary>
+            Creates script tools object
+            </summary>
+            <returns></returns>
+        </member>
         <member name="T:MyLab.Redis.RedisNotConnectedException">
             <summary>
             Occurred when Redis connection is not established
@@ -1190,6 +1196,99 @@
             </summary>
             <param name="database">The database ID.</param>
             <remarks>https://redis.io/commands/flushdb</remarks>
+        </member>
+        <member name="T:MyLab.Redis.Scripting.IRedisScriptEvaluator">
+            <summary>
+            Defines case relative redis script evaluator
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.IRedisScriptEvaluator.EvaluateScriptAsync(StackExchange.Redis.RedisKey[],StackExchange.Redis.RedisValue[])">
+            <summary>
+            Evaluates script
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Scripting.RedisScriptEvaluationBuilder">
+            <summary>
+            Collect script evaluation parameters and evaluate script
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptEvaluationBuilder.#ctor(MyLab.Redis.Scripting.IRedisScriptEvaluator)">
+            <summary>
+            Initializes a new instance of <see cref="T:MyLab.Redis.Scripting.RedisScriptEvaluationBuilder"/>
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptEvaluationBuilder.WithKeys(System.String[])">
+            <summary>
+            Adds keys for script evaluation
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptEvaluationBuilder.WithKey(MyLab.Redis.ObjectModel.RedisKeyBase)">
+            <summary>
+            Adds key for script evaluation
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptEvaluationBuilder.WithArgs(StackExchange.Redis.RedisValue[])">
+            <summary>
+            Adds args for script evaluation
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptEvaluationBuilder.EvaluateAsync">
+            <summary>
+            Evaluates script
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Scripting.RedisScriptTools">
+            <summary>
+            Provides script tools
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.#ctor(MyLab.Redis.RedisDbProvider)">
+            <summary>
+            Initializes a new instance of <see cref="T:MyLab.Redis.Scripting.RedisScriptTools"/>
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.KillCurrentAsync">
+            <summary>
+            Kills the currently executing Lua script, assuming no write operation was yet performed by the script.
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.LoadAsync(System.String)">
+            <summary>
+            Load a script into the scripts cache, without executing it
+            </summary>
+            <param name="script">script text</param>
+            <returns>SHA1 digest of the script added into the script cache</returns>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.ExistsAsync(System.String[])">
+            <summary>
+            Returns information about the existence of the scripts in the script cache.
+            </summary>
+            <returns>
+            Array reply The command returns an array of bool that correspond to the specified SHA1 digest arguments.
+            </returns>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.ExistsAsync(System.String)">
+            <summary>
+            Returns information about the existence of the scripts in the script cache.
+            </summary>
+            <returns>
+            Array reply The command returns an array of bool that correspond to the specified SHA1 digest arguments.
+            </returns>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.FlushCacheAsync">
+            <summary>
+            Flush the Lua scripts cache
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.Inline(System.String)">
+            <summary>
+            Creates evaluation builder for inline script
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Scripting.RedisScriptTools.BySha(System.String)">
+            <summary>
+            Creates evaluation builder for script by SHA1
+            </summary>
         </member>
         <member name="T:MyLab.Redis.Services.IBackgroundRedisConnectionManager">
             <summary>

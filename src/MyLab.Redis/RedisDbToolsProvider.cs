@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MyLab.Redis.ObjectModel;
+using MyLab.Redis.Scripting;
 using StackExchange.Redis;
 
 namespace MyLab.Redis
@@ -26,6 +27,15 @@ namespace MyLab.Redis
         public RedisCache Cache(string name)
         {
             return _redisCacheProvider.Provide(name);
+        }
+
+        /// <summary>
+        /// Creates script tools object
+        /// </summary>
+        /// <returns></returns>
+        public RedisScriptTools Script()
+        {
+            return new RedisScriptTools(_redisDbProvider);
         }
     }
 }

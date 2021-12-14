@@ -2,15 +2,23 @@
 using System.Threading.Tasks;
 using MyLab.Redis.ObjectModel;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
     public class RedisCacheBehavior
     {
+        private readonly ITestOutputHelper _output;
+
+        public RedisCacheBehavior(ITestOutputHelper output)
+        {
+            _output = output;
+        }
+
         [Fact]
         public async Task ShouldAddItem()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async(redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.CacheDefaultName);
@@ -37,7 +45,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldAddItemIfNotExists()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.CacheDefaultName);
@@ -57,7 +65,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldProvideDefaultWhenTryFetchAndItemNotExists()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.CacheDefaultName);
@@ -72,7 +80,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldProvideItemWhenTryFetchAndItemExists()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.CacheDefaultName);
@@ -93,7 +101,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldProvideItemFromRedisInsteadCreateNewOne()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.CacheDefaultName);
@@ -120,7 +128,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldSetDefaultExpiration()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.Cache100MsName);
@@ -141,7 +149,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldSetExpiration()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.Cache1000MsName);
@@ -162,7 +170,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldCountItems()
         {
-            await TestTools.PerformTest(async (redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(TestTools.Cache1MinName);

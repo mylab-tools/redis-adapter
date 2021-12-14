@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using MyLab.Redis;
 using MyLab.Redis.Services;
+using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
@@ -40,12 +42,13 @@ namespace IntegrationTests
 
         };
 
-        public static IRedisService CreateRedisManager()
+        public static IRedisService CreateRedisService(ITestOutputHelper output)
         {
             var serviceCollection = new ServiceCollection();
             
             serviceCollection.AddRedis(RedisConnectionStrategy.Lazy);
             serviceCollection.ConfigureRedis(ConfigureOptions);
+            serviceCollection.AddLogging(l => l.AddXUnit(output).AddFilter(f => true));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
             return (IRedisService) serviceProvider.GetService(typeof(IRedisService));
@@ -56,9 +59,9 @@ namespace IntegrationTests
             return "foo_" + Guid.NewGuid().ToString("N");
         }
 
-        public static async Task PerformTest(TestInvocation testAct)
+        public static async Task PerformTest(ITestOutputHelper output, TestInvocation testAct)
         {
-            var redis = CreateRedisManager();
+            var redis = CreateRedisService(output);
 
             try
             {
@@ -67,6 +70,7 @@ namespace IntegrationTests
             catch
             {
                 await redis.Server().FlushDatabaseAsync();
+                await redis.Db().Script().FlushCacheAsync();
                 throw;
             }
 
