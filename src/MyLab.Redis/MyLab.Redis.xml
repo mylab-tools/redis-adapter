@@ -4,14 +4,90 @@
         <name>MyLab.Redis</name>
     </assembly>
     <members>
-        <member name="T:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderExtensions">
+        <member name="T:MyLab.Redis.Connection.IBackgroundRedisConnectionManager">
             <summary>
-            Extensions for <see cref="T:Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder"/>
+            Manage Redis connection
             </summary>
         </member>
-        <member name="M:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderExtensions.AddRedis(Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder)">
+        <member name="E:MyLab.Redis.Connection.IBackgroundRedisConnectionManager.Connected">
             <summary>
-            Adds Rabbit checks
+            Occurred when Redis connected
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Connection.IBackgroundRedisConnectionManager.ProvideConnection">
+            <summary>
+            Provides established connection
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Connection.IBackgroundRedisConnectionManager.ConnectAsync">
+            <summary>
+            Initiate connection
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Connection.IRedisConnectionPolicy">
+            <summary>
+            Defines the connection policy to Redis
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Connection.IRedisConnectionPolicy.RegisterDependencies(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Registers dependencies to available the policy
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Connection.LazyRedisConnectionPolicy">
+            <summary>
+            A policy which defines a connection when it required
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Connection.LazyRedisConnectionPolicy.RegisterDependencies(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <inheritdoc />
+        </member>
+        <member name="T:MyLab.Redis.Connection.BackgroundRedisConnectionPolicy">
+            <summary>
+            A policy which defines a connection at the start of app asynchronously
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Connection.BackgroundRedisConnectionPolicy.RegisterDependencies(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <inheritdoc />
+        </member>
+        <member name="T:MyLab.Redis.Connection.IRedisConnectionProvider">
+            <summary>
+            Provides connection to Redis
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Connection.IRedisConnectionProvider.Provide">
+            <summary>
+            Provides connection
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Connection.RedisConnectionStrategy">
+            <summary>
+            Defines connection strategy
+            </summary>
+        </member>
+        <member name="F:MyLab.Redis.Connection.RedisConnectionStrategy.Undefined">
+            <summary>
+            Default value
+            </summary>
+        </member>
+        <member name="F:MyLab.Redis.Connection.RedisConnectionStrategy.Lazy">
+            <summary>
+            Connected when request
+            </summary>
+        </member>
+        <member name="F:MyLab.Redis.Connection.RedisConnectionStrategy.Background">
+            <summary>
+            Connect in background thread
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Connection.RedisNotConnectedException">
+            <summary>
+            Occurred when Redis connection is not established
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.Connection.RedisNotConnectedException.#ctor">
+            <summary>
+            Initializes a new instance of <see cref="T:MyLab.Redis.Connection.RedisNotConnectedException"/>
             </summary>
         </member>
         <member name="M:MyLab.Redis.HealthCheck.RedisConnectionHealthCheck.CheckHealthAsync(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckContext,System.Threading.CancellationToken)">
@@ -22,7 +98,12 @@
             Contains extensions for <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>
             </summary>
         </member>
-        <member name="M:MyLab.Redis.RedisIntegration.AddRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,MyLab.Redis.RedisConnectionStrategy)">
+        <member name="M:MyLab.Redis.RedisIntegration.AddRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,MyLab.Redis.Connection.IRedisConnectionPolicy)">
+            <summary>
+            Adds Redis services
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.RedisIntegration.AddRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,MyLab.Redis.Connection.RedisConnectionStrategy)">
             <summary>
             Adds Redis services
             </summary>
@@ -396,6 +477,21 @@
         <member name="T:MyLab.Redis.ObjectModel.RedisKeyBase">
             <summary>
             The base class for Redis keys
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.ObjectModel.RedisKeyBase.KeyName">
+            <summary>
+            The key name
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.ObjectModel.RedisKeyBase.RedisDb">
+            <summary>
+            Redis DB reference
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.ObjectModel.RedisKeyBase.#ctor(MyLab.Redis.RedisDbProvider,System.String)">
+            <summary>
+            Initializes a new instance of <see cref="T:MyLab.Redis.ObjectModel.RedisKeyBase"/>
             </summary>
         </member>
         <member name="M:MyLab.Redis.ObjectModel.RedisKeyBase.DeleteAsync">
@@ -990,24 +1086,14 @@
             Provides Redis cache
             </summary>
         </member>
-        <member name="T:MyLab.Redis.RedisConnectionStrategy">
+        <member name="M:MyLab.Redis.RedisCacheProvider.#ctor(MyLab.Redis.RedisDbLink,MyLab.Redis.RedisOptions)">
             <summary>
-            Defines connection strategy
+            Initializes a new instance of <see cref="T:MyLab.Redis.RedisCacheProvider"/>
             </summary>
         </member>
-        <member name="F:MyLab.Redis.RedisConnectionStrategy.Undefined">
+        <member name="M:MyLab.Redis.RedisCacheProvider.Provide(System.String)">
             <summary>
-            Default value
-            </summary>
-        </member>
-        <member name="F:MyLab.Redis.RedisConnectionStrategy.Lazy">
-            <summary>
-            Connected when request
-            </summary>
-        </member>
-        <member name="F:MyLab.Redis.RedisConnectionStrategy.Background">
-            <summary>
-            Connect in background thread
+            Provides <see cref="T:MyLab.Redis.ObjectModel.RedisCache"/> object
             </summary>
         </member>
         <member name="M:MyLab.Redis.RedisDbKeysProvider.String(System.String)">
@@ -1040,7 +1126,7 @@
             Provides Redis database object
             </summary>
         </member>
-        <member name="M:MyLab.Redis.RedisDbProvider.#ctor(MyLab.Redis.Services.IRedisConnectionProvider,System.Int32)">
+        <member name="M:MyLab.Redis.RedisDbProvider.#ctor(MyLab.Redis.Connection.IRedisConnectionProvider,System.Int32)">
             <summary>
             Initializes a new instance of <see cref="T:MyLab.Redis.RedisDbProvider"/>
             </summary>
@@ -1065,16 +1151,6 @@
             Creates script tools object
             </summary>
             <returns></returns>
-        </member>
-        <member name="T:MyLab.Redis.RedisNotConnectedException">
-            <summary>
-            Occurred when Redis connection is not established
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.RedisNotConnectedException.#ctor">
-            <summary>
-            Initializes a new instance of <see cref="T:MyLab.Redis.RedisNotConnectedException"/>
-            </summary>
         </member>
         <member name="T:MyLab.Redis.RedisOperationException">
             <summary>
@@ -1142,7 +1218,7 @@
             Provides Redis server object
             </summary>
         </member>
-        <member name="M:MyLab.Redis.RedisServerProvider.#ctor(MyLab.Redis.Services.IRedisConnectionProvider,System.Net.EndPoint)">
+        <member name="M:MyLab.Redis.RedisServerProvider.#ctor(MyLab.Redis.Connection.IRedisConnectionProvider,System.Net.EndPoint)">
             <summary>
             Initializes a new instance of <see cref="T:MyLab.Redis.RedisServerProvider"/>
             </summary>
@@ -1290,36 +1366,6 @@
             Creates evaluation builder for script by SHA1
             </summary>
         </member>
-        <member name="T:MyLab.Redis.Services.IBackgroundRedisConnectionManager">
-            <summary>
-            Manage Redis connection
-            </summary>
-        </member>
-        <member name="E:MyLab.Redis.Services.IBackgroundRedisConnectionManager.Connected">
-            <summary>
-            Occurred when Redis connected
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.Services.IBackgroundRedisConnectionManager.ProvideConnection">
-            <summary>
-            Provides established connection
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.Services.IBackgroundRedisConnectionManager.ConnectAsync">
-            <summary>
-            Initiate connection
-            </summary>
-        </member>
-        <member name="T:MyLab.Redis.Services.IRedisConnectionProvider">
-            <summary>
-            Provides connection to Redis
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.Services.IRedisConnectionProvider.Provide">
-            <summary>
-            Provides connection
-            </summary>
-        </member>
         <member name="T:MyLab.Redis.Services.IRedisService">
             <summary>
             Provides Redis interaction features
@@ -1343,6 +1389,16 @@
         <member name="M:MyLab.Redis.Services.IRedisService.Server(System.Net.EndPoint)">
             <summary>
             Provides tools for server with specified endpoint
+            </summary>
+        </member>
+        <member name="T:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderExtensions">
+            <summary>
+            Extensions for <see cref="T:Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder"/>
+            </summary>
+        </member>
+        <member name="M:Microsoft.Extensions.DependencyInjection.HealthChecksBuilderExtensions.AddRedis(Microsoft.Extensions.DependencyInjection.IHealthChecksBuilder)">
+            <summary>
+            Adds Rabbit checks
             </summary>
         </member>
     </members>

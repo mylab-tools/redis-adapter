@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using MyLab.Log.Dsl;
 using StackExchange.Redis;
 
-namespace MyLab.Redis
+namespace MyLab.Redis.Connection
 {
     class RedisConnector
     {
@@ -25,7 +25,7 @@ namespace MyLab.Redis
             LogStartConnection();
 
             var connection = await ConnectionMultiplexer.ConnectAsync(_connectionOptions, textWriter);
-            
+
             LogConnected(sb);
 
             return connection;

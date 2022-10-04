@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MyLab.Redis
+namespace MyLab.Redis.Connection
 {
     /// <summary>
     /// Occurred when Redis connection is not established
@@ -12,7 +12,7 @@ namespace MyLab.Redis
         /// </summary>
         public RedisNotConnectedException() : base("The Radis connection is not established")
         {
-            
+
         }
     }
 }

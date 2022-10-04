@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net;
 using Microsoft.Extensions.Options;
+using MyLab.Redis.Connection;
 
 namespace MyLab.Redis.Services
 {

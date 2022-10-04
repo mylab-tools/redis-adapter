@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
 
-namespace MyLab.Redis.Services
+namespace MyLab.Redis.Connection
 {
     class BackgroundRedisConnectionProvider : IRedisConnectionProvider
     {

@@ -1,7 +1,7 @@
 ﻿using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using MyLab.Redis.Services;
+using MyLab.Redis.Connection;
 using StackExchange.Redis;
 
 namespace MyLab.Redis

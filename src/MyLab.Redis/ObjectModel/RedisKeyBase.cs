@@ -10,10 +10,20 @@ namespace MyLab.Redis.ObjectModel
     public class RedisKeyBase
     {
         private readonly RedisDbProvider _dbProvider;
+
+        /// <summary>
+        /// The key name
+        /// </summary>
         public string KeyName { get; }
 
+        /// <summary>
+        /// Redis DB reference
+        /// </summary>
         protected IDatabase RedisDb => _dbProvider.Provide();
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="RedisKeyBase"/>
+        /// </summary>
         protected RedisKeyBase(RedisDbProvider dbProvider, string keyName)
         {
             if (string.IsNullOrEmpty(keyName))
