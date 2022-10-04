@@ -95,6 +95,21 @@ namespace MyLab.Redis.ObjectModel
         }
 
         /// <summary>
+        /// Returns the absolute time at which the given key will expire, if it exists and has an expiration.
+        /// </summary>
+        /// <returns>The time at which the given key will expire, or <see langword="null"/> if the key does not exist or has no associated expiration time.</returns>
+        /// <remarks>
+        /// <seealso href="https://redis.io/commands/expiretime"/>,
+        /// <seealso href="https://redis.io/commands/pexpiretime"/>
+        /// </remarks>
+        public async Task<DateTime?> GetExpirationAsync()
+        {
+            var universalDt = await RedisDb.KeyExpireTimeAsync(KeyName);
+
+            return universalDt?.ToLocalTime();
+        }
+
+        /// <summary>
         /// Returns the time since the object stored at the specified key is idle (not requested by read or write operations)
         /// </summary>
         /// <returns>The time since the object stored at the specified key is idle</returns>

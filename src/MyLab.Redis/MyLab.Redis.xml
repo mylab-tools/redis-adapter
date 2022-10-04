@@ -541,6 +541,16 @@
             <remarks>https://redis.io/commands/pexpireat</remarks>
             <remarks>https://redis.io/commands/persist</remarks>
         </member>
+        <member name="M:MyLab.Redis.ObjectModel.RedisKeyBase.GetExpirationAsync">
+            <summary>
+            Returns the absolute time at which the given key will expire, if it exists and has an expiration.
+            </summary>
+            <returns>The time at which the given key will expire, or <see langword="null"/> if the key does not exist or has no associated expiration time.</returns>
+            <remarks>
+            <seealso href="https://redis.io/commands/expiretime"/>,
+            <seealso href="https://redis.io/commands/pexpiretime"/>
+            </remarks>
+        </member>
         <member name="M:MyLab.Redis.ObjectModel.RedisKeyBase.IdleTimeAsync">
             <summary>
             Returns the time since the object stored at the specified key is idle (not requested by read or write operations)

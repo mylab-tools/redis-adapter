@@ -3,7 +3,7 @@ version: '3.2'
 services:
   mylab-redis-adapter-test:
     container_name: mylab-redis-adapter-test
-    image: redis:6.2
+    image: redis:7.0
     ports: 
     - 9110:6379
     entrypoint: ["docker-entrypoint.sh", "redis-server", "/usr/local/etc/redis/redis.conf"]
