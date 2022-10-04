@@ -1,6 +1,7 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MyLab.Redis.Connection;
 using MyLab.Redis.Services;
 
 namespace MyLab.Redis
@@ -13,6 +14,22 @@ namespace MyLab.Redis
         /// <summary>
         /// Adds Redis services
         /// </summary>
+        public static IServiceCollection AddRedis(this IServiceCollection services, IRedisConnectionPolicy connectionPolicy)
+        {
+            if (services == null) throw new ArgumentNullException(nameof(services));
+            if (connectionPolicy == null) throw new ArgumentNullException(nameof(connectionPolicy));
+
+            services.AddSingleton<IRedisService, RedisService>();
+
+            connectionPolicy.RegisterDependencies(services);
+
+            return services;
+        }
+
+        /// <summary>
+        /// Adds Redis services
+        /// </summary>
+        [Obsolete("Use AddRedis(this IServiceCollection services, IRedisConnectionPolicy connectionPolicy) instead", true)]
         public static IServiceCollection AddRedis(this IServiceCollection services, RedisConnectionStrategy redisConnectionStrategy)
         {
             services.AddSingleton<IRedisService, RedisService>();

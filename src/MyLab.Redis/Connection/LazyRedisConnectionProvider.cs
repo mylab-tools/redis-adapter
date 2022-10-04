@@ -3,7 +3,7 @@ using Microsoft.Extensions.Options;
 using MyLab.Log.Dsl;
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Services
+namespace MyLab.Redis.Connection
 {
     class LazyRedisConnectionProvider : IRedisConnectionProvider
     {

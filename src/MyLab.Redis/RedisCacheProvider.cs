@@ -12,12 +12,18 @@ namespace MyLab.Redis
         private readonly RedisDbLink _database;
         private readonly RedisOptions _options;
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="RedisCacheProvider"/>
+        /// </summary>
         public RedisCacheProvider(RedisDbLink database, RedisOptions options)
         {
             _database = database;
             _options = options;
         }
 
+        /// <summary>
+        /// Provides <see cref="RedisCache"/> object
+        /// </summary>
         public RedisCache Provide(string name)
         {
             var opt = _options.Cache?.FirstOrDefault(o => o.Name == name);

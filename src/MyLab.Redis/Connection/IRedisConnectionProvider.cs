@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Services
+namespace MyLab.Redis.Connection
 {
     /// <summary>
     /// Provides connection to Redis

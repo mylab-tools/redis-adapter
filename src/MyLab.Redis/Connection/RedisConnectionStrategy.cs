@@ -1,8 +1,11 @@
-﻿namespace MyLab.Redis
+﻿using System;
+
+namespace MyLab.Redis.Connection
 {
     /// <summary>
     /// Defines connection strategy
     /// </summary>
+    [Obsolete(null, true)]
     public enum RedisConnectionStrategy
     {
         /// <summary>

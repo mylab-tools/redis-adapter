@@ -4,7 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
-using MyLab.Redis.Services;
+using MyLab.Redis.Connection;
 
 namespace MyLab.Redis.HealthCheck
 {

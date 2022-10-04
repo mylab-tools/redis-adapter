@@ -8,14 +8,14 @@ using Microsoft.Extensions.Options;
 using MyLab.Log.Dsl;
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Services
+namespace MyLab.Redis.Connection
 {
-    class BackgroundRedisConnectionManager : IBackgroundRedisConnectionManager, IDisposable
+    sealed class BackgroundRedisConnectionManager : IBackgroundRedisConnectionManager, IDisposable
     {
         private IConnectionMultiplexer _connection;
         private readonly RedisConnector _connector;
         private readonly IDslLogger _log;
-        private TimeSpan _retryDelay;
+        private readonly TimeSpan _retryDelay;
         private bool _isDisposing;
 
         public BackgroundRedisConnectionManager(IOptions<RedisOptions> options, ILogger<BackgroundRedisConnectionManager> logger = null)
@@ -73,7 +73,7 @@ namespace MyLab.Redis.Services
 
             } while (hasError);
 
-            
+
             _connection.ConnectionFailed += ConnectionFailed;
 
             OnConnected();
@@ -96,7 +96,7 @@ namespace MyLab.Redis.Services
                 .AndFactIs("failure-type", e.FailureType)
                 .Write();
 
-            if(!_isDisposing)
+            if (!_isDisposing)
                 Connect();
         }
 
@@ -129,7 +129,7 @@ namespace MyLab.Redis.Services
             OnConnected();
         }
 
-        protected virtual void OnConnected()
+        private void OnConnected()
         {
             Connected?.Invoke(this, EventArgs.Empty);
         }

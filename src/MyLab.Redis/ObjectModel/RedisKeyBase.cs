@@ -10,10 +10,20 @@ namespace MyLab.Redis.ObjectModel
     public class RedisKeyBase
     {
         private readonly RedisDbProvider _dbProvider;
+
+        /// <summary>
+        /// The key name
+        /// </summary>
         public string KeyName { get; }
 
+        /// <summary>
+        /// Redis DB reference
+        /// </summary>
         protected IDatabase RedisDb => _dbProvider.Provide();
 
+        /// <summary>
+        /// Initializes a new instance of <see cref="RedisKeyBase"/>
+        /// </summary>
         protected RedisKeyBase(RedisDbProvider dbProvider, string keyName)
         {
             if (string.IsNullOrEmpty(keyName))
@@ -82,6 +92,21 @@ namespace MyLab.Redis.ObjectModel
         public Task<bool> ExpireAsync(DateTime? expiry)
         {
             return RedisDb.KeyExpireAsync(KeyName, expiry);
+        }
+
+        /// <summary>
+        /// Returns the absolute time at which the given key will expire, if it exists and has an expiration.
+        /// </summary>
+        /// <returns>The time at which the given key will expire, or <see langword="null"/> if the key does not exist or has no associated expiration time.</returns>
+        /// <remarks>
+        /// <seealso href="https://redis.io/commands/expiretime"/>,
+        /// <seealso href="https://redis.io/commands/pexpiretime"/>
+        /// </remarks>
+        public async Task<DateTime?> GetExpirationAsync()
+        {
+            var universalDt = await RedisDb.KeyExpireTimeAsync(KeyName);
+
+            return universalDt?.ToLocalTime();
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.Redis;
+using MyLab.Redis.Connection;
 using MyLab.Redis.Services;
 using Xunit.Abstractions;
 
@@ -46,7 +47,7 @@ namespace IntegrationTests
         {
             var serviceCollection = new ServiceCollection();
             
-            serviceCollection.AddRedis(RedisConnectionStrategy.Lazy);
+            serviceCollection.AddRedis(new LazyRedisConnectionPolicy());
             serviceCollection.ConfigureRedis(ConfigureOptions);
             serviceCollection.AddLogging(l => l.AddXUnit(output).AddFilter(f => true));
 

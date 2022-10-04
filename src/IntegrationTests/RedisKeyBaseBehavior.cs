@@ -36,5 +36,28 @@ namespace IntegrationTests
             Assert.True(exists1);
             Assert.False(exists2);
         }
+
+        [Fact]
+        public async Task ShouldGetExpiry()
+        {
+            //Arrange
+            var redis = TestTools.CreateRedisService(_output);
+
+            var fooKey = redis.Db().String("foo");
+            await fooKey.SetAsync("bar");
+
+            var expDateTime = DateTime.Now.AddDays(1);
+            await fooKey.ExpireAsync(expDateTime);
+
+            await Task.Delay(TimeSpan.FromSeconds(1));
+
+            //Act
+            var actualExpDt = await fooKey.GetExpirationAsync();
+
+            var span = expDateTime - actualExpDt;
+
+            //Assert
+            Assert.True(span?.TotalMilliseconds < 1);
+        }
     }
 }

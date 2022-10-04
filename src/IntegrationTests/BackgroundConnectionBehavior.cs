@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyLab.Redis;
+using MyLab.Redis.Connection;
 using MyLab.Redis.Services;
 using StackExchange.Redis;
 using Xunit;
@@ -27,7 +28,7 @@ namespace IntegrationTests
             //Arrange
             var host = new HostBuilder()
                 .ConfigureServices(srv => srv
-                    .AddRedis(RedisConnectionStrategy.Background)
+                    .AddRedis(new BackgroundRedisConnectionPolicy())
                     .ConfigureRedis(TestTools.ConfigureOptions)
                     .AddLogging(l => l.AddXUnit(_output))
                     )

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MyLab.Log.Dsl;
 
-namespace MyLab.Redis.Services
+namespace MyLab.Redis.Connection
 {
     class RedisConnectionStarter : IHostedService
     {
@@ -12,7 +12,7 @@ namespace MyLab.Redis.Services
         private readonly IDslLogger _log;
 
         public RedisConnectionStarter(
-            IBackgroundRedisConnectionManager connectionManager, 
+            IBackgroundRedisConnectionManager connectionManager,
             ILogger<RedisConnectionStarter> logger = null)
         {
             _connectionManager = connectionManager;
