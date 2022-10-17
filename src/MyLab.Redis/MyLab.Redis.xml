@@ -1091,17 +1091,17 @@
             <returns>The length of the string after it was modified by the command.</returns>
             <remarks>https://redis.io/commands/setrange</remarks>
         </member>
-        <member name="T:MyLab.Redis.RedisCacheProvider">
+        <member name="T:MyLab.Redis.RedisCacheFactory">
             <summary>
             Provides Redis cache
             </summary>
         </member>
-        <member name="M:MyLab.Redis.RedisCacheProvider.#ctor(MyLab.Redis.RedisDbLink,MyLab.Redis.RedisOptions)">
+        <member name="M:MyLab.Redis.RedisCacheFactory.#ctor(MyLab.Redis.RedisDbLink,MyLab.Redis.RedisOptions)">
             <summary>
-            Initializes a new instance of <see cref="T:MyLab.Redis.RedisCacheProvider"/>
+            Initializes a new instance of <see cref="T:MyLab.Redis.RedisCacheFactory"/>
             </summary>
         </member>
-        <member name="M:MyLab.Redis.RedisCacheProvider.Provide(System.String)">
+        <member name="M:MyLab.Redis.RedisCacheFactory.Provide(System.String)">
             <summary>
             Provides <see cref="T:MyLab.Redis.ObjectModel.RedisCache"/> object
             </summary>

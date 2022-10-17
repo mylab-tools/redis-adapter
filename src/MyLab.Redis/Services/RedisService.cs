@@ -31,7 +31,7 @@ namespace MyLab.Redis.Services
             var dbProvider = new RedisDbProvider(_connectionProvider, dbIndex);
             return new RedisDbToolsProvider(
                 dbProvider,
-                new RedisCacheProvider(
+                new RedisCacheFactory(
                     new RedisDbLink
                     {
                         Index = dbIndex,
