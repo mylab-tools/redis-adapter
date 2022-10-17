@@ -182,7 +182,7 @@ namespace IntegrationTests
 
                 //Act
 
-                var count = await cache.Count();
+                var count = await cache.CountAsync();
 
                 //Assert
                 Assert.Equal(260, count);
