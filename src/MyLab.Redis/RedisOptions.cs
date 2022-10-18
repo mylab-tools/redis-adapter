@@ -24,9 +24,14 @@ namespace MyLab.Redis
         public int BackgroundRetryPeriodSec { get; set; } = 10;
 
         /// <summary>
-        /// Cache options
+        /// Caching options
         /// </summary>
-        public CacheOptions[] Cache { get; set; }
+        public CachingOptions Caching { get; set; }
+
+        /// <summary>
+        /// Locking options
+        /// </summary>
+        public LockingOptions Locking { get; set; }
     }
 
     /// <summary>
@@ -45,8 +50,66 @@ namespace MyLab.Redis
         public string Key{ get; set; }
 
         /// <summary>
-        /// Default expiry fro cache items
+        /// Default expiry for cache items
         /// </summary>
         public string DefaultExpiry { get; set; }
+    }
+
+    /// <summary>
+    /// Contains caching options
+    /// </summary>
+    public class CachingOptions
+    {
+        /// <summary>
+        /// Gets Redis-key name prefix
+        /// </summary>
+        public string KeyPrefix { get; set; }
+
+        /// <summary>
+        /// Get named cache options
+        /// </summary>
+        public CacheOptions[] Caches { get; set; }
+    }
+
+    /// <summary>
+    /// Lock options
+    /// </summary>
+    public class LockOptions
+    {
+        /// <summary>
+        /// Lock name
+        /// </summary>
+        public string Name { get; set; }
+
+        /// <summary>
+        /// Determines key expiry
+        /// </summary>
+        public string Expiry { get; set; } = TimeSpan.FromMinutes(1).ToString();
+
+        /// <summary>
+        /// Determines the timeout for a locking attempt
+        /// </summary>
+        public string DefaultTimeout { get; set; } = TimeSpan.FromSeconds(5).ToString();
+
+        /// <summary>
+        /// Determines a waiting period between locking attempts
+        /// </summary>
+        public string RetryPeriod { get; set; } = TimeSpan.FromSeconds(1).ToString();
+    }
+
+    /// <summary>
+    /// Contains licking options
+    /// </summary>
+    public class LockingOptions
+    {
+        /// <summary>
+        /// Gets Redis-key name prefix
+        /// </summary>
+        public string KeyPrefix { get; set; } = "redlock";
+
+        /// <summary>
+        /// Gets named lock options
+        /// </summary>
+        public LockOptions[] Locks { get; set; }
     }
 }

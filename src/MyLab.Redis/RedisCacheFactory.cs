@@ -22,17 +22,19 @@ namespace MyLab.Redis
         }
 
         /// <summary>
-        /// Provides <see cref="RedisCache"/> object
+        /// Creates <see cref="RedisCache"/> object
         /// </summary>
-        public RedisCache Provide(string name)
+        public RedisCache Create(string name)
         {
-            var opt = _options.Cache?.FirstOrDefault(o => o.Name == name);
+            var opt = _options.Caching?.Caches?.FirstOrDefault(o => o.Name == name);
             if (opt == null)
                 throw new InvalidOperationException($"RedisCache '{name}' not found");
 
             var defaultExpiry = OptionsExpiryParser.Parse(opt.DefaultExpiry);
 
-            return new RedisCache(_database, opt.Key)
+            var cacheKeyName = KeyNameTools.BuildName(_options.Caching.KeyPrefix, name);
+
+            return new RedisCache(_database, cacheKeyName)
             {
                 DefaultExpiry = defaultExpiry
             };

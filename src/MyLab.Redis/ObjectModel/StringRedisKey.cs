@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using StackExchange.Redis;
 
 namespace MyLab.Redis.ObjectModel
@@ -115,6 +116,18 @@ namespace MyLab.Redis.ObjectModel
         public Task<bool> SetAsync(RedisValue value)
         {
             return RedisDb.StringSetAsync(KeyName, value);
+        }
+
+        /// <summary>
+        /// Set key to hold string value if key does not exist.
+        /// </summary>
+        /// <param name="value">The value to set.</param>
+        /// <param name="expiry">The key expiry.</param>
+        /// <returns>`true` - if the string was set, `false` - otherwise.</returns>
+        /// <remarks>https://redis.io/commands/setnx/</remarks>
+        public Task<bool> SetIfNotExistsAsync(RedisValue value, TimeSpan expiry)
+        {
+            return RedisDb.StringSetAsync(KeyName, value, expiry, When.NotExists);
         }
 
         /// <summary>

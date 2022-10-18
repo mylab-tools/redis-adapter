@@ -3,7 +3,7 @@ using Xunit;
 
 namespace UnitTests
 {
-    public class OptionsExpiryDeserializerBehavior
+    public class OptionsExpiryParserBehavior
     {
         [Fact]
         public void ShouldParseTimeSpan()

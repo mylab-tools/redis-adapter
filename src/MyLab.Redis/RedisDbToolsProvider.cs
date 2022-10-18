@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using MyLab.Redis.ObjectModel;
+﻿using MyLab.Redis.ObjectModel;
 using MyLab.Redis.Scripting;
-using StackExchange.Redis;
 
 namespace MyLab.Redis
 {
@@ -13,20 +10,36 @@ namespace MyLab.Redis
     {
         private readonly RedisDbProvider _redisDbProvider;
         private readonly RedisCacheFactory _redisCacheFactory;
+        private readonly RedlockerFactory _redlockerFactory;
 
-        public RedisDbToolsProvider(RedisDbProvider dbProvider, RedisCacheFactory redisCacheFactory)
-            :base(dbProvider)
+        /// <summary>
+        /// Create new instance of <see cref="RedisDbToolsProvider"/>
+        /// </summary>
+        public RedisDbToolsProvider(
+            RedisDbProvider dbProvider, 
+            RedisCacheFactory redisCacheFactory,
+            RedlockerFactory redlockerFactory)
+            : base(dbProvider)
         {
             _redisDbProvider = dbProvider;
             _redisCacheFactory = redisCacheFactory;
+            _redlockerFactory = redlockerFactory;
         }
 
         /// <summary>
-        /// Provides Redis base cache by name
+        /// Provides Redis-based cache by name
         /// </summary>
         public RedisCache Cache(string name)
         {
-            return _redisCacheFactory.Provide(name);
+            return _redisCacheFactory.Create(name);
+        }
+
+        /// <summary>
+        /// Provides Redis-based locker by name
+        /// </summary>
+        public Redlocker CreateLocker(string name)
+        {
+            return _redlockerFactory.Create(name);
         }
 
         /// <summary>

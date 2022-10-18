@@ -29,15 +29,17 @@ namespace MyLab.Redis.Services
         public RedisDbToolsProvider Db(int dbIndex)
         {
             var dbProvider = new RedisDbProvider(_connectionProvider, dbIndex);
+
+            var dbLink = new RedisDbLink
+            {
+                Index = dbIndex,
+                Provider = dbProvider
+            };
+
             return new RedisDbToolsProvider(
                 dbProvider,
-                new RedisCacheFactory(
-                    new RedisDbLink
-                    {
-                        Index = dbIndex,
-                        Provider = dbProvider
-                    },
-                    _options)
+                new RedisCacheFactory(dbLink, _options),
+                new RedlockerFactory(dbLink, _options)
             );
         }
 
