@@ -121,15 +121,13 @@ public class RedisOptions
     public string Password { get; set; }
     
     /// <summary>
-    /// Retry period in seconds when background connection mode
+    /// Retry period in seconds when 'background' connection mode
     /// </summary>
     public int BackgroundRetryPeriodSec { get; set; } = 10;
 
     //...
 }
 ```
-
-Если указано поле `Password`, оно переопределяет значения пароля из строки подключения `ConnectionString`. 
 
 Смотрите так же:
 
@@ -198,11 +196,27 @@ public class RedisOptions
     //...
 
     /// <summary>
-    /// Cache options
+    /// Caching options
     /// </summary>
-    public CacheOptions[] Cache { get; set; }
+    public CachingOptions Caching { get; set; }
 
     //...
+}
+
+/// <summary>
+/// Contains caching options
+/// </summary>
+public class CachingOptions
+{
+    /// <summary>
+    /// Gets Redis-key name prefix
+    /// </summary>
+    public string KeyPrefix { get; set; }
+
+    /// <summary>
+    /// Get named cache options
+    /// </summary>
+    public CacheOptions[] Caches { get; set; }
 }
 
 /// <summary>
@@ -216,29 +230,28 @@ public class CacheOptions
     public string Name { get; set; }
 
     /// <summary>
-    /// Cache key name
-    /// </summary>
-    public string Key{ get; set; }
-
-    /// <summary>
-    /// Default expiry fro cache items
+    /// Default expiry for cache items
     /// </summary>
     public string DefaultExpiry { get; set; }
 }
 ```
 
-Поля:
+##### Имя ключа кэша
 
-* **Name** - имя, по которому идентифицируется кэш и это имя указывается в коде при получении объекта для взаимодействия с кэшем;
-* **Key** - ключ кэша. Используется как префикс для составления имён ключей элементов кэша.
-* **DefaultExpiry** - время жизни элемента кэша по умолчанию. 
+Имя ключа для хранения кэша формируется из префикса имени ключа `Redis.Caching.KeyPrefix` и имени конкретного кэша `Redis.Caching[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет занчение `cache`.
 
-Поддерживаемые форматы поля `DefaultExpiry`:
+##### Экспирация кэша
 
-* **int** - количество часов. Например, `10` - 10 часов. 
-* **TimeStemp** - точное время жизни.  Например, `10:01:20` - 10 часов 1 минута и 20 секунд.
+Время экспирации указываетя только для конкретного кэша в поле `Redis.Caching[].DefaultExpiry`. Это значение используется по умолчанию для элементов кэша, если  в коде не указано другое значение при добавлении этого элемента.
 
-Пример конфига с кэшем:
+Значение по умолчанию - 1 мин.
+
+Возмонжые форматы:
+
+* `int` - число секунд;
+* `TimeStemp` - временной интервал. Например `00:00:10` - 10 секунд. [Подробнее тут](https://learn.microsoft.com/en-us/dotnet/api/system.timespan.parse?view=netcore-3.1).
+
+##### Пример конфига кэша
 
 ```json
 {
@@ -252,6 +265,8 @@ public class CacheOptions
     ]
 }
 ```
+
+Смотрите так же: [Конфигурация](#Конфигурация)
 
 #### Применение
 

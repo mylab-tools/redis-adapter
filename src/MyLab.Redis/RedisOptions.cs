@@ -19,7 +19,7 @@ namespace MyLab.Redis
         public string Password { get; set; }
 
         /// <summary>
-        /// Retry period in seconds when background connection mode
+        /// Retry period in seconds when 'background' connection mode
         /// </summary>
         public int BackgroundRetryPeriodSec { get; set; } = 10;
 
@@ -45,14 +45,9 @@ namespace MyLab.Redis
         public string Name { get; set; }
 
         /// <summary>
-        /// Cache key name
-        /// </summary>
-        public string Key{ get; set; }
-
-        /// <summary>
         /// Default expiry for cache items
         /// </summary>
-        public string DefaultExpiry { get; set; }
+        public string DefaultExpiry { get; set; } = TimeSpan.FromMinutes(1).ToString();
     }
 
     /// <summary>
@@ -63,7 +58,7 @@ namespace MyLab.Redis
         /// <summary>
         /// Gets Redis-key name prefix
         /// </summary>
-        public string KeyPrefix { get; set; }
+        public string KeyPrefix { get; set; } = "cache";
 
         /// <summary>
         /// Get named cache options

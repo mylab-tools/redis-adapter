@@ -1391,11 +1391,6 @@
             Cache name
             </summary>
         </member>
-        <member name="P:MyLab.Redis.CacheOptions.Key">
-            <summary>
-            Cache key name
-            </summary>
-        </member>
         <member name="P:MyLab.Redis.CacheOptions.DefaultExpiry">
             <summary>
             Default expiry for cache items

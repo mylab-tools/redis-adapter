@@ -26,25 +26,23 @@ namespace IntegrationTests
             {
                 o.Caching = new CachingOptions
                 {
+                    KeyPrefix = "cache",
                     Caches = new[]
                     {
                         new CacheOptions
                         {
                             Name = Cache100MsName,
-                            DefaultExpiry = TimeSpan.FromMilliseconds(100).ToString(),
-                            Key = "cache:" + Cache100MsName
+                            DefaultExpiry = TimeSpan.FromMilliseconds(100).ToString()
                         },
                         new CacheOptions
                         {
                             Name = Cache1000MsName,
-                            DefaultExpiry = TimeSpan.FromMilliseconds(1000).ToString(),
-                            Key = "cache:" + Cache1000MsName
+                            DefaultExpiry = TimeSpan.FromMilliseconds(1000).ToString()
                         },
                         new CacheOptions
                         {
                             Name = Cache1MinName,
-                            DefaultExpiry = TimeSpan.FromMinutes(1).ToString(),
-                            Key = "cache:" + Cache1MinName
+                            DefaultExpiry = TimeSpan.FromMinutes(1).ToString()
                         }
                     }
                 };

@@ -6,8 +6,8 @@ namespace MyLab.Redis
     {
         public static TimeSpan Parse(string expiry)
         {
-            if(int.TryParse(expiry, out int hours))
-                return TimeSpan.FromHours(hours);
+            if(int.TryParse(expiry, out int sec))
+                return TimeSpan.FromSeconds(sec);
 
             return TimeSpan.Parse(expiry);
         }
