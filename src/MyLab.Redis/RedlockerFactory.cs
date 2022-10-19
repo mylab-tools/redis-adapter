@@ -24,14 +24,19 @@ namespace MyLab.Redis
         /// <summary>
         /// Creates a lock
         /// </summary>
-        public Redlocker Create(string name)
+        public Redlocker Create(string name, string childId = null)
         {
             var opt = _options.Locking?.Locks?.FirstOrDefault(o => o.Name == name);
             if (opt == null)
                 throw new InvalidOperationException($"Redlock '{name}' not found");
 
-            var lockKeyName = KeyNameTools.BuildName(_options.Locking.KeyPrefix, name);
+            var keyNameBuilder = new KeyNameBuilder(name)
+            {
+                Prefix = _options.Locking.KeyPrefix,
+                Suffix = childId
+            };
 
+            var lockKeyName = keyNameBuilder.Build();
             var rLocker =  new Redlocker(_database.Provider, lockKeyName);
 
             if (!string.IsNullOrEmpty(opt.Expiry))

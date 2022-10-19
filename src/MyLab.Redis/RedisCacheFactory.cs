@@ -32,7 +32,11 @@ namespace MyLab.Redis
 
             var defaultExpiry = OptionsExpiryParser.Parse(opt.DefaultExpiry);
 
-            var cacheKeyName = KeyNameTools.BuildName(_options.Caching.KeyPrefix, name);
+            var keyNameBuilder = new KeyNameBuilder(name)
+            {
+                Prefix = _options.Caching.KeyPrefix
+            };
+            var cacheKeyName = keyNameBuilder.Build();
 
             return new RedisCache(_database, cacheKeyName)
             {

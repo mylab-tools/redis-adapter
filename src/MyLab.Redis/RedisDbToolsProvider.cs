@@ -37,9 +37,17 @@ namespace MyLab.Redis
         /// <summary>
         /// Provides Redis-based locker by name
         /// </summary>
-        public Redlocker CreateLocker(string name)
+        public Redlocker CreateLocker(string lockName)
         {
-            return _redlockerFactory.Create(name);
+            return _redlockerFactory.Create(lockName);
+        }
+
+        /// <summary>
+        /// Provides Redis-based locker by name
+        /// </summary>
+        public Redlocker CreateLocker(string lockName, string childId)
+        {
+            return _redlockerFactory.Create(lockName, childId);
         }
 
         /// <summary>

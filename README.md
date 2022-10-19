@@ -427,33 +427,61 @@ public class LockOptions
 ##### Простая блокировка
 
 ```c#
-var locker = redis.Db().CreateLocker("foo");
+var locker = redis.Db().CreateLocker("foo");						// 1
 
-await using var lockAttempt = await locker.TryLockOnceAsync();
+await using var lockAttempt = await locker.TryLockOnceAsync();		// 2
 
-if(lockAttempt.Acquired)
+if(lockAttempt.Acquired)											// 3
 {
-    // do sync work
+    // do sync work													// 4
 }
 ```
+
+В примере выше:
+
+1. создаётся блокировщик по имени блокировки `foo`;
+2. происходит разовая попытка завладеть состоянием;
+3. проверка успешности захвата состояния;
+4. выполнение работы, требующей синхронизации.
+
+##### Блокировка идентифицированного ресурса
+
+```c#
+var locker = redis.Db().CreateLocker("orders", "c389c0a5e28b42258298a1ab72ff41d0");
+
+//....
+```
+
+В примере выше создаётся блокировщик по имени блокировки `orders` (заявки) и идентификатору конкретной заявки.  
 
 ##### Блокировка итеративного процесса
 
 ```c#
-var locker = redis.Db().CreateLocker("foo");
+var locker = redis.Db().CreateLocker("foo");						// 1
 
-await using var lockAttempt = await locker.TryLockOnceAsync();
+await using var lockAttempt = await locker.TryLockOnceAsync();		// 2
 
-if(lockAttempt.Acquired)
+if(lockAttempt.Acquired)											// 3
 {
-	while(/*...*/)
+	while(/*...*/)													// 4
     {
-        //do something
+        //do something												// 5
         
-        await lockAttempt.Lock.ProlongAsync();
+        await lockAttempt.Lock.ProlongAsync();						// 6
     }
 }
 ```
+
+В примере выше:
+
+1. создаётся блокировщик по имени блокировки `foo`;
+2. происходит разовая попытка завладеть состоянием;
+3. проверка успешности захвата состояния;
+4. выполнение предположительно длительного цикла;
+5. выполнение работы, требующей синхронизации;
+6. продление действия блокировки;
+
+В таком случае при каждой итерации будет обновляться время экспирации блокировки. Поэтому необходимо подбирать параметр блокировки `Expiry` таким образом, чтобы его гарантировано хватало на выполнение одной итерации цикла.    
 
 ### LUA скрипты
 
