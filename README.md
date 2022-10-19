@@ -132,6 +132,7 @@ public class RedisOptions
 Смотрите так же:
 
 * [Конфигурирование кэша](#Конфигурирование-кэша)
+* [Конфигурирование блокировок](#Конфигурирование-блокировок)
 
 ## Инструменты сервера
 
@@ -405,6 +406,8 @@ public class LockOptions
 }
 ```
 
+Смотрите так же: [Конфигурация](#Конфигурация)
+
 ##### Имя ключа блокировки
 
 Имя ключа для организации блокировки формируется из префикса имени ключа `Redis.Locking.KeyPrefix` и имени конкретного кэша `Redis.Locks[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет значение `redlock`.
@@ -427,13 +430,13 @@ public class LockOptions
 ##### Простая блокировка
 
 ```c#
-var locker = redis.Db().CreateLocker("foo");						// 1
+var locker = redis.Db().CreateLocker("foo"); // 1
 
-await using var lockAttempt = await locker.TryLockOnceAsync();		// 2
+await using var lockAttempt = await locker.TryLockOnceAsync(); // 2
 
-if(lockAttempt.Acquired)											// 3
+if(lockAttempt.Acquired) // 3	
 {
-    // do sync work													// 4
+    // 4													
 }
 ```
 
@@ -457,17 +460,17 @@ var locker = redis.Db().CreateLocker("orders", "c389c0a5e28b42258298a1ab72ff41d0
 ##### Блокировка итеративного процесса
 
 ```c#
-var locker = redis.Db().CreateLocker("foo");						// 1
+var locker = redis.Db().CreateLocker("foo"); // 1
 
-await using var lockAttempt = await locker.TryLockOnceAsync();		// 2
+await using var lockAttempt = await locker.TryLockOnceAsync(); // 2
 
-if(lockAttempt.Acquired)											// 3
+if(lockAttempt.Acquired) // 3
 {
-	while(/*...*/)													// 4
+    while(/*...*/) // 4
     {
-        //do something												// 5
+        // 5
         
-        await lockAttempt.Lock.ProlongAsync();						// 6
+        await lockAttempt.Lock.ProlongAsync(); // 6
     }
 }
 ```
