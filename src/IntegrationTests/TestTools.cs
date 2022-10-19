@@ -11,44 +11,23 @@ namespace IntegrationTests
 {
     static class TestTools
     {
-        public const string Cache100MsName = "100msCache";
-        public const string Cache1000MsName = "1000msCache";
-        public const string Cache1MinName = "1minCache";
-        public const string CacheDefaultName = Cache100MsName;
-
         public static Action<RedisOptions> ConfigureOptions => o =>
         {
             o.ConnectionString = "localhost:9110,allowAdmin=true";
-            o.Cache = new[]
-            {
-                new CacheOptions
-                {
-                    Name = Cache100MsName,
-                    DefaultExpiry = TimeSpan.FromMilliseconds(100).ToString(),
-                    Key = "cache:" + Cache100MsName
-                },
-                new CacheOptions
-                {
-                    Name = Cache1000MsName,
-                    DefaultExpiry = TimeSpan.FromMilliseconds(1000).ToString(),
-                    Key = "cache:" + Cache1000MsName
-                },
-                new CacheOptions
-                {
-                    Name = Cache1MinName,
-                    DefaultExpiry = TimeSpan.FromMinutes(1).ToString(),
-                    Key = "cache:" + Cache1MinName
-                },
-            };
-
         };
 
-        public static IRedisService CreateRedisService(ITestOutputHelper output)
+        public static IRedisService CreateRedisService(ITestOutputHelper output, Action<RedisOptions> editOptions = null)
         {
             var serviceCollection = new ServiceCollection();
             
             serviceCollection.AddRedis(new LazyRedisConnectionPolicy());
             serviceCollection.ConfigureRedis(ConfigureOptions);
+            
+            if (editOptions != null)
+            {
+                serviceCollection.ConfigureRedis(editOptions);
+            }
+
             serviceCollection.AddLogging(l => l.AddXUnit(output).AddFilter(f => true));
 
             var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -60,9 +39,9 @@ namespace IntegrationTests
             return "foo_" + Guid.NewGuid().ToString("N");
         }
 
-        public static async Task PerformTest(ITestOutputHelper output, TestInvocation testAct)
+        public static async Task PerformTest(ITestOutputHelper output, TestInvocation testAct, Action<RedisOptions> editOptions = null)
         {
-            var redis = CreateRedisService(output);
+            var redis = CreateRedisService(output, editOptions);
 
             try
             {

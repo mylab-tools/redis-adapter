@@ -1,0 +1,10 @@
+local target_key = KEYS[1]
+local key_id = ARGV[1]
+
+local key_val = redis.call('GET', target_key)
+
+if key_val == key_id then
+	return redis.call('DEL', target_key)
+else
+	return nil
+end

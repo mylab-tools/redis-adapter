@@ -97,7 +97,7 @@ namespace MyLab.Redis.ObjectModel
             await key.DeleteAsync();
         }
 
-        public async Task<int> Count()
+        public async Task<int> CountAsync()
         {
             var db = _redisDbProvider.Provide();
 

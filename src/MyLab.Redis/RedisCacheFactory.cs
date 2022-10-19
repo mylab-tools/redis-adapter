@@ -5,34 +5,40 @@ using MyLab.Redis.ObjectModel;
 namespace MyLab.Redis
 {
     /// <summary>
-    /// Provides Redis cache
+    /// Creates Redis cache
     /// </summary>
-    public class RedisCacheProvider
+    public class RedisCacheFactory
     {
         private readonly RedisDbLink _database;
         private readonly RedisOptions _options;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="RedisCacheProvider"/>
+        /// Initializes a new instance of <see cref="RedisCacheFactory"/>
         /// </summary>
-        public RedisCacheProvider(RedisDbLink database, RedisOptions options)
+        public RedisCacheFactory(RedisDbLink database, RedisOptions options)
         {
             _database = database;
             _options = options;
         }
 
         /// <summary>
-        /// Provides <see cref="RedisCache"/> object
+        /// Creates <see cref="RedisCache"/> object
         /// </summary>
-        public RedisCache Provide(string name)
+        public RedisCache Create(string name)
         {
-            var opt = _options.Cache?.FirstOrDefault(o => o.Name == name);
+            var opt = _options.Caching?.Caches?.FirstOrDefault(o => o.Name == name);
             if (opt == null)
                 throw new InvalidOperationException($"RedisCache '{name}' not found");
 
             var defaultExpiry = OptionsExpiryParser.Parse(opt.DefaultExpiry);
 
-            return new RedisCache(_database, opt.Key)
+            var keyNameBuilder = new KeyNameBuilder(name)
+            {
+                Prefix = _options.Caching.KeyPrefix
+            };
+            var cacheKeyName = keyNameBuilder.Build();
+
+            return new RedisCache(_database, cacheKeyName)
             {
                 DefaultExpiry = defaultExpiry
             };

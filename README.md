@@ -121,7 +121,7 @@ public class RedisOptions
     public string Password { get; set; }
     
     /// <summary>
-    /// Retry period in seconds when background connection mode
+    /// Retry period in seconds when 'background' connection mode
     /// </summary>
     public int BackgroundRetryPeriodSec { get; set; } = 10;
 
@@ -129,11 +129,10 @@ public class RedisOptions
 }
 ```
 
-Если указано поле `Password`, оно переопределяет значения пароля из строки подключения `ConnectionString`. 
-
-Смотрите так же:
+Смотрите также:
 
 * [Конфигурирование кэша](#Конфигурирование-кэша)
+* [Конфигурирование блокировок](#Конфигурирование-блокировок)
 
 ## Инструменты сервера
 
@@ -187,7 +186,7 @@ await redis.Db().String("foo").ExpireAsync(TimeSpan.FromMilliseconds(100));
 
 #### Конфигурирование кэша
 
-Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Cache`:
+Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Caching`:
 
 ```c#
 /// <summary>
@@ -198,11 +197,27 @@ public class RedisOptions
     //...
 
     /// <summary>
-    /// Cache options
+    /// Caching options
     /// </summary>
-    public CacheOptions[] Cache { get; set; }
+    public CachingOptions Caching { get; set; }
 
     //...
+}
+
+/// <summary>
+/// Contains caching options
+/// </summary>
+public class CachingOptions
+{
+    /// <summary>
+    /// Gets Redis-key name prefix
+    /// </summary>
+    public string KeyPrefix { get; set; }
+
+    /// <summary>
+    /// Get named cache options
+    /// </summary>
+    public CacheOptions[] Caches { get; set; }
 }
 
 /// <summary>
@@ -216,29 +231,30 @@ public class CacheOptions
     public string Name { get; set; }
 
     /// <summary>
-    /// Cache key name
-    /// </summary>
-    public string Key{ get; set; }
-
-    /// <summary>
-    /// Default expiry fro cache items
+    /// Default expiry for cache items
     /// </summary>
     public string DefaultExpiry { get; set; }
 }
 ```
 
-Поля:
+Смотрите также: [Конфигурация](#Конфигурация)
 
-* **Name** - имя, по которому идентифицируется кэш и это имя указывается в коде при получении объекта для взаимодействия с кэшем;
-* **Key** - ключ кэша. Используется как префикс для составления имён ключей элементов кэша.
-* **DefaultExpiry** - время жизни элемента кэша по умолчанию. 
+##### Имя ключа кэша
 
-Поддерживаемые форматы поля `DefaultExpiry`:
+Имя ключа для хранения кэша формируется из префикса имени ключа `Redis.Caching.KeyPrefix` и имени конкретного кэша `Redis.Caches[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет значение `cache`.
 
-* **int** - количество часов. Например, `10` - 10 часов. 
-* **TimeStemp** - точное время жизни.  Например, `10:01:20` - 10 часов 1 минута и 20 секунд.
+##### Экспирация кэша
 
-Пример конфига с кэшем:
+Время экспирации указываетя только для конкретного кэша в поле `Redis.Caches[].DefaultExpiry`. Это значение используется по умолчанию для элементов кэша, если  в коде не указано другое значение при добавлении этого элемента.
+
+Значение по умолчанию - 1 мин.
+
+Возможные форматы:
+
+* `int` - число секунд;
+* `TimeStemp` - временной интервал. Например `00:00:10` - 10 секунд. [Подробнее тут](https://learn.microsoft.com/en-us/dotnet/api/system.timespan.parse?view=netcore-3.1).
+
+##### Пример конфига кэша
 
 ```json
 {
@@ -246,7 +262,6 @@ public class CacheOptions
 	"Cache": [
         {
             "Name": "test",
-            "Key": "redis-test:cache",
             "DefaultExpiry": "24"
         }
     ]
@@ -313,6 +328,163 @@ var found = await cache.FetchAsync("foo",
     	Id = 1
     });
 ```
+
+### Redlock
+
+Реализация алгоритма [распределённой блокировки с пирменением Redis](https://redis.io/docs/reference/patterns/distributed-locks/).
+
+Позволяет синхронизировать процессы. При этом состояние блокировки находится в `Redis`. 
+
+В конфигурации приложения объявляются именованные блокировки и объявляются их временные параметры. В коде приложение может воспользоваться блокировкой с указанием её имени. При этом будут использованы соответствующие параметы из конфигурации.
+
+При необходимости синхронизации, приложение может попытаться заблокировать/захватить состояние и таким образом получить возможность выполнить действия, которые требуют синхронизации. Такая попытка может закончиться неудачно, если за отведённое время состояние не освободилось.   
+
+При необходимости длительной блокировки состояния следует периодически продлевать время блокировки. Например, каждую итерацию в задаче, которая выполняет длительный цикл. 
+
+Такая блокировка работает и при использовании в рамках одного процесса. Т.е. в общем случае, если работает несколько экземпляров приложения (процессы), в которых работает несколько потоков, то они могут конкурировать в независимости от того, в каком процессе они находятся. 
+
+#### Конфигурирование блокировок
+
+Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Locking`:
+
+```c#
+/// <summary>
+/// Contains Redis configuration
+/// </summary>
+public class RedisOptions 
+{
+	....
+        
+    /// <summary>
+    /// Locking options
+    /// </summary>
+    public LockingOptions Locking { get; set; }
+    
+    ....
+}
+
+/// <summary>
+/// Contains licking options
+/// </summary>
+public class LockingOptions
+{
+    /// <summary>
+    /// Gets Redis-key name prefix
+    /// </summary>
+    public string KeyPrefix { get; set; }
+
+    /// <summary>
+    /// Gets named lock options
+    /// </summary>
+    public LockOptions[] Locks { get; set; }
+}
+
+/// <summary>
+/// Lock options
+/// </summary>
+public class LockOptions
+{
+    /// <summary>
+    /// Lock name
+    /// </summary>
+    public string Name { get; set; }
+
+    /// <summary>
+    /// Determines key expiry
+    /// </summary>
+    public string Expiry { get; set; }
+
+    /// <summary>
+    /// Determines the timeout for a locking attempt
+    /// </summary>
+    public string DefaultTimeout { get; set; }
+
+    /// <summary>
+    /// Determines a waiting period between locking attempts
+    /// </summary>
+    public string RetryPeriod { get; set; }
+}
+```
+
+Смотрите также: [Конфигурация](#Конфигурация)
+
+##### Имя ключа блокировки
+
+Имя ключа для организации блокировки формируется из префикса имени ключа `Redis.Locking.KeyPrefix` и имени конкретного кэша `Redis.Locks[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет значение `redlock`.
+
+##### Временные параметры блокировки
+
+Параметры конфиграции:
+
+* `Redis.Locking.Locks[].Expiry` - время жизни ключа, используемого для организации блокировки. Значение по умолчанию 1 мин;
+* `Redis.Locking.Locks[].DefaultTimeout` - время, в течении которого происходят попытки блокировки. Используется по умолчанию, если не указано другое значение в коде. Значение по умолчанию - 5 сек;
+* `Redis.Locking.Locks[].RetryPeriod` - период повторов попыток блокировки.
+
+Все эти временные параметры могут быть указаны в следующих форматах:
+
+* `int` - число секунд;
+* `TimeStemp` - временной интервал. Например `00:00:10` - 10 секунд. [Подробнее тут](https://learn.microsoft.com/en-us/dotnet/api/system.timespan.parse?view=netcore-3.1).
+
+#### Применение блокировок
+
+##### Простая блокировка
+
+```c#
+var locker = redis.Db().CreateLocker("foo"); // 1
+
+await using var lockAttempt = await locker.TryLockOnceAsync(); // 2
+
+if(lockAttempt.Acquired) // 3	
+{
+    // 4													
+}
+```
+
+В примере выше:
+
+1. создаётся блокировщик по имени блокировки `foo`;
+2. происходит разовая попытка завладеть состоянием;
+3. проверка успешности захвата состояния;
+4. выполнение работы, требующей синхронизации.
+
+##### Блокировка идентифицированного ресурса
+
+```c#
+var locker = redis.Db().CreateLocker("orders", "c389c0a5e28b42258298a1ab72ff41d0");
+
+//....
+```
+
+В примере выше создаётся блокировщик по имени блокировки `orders` (заявки) и идентификатору конкретной заявки.  
+
+##### Блокировка итеративного процесса
+
+```c#
+var locker = redis.Db().CreateLocker("foo"); // 1
+
+await using var lockAttempt = await locker.TryLockOnceAsync(); // 2
+
+if(lockAttempt.Acquired) // 3
+{
+    while(/*...*/) // 4
+    {
+        // 5
+        
+        await lockAttempt.Lock.ProlongAsync(); // 6
+    }
+}
+```
+
+В примере выше:
+
+1. создаётся блокировщик по имени блокировки `foo`;
+2. происходит разовая попытка завладеть состоянием;
+3. проверка успешности захвата состояния;
+4. выполнение предположительно длительного цикла;
+5. выполнение работы, требующей синхронизации;
+6. продление действия блокировки;
+
+В таком случае при каждой итерации будет обновляться время экспирации блокировки. Поэтому необходимо подбирать параметр блокировки `Expiry` таким образом, чтобы его гарантировано хватало на выполнение одной итерации цикла.    
 
 ### LUA скрипты
 

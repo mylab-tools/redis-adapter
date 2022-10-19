@@ -1,0 +1,11 @@
+local target_key = KEYS[1]
+local key_id = ARGV[1]
+local expiry_sec = ARGV[2]
+
+local key_val = redis.call('GET', target_key)
+
+if key_val == key_id then
+	return redis.call('EXPIRE', target_key, expiry_sec)
+else
+	return nil
+end

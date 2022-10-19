@@ -1,8 +1,5 @@
-﻿using System;
-using System.Threading.Tasks;
-using MyLab.Redis.ObjectModel;
+﻿using MyLab.Redis.ObjectModel;
 using MyLab.Redis.Scripting;
-using StackExchange.Redis;
 
 namespace MyLab.Redis
 {
@@ -12,21 +9,45 @@ namespace MyLab.Redis
     public class RedisDbToolsProvider : RedisDbKeysProvider
     {
         private readonly RedisDbProvider _redisDbProvider;
-        private readonly RedisCacheProvider _redisCacheProvider;
+        private readonly RedisCacheFactory _redisCacheFactory;
+        private readonly RedlockerFactory _redlockerFactory;
 
-        public RedisDbToolsProvider(RedisDbProvider dbProvider, RedisCacheProvider redisCacheProvider)
-            :base(dbProvider)
+        /// <summary>
+        /// Create new instance of <see cref="RedisDbToolsProvider"/>
+        /// </summary>
+        public RedisDbToolsProvider(
+            RedisDbProvider dbProvider, 
+            RedisCacheFactory redisCacheFactory,
+            RedlockerFactory redlockerFactory)
+            : base(dbProvider)
         {
             _redisDbProvider = dbProvider;
-            _redisCacheProvider = redisCacheProvider;
+            _redisCacheFactory = redisCacheFactory;
+            _redlockerFactory = redlockerFactory;
         }
 
         /// <summary>
-        /// Provides Redis base cache by name
+        /// Provides Redis-based cache by name
         /// </summary>
         public RedisCache Cache(string name)
         {
-            return _redisCacheProvider.Provide(name);
+            return _redisCacheFactory.Create(name);
+        }
+
+        /// <summary>
+        /// Provides Redis-based locker by name
+        /// </summary>
+        public Redlocker CreateLocker(string lockName)
+        {
+            return _redlockerFactory.Create(lockName);
+        }
+
+        /// <summary>
+        /// Provides Redis-based locker by name
+        /// </summary>
+        public Redlocker CreateLocker(string lockName, string childId)
+        {
+            return _redlockerFactory.Create(lockName, childId);
         }
 
         /// <summary>
