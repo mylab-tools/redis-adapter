@@ -185,7 +185,7 @@ await redis.Db().String("foo").ExpireAsync(TimeSpan.FromMilliseconds(100));
 
 #### Конфигурирование кэша
 
-Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Cache`:
+Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Caching`:
 
 ```c#
 /// <summary>
@@ -238,15 +238,15 @@ public class CacheOptions
 
 ##### Имя ключа кэша
 
-Имя ключа для хранения кэша формируется из префикса имени ключа `Redis.Caching.KeyPrefix` и имени конкретного кэша `Redis.Caching[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет занчение `cache`.
+Имя ключа для хранения кэша формируется из префикса имени ключа `Redis.Caching.KeyPrefix` и имени конкретного кэша `Redis.Caches[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет значение `cache`.
 
 ##### Экспирация кэша
 
-Время экспирации указываетя только для конкретного кэша в поле `Redis.Caching[].DefaultExpiry`. Это значение используется по умолчанию для элементов кэша, если  в коде не указано другое значение при добавлении этого элемента.
+Время экспирации указываетя только для конкретного кэша в поле `Redis.Caches[].DefaultExpiry`. Это значение используется по умолчанию для элементов кэша, если  в коде не указано другое значение при добавлении этого элемента.
 
 Значение по умолчанию - 1 мин.
 
-Возмонжые форматы:
+Возможные форматы:
 
 * `int` - число секунд;
 * `TimeStemp` - временной интервал. Например `00:00:10` - 10 секунд. [Подробнее тут](https://learn.microsoft.com/en-us/dotnet/api/system.timespan.parse?view=netcore-3.1).
@@ -259,7 +259,6 @@ public class CacheOptions
 	"Cache": [
         {
             "Name": "test",
-            "Key": "redis-test:cache",
             "DefaultExpiry": "24"
         }
     ]
@@ -327,6 +326,133 @@ var found = await cache.FetchAsync("foo",
     {
     	Id = 1
     });
+```
+
+### Redlock
+
+Реализация алгоритма [распределённой блокировки с пирменением Redis](https://redis.io/docs/reference/patterns/distributed-locks/).
+
+Позволяет синхронизировать процессы. При этом состояние блокировки находится в `Redis`. 
+
+В конфигурации приложения объявляются именованные блокировки и объявляются их временные параметры. В коде приложение может воспользоваться блокировкой с указанием её имени. При этом будут использованы соответствующие параметы из конфигурации.
+
+При необходимости синхронизации, приложение может попытаться заблокировать/захватить состояние и таким образом получить возможность выполнить действия, которые требуют синхронизации. Такая попытка может закончиться неудачно, если за отведённое время состояние не освободилось.   
+
+При необходимости длительной блокировки состояния следует периодически продлевать время блокировки. Например, каждую итерацию в задаче, которая выполняет длительный цикл. 
+
+Такая блокировка работает и при использовании в рамках одного процесса. Т.е. в общем случае, если работает несколько экземпляров приложения (процессы), в которых работает несколько потоков, то они могут конкурировать в независимости от того, в каком процессе они находятся. 
+
+#### Конфигурирование блокировок
+
+Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Locking`:
+
+```c#
+/// <summary>
+/// Contains Redis configuration
+/// </summary>
+public class RedisOptions 
+{
+	....
+        
+    /// <summary>
+    /// Locking options
+    /// </summary>
+    public LockingOptions Locking { get; set; }
+    
+    ....
+}
+
+/// <summary>
+/// Contains licking options
+/// </summary>
+public class LockingOptions
+{
+    /// <summary>
+    /// Gets Redis-key name prefix
+    /// </summary>
+    public string KeyPrefix { get; set; }
+
+    /// <summary>
+    /// Gets named lock options
+    /// </summary>
+    public LockOptions[] Locks { get; set; }
+}
+
+/// <summary>
+/// Lock options
+/// </summary>
+public class LockOptions
+{
+    /// <summary>
+    /// Lock name
+    /// </summary>
+    public string Name { get; set; }
+
+    /// <summary>
+    /// Determines key expiry
+    /// </summary>
+    public string Expiry { get; set; }
+
+    /// <summary>
+    /// Determines the timeout for a locking attempt
+    /// </summary>
+    public string DefaultTimeout { get; set; }
+
+    /// <summary>
+    /// Determines a waiting period between locking attempts
+    /// </summary>
+    public string RetryPeriod { get; set; }
+}
+```
+
+##### Имя ключа блокировки
+
+Имя ключа для организации блокировки формируется из префикса имени ключа `Redis.Locking.KeyPrefix` и имени конкретного кэша `Redis.Locks[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет значение `redlock`.
+
+##### Временные параметры блокировки
+
+Параметры конфиграции:
+
+* `Redis.Locking.Locks[].Expiry` - время жизни ключа, используемого для организации блокировки. Значение по умолчанию 1 мин;
+* `Redis.Locking.Locks[].DefaultTimeout` - время, в течении которого происходят попытки блокировки. Используется по умолчанию, если не указано другое значение в коде. Значение по умолчанию - 5 сек;
+* `Redis.Locking.Locks[].RetryPeriod` - период повторов попыток блокировки.
+
+Все эти временные параметры могут быть указаны в следующих форматах:
+
+* `int` - число секунд;
+* `TimeStemp` - временной интервал. Например `00:00:10` - 10 секунд. [Подробнее тут](https://learn.microsoft.com/en-us/dotnet/api/system.timespan.parse?view=netcore-3.1).
+
+#### Применение блокировок
+
+##### Простая блокировка
+
+```c#
+var locker = redis.Db().CreateLocker("foo");
+
+await using var lockAttempt = await locker.TryLockOnceAsync();
+
+if(lockAttempt.Acquired)
+{
+    // do sync work
+}
+```
+
+##### Блокировка итеративного процесса
+
+```c#
+var locker = redis.Db().CreateLocker("foo");
+
+await using var lockAttempt = await locker.TryLockOnceAsync();
+
+if(lockAttempt.Acquired)
+{
+	while(/*...*/)
+    {
+        //do something
+        
+        await lockAttempt.Lock.ProlongAsync();
+    }
+}
 ```
 
 ### LUA скрипты
