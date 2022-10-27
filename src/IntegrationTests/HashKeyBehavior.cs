@@ -25,10 +25,12 @@ namespace IntegrationTests
                 var hash = redis.Db().Hash(testKey);
 
                 //Act
-                await hash.SetAsync("foo-filed", "foo-value");
+                await hash.SetAsync("foo-field", "foo-value");
+                
+                var testFiledValue = await hash.GetAsync("foo-field");
 
                 //Assert
-
+                Assert.Equal("foo-value", testFiledValue);
             });
         }
 
