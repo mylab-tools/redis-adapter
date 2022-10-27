@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using MyLab.Redis;
 using Xunit;
@@ -46,6 +47,52 @@ namespace IntegrationTests
                 //Assert
                 Assert.True(lockAttempt.Acquired);
             }, _editOptions);
+        }
+
+        [Fact]
+        public async Task ShouldStopTryLockWhenTimeout()
+        {
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
+            {
+                //Arrange
+                var locker1 = redis.Db().CreateLocker("foo");
+                var locker2 = redis.Db().CreateLocker("foo");
+
+                await using var lockAttempt1 = await locker1.TryLockOnceAsync();
+
+                //Act
+
+                await using var lockAttempt2 = await locker2.TryLockAsync();
+
+                //Assert
+                Assert.False(lockAttempt2.Acquired);
+            }, _editOptions);
+        }
+
+        [Fact]
+        public async Task ShouldStopTryLockWhenTimeoutWithSameRetryPeriod()
+        {
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
+            {
+                //Arrange
+                var locker1 = redis.Db().CreateLocker("foo");
+                var locker2 = redis.Db().CreateLocker("foo");
+
+                await using var lockAttempt1 = await locker1.TryLockOnceAsync();
+
+                //Act
+
+                await using var lockAttempt2 = await locker2.TryLockAsync();
+
+                //Assert
+                Assert.False(lockAttempt2.Acquired);
+            }, o =>
+            {
+                _editOptions(o);
+                var opt = o.Locking.Locks.First(l => l.Name == "foo");
+                opt.DefaultTimeout = "00:00:01";
+                opt.RetryPeriod = "00:00:01";
+            });
         }
 
         [Fact]

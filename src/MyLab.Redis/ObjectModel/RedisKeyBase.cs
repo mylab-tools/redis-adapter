@@ -68,30 +68,32 @@ namespace MyLab.Redis.ObjectModel
         /// Set a timeout on key. After the timeout has expired, the key will automatically be deleted. A key with an associated timeout is said to be volatile in Redis terminology.
         /// </summary>
         /// <param name="expiry">The timeout to set.</param>
+        /// <param name="when">In Redis 7+, we choose under which condition the expiration will be set using StackExchange.Redis.ExpireWhen</param>
         /// <returns>`true` - if the timeout was set. `false` - if key does not exist or the timeout could not be set.</returns>
         /// <remarks>If key is updated before the timeout has expired, then the timeout is removed as if the PERSIST command was invoked on key.
         /// For Redis versions &lt; 2.1.3, existing timeouts cannot be overwritten. So, if key already has an associated timeout, it will do nothing and return 0. Since Redis 2.1.3, you can update the timeout of a key. It is also possible to remove the timeout using the PERSIST command. See the page on key expiry for more information.</remarks>
         /// <remarks>https://redis.io/commands/expire</remarks>
         /// <remarks>https://redis.io/commands/pexpire</remarks>
         /// <remarks>https://redis.io/commands/persist</remarks>
-        public Task<bool> ExpireAsync(TimeSpan? expiry)
+        public Task<bool> ExpireAsync(TimeSpan? expiry, ExpireWhen when = ExpireWhen.Always)
         {
-            return RedisDb.KeyExpireAsync(KeyName, expiry);
+            return RedisDb.KeyExpireAsync(KeyName, expiry, when);
         }
 
         /// <summary>
         /// Set a timeout on key. After the timeout has expired, the key will automatically be deleted. A key with an associated timeout is said to be volatile in Redis terminology.
         /// </summary>
         /// <param name="expiry">The exact date to expiry to set.</param>
+        /// <param name="when">In Redis 7+, we choose under which condition the expiration will be set using StackExchange.Redis.ExpireWhen</param>
         /// <returns>`true` - if the timeout was set. `false` - if key does not exist or the timeout could not be set.</returns>
         /// <remarks>If key is updated before the timeout has expired, then the timeout is removed as if the PERSIST command was invoked on key.
         /// For Redis versions &lt; 2.1.3, existing timeouts cannot be overwritten. So, if key already has an associated timeout, it will do nothing and return 0. Since Redis 2.1.3, you can update the timeout of a key. It is also possible to remove the timeout using the PERSIST command. See the page on key expiry for more information.</remarks>
         /// <remarks>https://redis.io/commands/expireat</remarks>
         /// <remarks>https://redis.io/commands/pexpireat</remarks>
         /// <remarks>https://redis.io/commands/persist</remarks>
-        public Task<bool> ExpireAsync(DateTime? expiry)
+        public Task<bool> ExpireAsync(DateTime? expiry, ExpireWhen when = ExpireWhen.Always)
         {
-            return RedisDb.KeyExpireAsync(KeyName, expiry);
+            return RedisDb.KeyExpireAsync(KeyName, expiry, when);
         }
 
         /// <summary>
@@ -134,10 +136,9 @@ namespace MyLab.Redis.ObjectModel
         /// Create a key associated with a value that is obtained by deserializing the provided serialized value (obtained via DUMP).
         /// If ttl is 0 the key is created without any expire, otherwise the specified expire time(in milliseconds) is set.
         /// </summary>
-        /// <param name="key">The key to restore.</param>
         /// <param name="value">The value of the key.</param>
         /// <remarks>https://redis.io/commands/restore</remarks>
-        public Task RestoreAsync(StackExchange.Redis.RedisKey key, byte[] value)
+        public Task RestoreAsync(byte[] value)
         {
             return RedisDb.KeyRestoreAsync(KeyName, value);
         }
