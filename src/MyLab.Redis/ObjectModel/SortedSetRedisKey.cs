@@ -22,23 +22,25 @@ namespace MyLab.Redis.ObjectModel
         /// Adds the specified member with the specified score to the sorted set stored at key. If the specified member is already a member of the sorted set, the score is updated and the element reinserted at the right position to ensure the correct ordering.
         /// </summary>
         /// <param name="member">The member to add to the sorted set.</param>
+        /// <param name="when">What conditions to add the element under (defaults to always).</param>
         /// <param name="score">The score for the member to add to the sorted set.</param>
         /// <returns>True if the value was added, False if it already existed (the score is still updated)</returns>
         /// <remarks>https://redis.io/commands/zadd</remarks>
-        public Task<bool> AddAsync(RedisValue member, double score)
+        public Task<bool> AddAsync(RedisValue member, double score, SortedSetWhen when = SortedSetWhen.Always)
         {
-            return RedisDb.SortedSetAddAsync(KeyName, member, score);
+            return RedisDb.SortedSetAddAsync(KeyName, member, score, when);
         }
 
         /// <summary>
         /// Adds all the specified members with the specified scores to the sorted set stored at key. If a specified member is already a member of the sorted set, the score is updated and the element reinserted at the right position to ensure the correct ordering.
         /// </summary>
         /// <param name="values">The members and values to add to the sorted set.</param>
+        /// <param name="when">What conditions to add the element under (defaults to always).</param>
         /// <returns>The number of elements added to the sorted sets, not including elements already existing for which the score was updated.</returns>
         /// <remarks>https://redis.io/commands/zadd</remarks>
-        public Task<long> AddAsync(SortedSetEntry[] values)
+        public Task<long> AddAsync(SortedSetEntry[] values, SortedSetWhen when = SortedSetWhen.Always)
         {
-            return RedisDb.SortedSetAddAsync(KeyName, values);
+            return RedisDb.SortedSetAddAsync(KeyName, values, when);
         }
 
         /// <summary>

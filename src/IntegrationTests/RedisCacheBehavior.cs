@@ -211,7 +211,7 @@ namespace IntegrationTests
 
                 for (int i = 0; i < 260; i++)
                 {
-                    await cache.FetchAsync("foo-" + i, () => new CacheItem { Id = i });
+                    await cache.FetchAsync(testKey + "-" + i, () => new CacheItem { Id = i });
                 }
 
                 //Act

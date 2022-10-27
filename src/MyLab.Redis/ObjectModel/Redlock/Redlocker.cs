@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using MyLab.Redis.Scripting;
+using StackExchange.Redis;
 
 namespace MyLab.Redis.ObjectModel
 {
@@ -92,7 +93,7 @@ namespace MyLab.Redis.ObjectModel
             
             do
             {
-                successLock = await key.SetIfNotExistsAsync(id, Expiry);
+                successLock = await key.SetAsync(id, Expiry, When.NotExists);
 
                 if (!successLock)
                 {

@@ -57,10 +57,9 @@ namespace MyLab.Redis.ObjectModel
         /// <summary>
         /// Removes and returns the first element of the list stored at key.
         /// </summary>
-        /// <param name="key">The key of the list.</param>
         /// <returns>The value of the first element, or nil when key does not exist.</returns>
         /// <remarks>https://redis.io/commands/lpop</remarks>
-        public Task<RedisValue> LeftPopAsync(RedisKey key)
+        public Task<RedisValue> LeftPopAsync()
         {
             return RedisDb.ListLeftPopAsync(KeyName);
         }
@@ -76,19 +75,6 @@ namespace MyLab.Redis.ObjectModel
         public Task<long> LeftPushAsync(RedisValue value, When when = When.Always)
         {
             return RedisDb.ListLeftPushAsync(KeyName, value, when);
-        }
-
-        /// <summary>
-        /// Insert the specified value at the head of the list stored at key. If key does not exist, it is created as empty list before performing the push operations.
-        /// </summary>
-        /// <param name="key">The key of the list.</param>
-        /// <param name="values">The value to add to the head of the list.</param>
-        /// <returns>The length of the list after the push operations.</returns>
-        /// <remarks>https://redis.io/commands/lpush</remarks>
-        /// <remarks>https://redis.io/commands/lpushx</remarks>
-        public Task<long> LeftPushAsync(RedisKey key, RedisValue[] values)
-        {
-            return RedisDb.ListLeftPushAsync(KeyName, values);
         }
 
         /// <summary>
@@ -170,11 +156,12 @@ namespace MyLab.Redis.ObjectModel
         /// Elements are inserted one after the other to the tail of the list, from the leftmost element to the rightmost element. So for instance the command RPUSH mylist a b c will result into a list containing a as first element, b as second element and c as third element.
         /// </summary>
         /// <param name="values">The values to add to the tail of the list.</param>
+        /// <param name="when">Which conditions to add to the list under.</param>
         /// <returns>The length of the list after the push operation.</returns>
         /// <remarks>https://redis.io/commands/rpush</remarks>
-        public Task<long> RightPushAsync(RedisValue[] values)
+        public Task<long> RightPushAsync(RedisValue[] values, When when = When.Always)
         {
-            return RedisDb.ListRightPushAsync(KeyName, values);
+            return RedisDb.ListRightPushAsync(KeyName, values, when);
         }
 
         /// <summary>

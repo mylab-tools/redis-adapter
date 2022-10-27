@@ -111,23 +111,13 @@ namespace MyLab.Redis.ObjectModel
         /// Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type.
         /// </summary>
         /// <param name="value">The value to set.</param>
+        /// <param name="expiry">The expiry to set.</param>
+        /// <param name="when">Which condition to set the value under (defaults to always)</param>
         /// <returns>`true` - if the string was set, `false` - otherwise.</returns>
         /// <remarks>https://redis.io/commands/set</remarks>
-        public Task<bool> SetAsync(RedisValue value)
+        public Task<bool> SetAsync(RedisValue value, TimeSpan? expiry = null, When when = When.Always)
         {
-            return RedisDb.StringSetAsync(KeyName, value);
-        }
-
-        /// <summary>
-        /// Set key to hold string value if key does not exist.
-        /// </summary>
-        /// <param name="value">The value to set.</param>
-        /// <param name="expiry">The key expiry.</param>
-        /// <returns>`true` - if the string was set, `false` - otherwise.</returns>
-        /// <remarks>https://redis.io/commands/setnx/</remarks>
-        public Task<bool> SetIfNotExistsAsync(RedisValue value, TimeSpan expiry)
-        {
-            return RedisDb.StringSetAsync(KeyName, value, expiry, When.NotExists);
+            return RedisDb.StringSetAsync(KeyName, value, expiry, when);
         }
 
         /// <summary>
