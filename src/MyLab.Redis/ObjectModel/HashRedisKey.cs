@@ -192,7 +192,7 @@ namespace MyLab.Redis.ObjectModel
         /// <returns>true if field is a new field in the hash and value was set, false if field already exists in the hash and the value was updated.</returns>
         public Task<bool> SetAsync(string hashField, RedisValue value, When when = When.Always)
         {
-            return RedisDb.HashSetAsync(hashField, hashField, value, when);
+            return RedisDb.HashSetAsync(KeyName, hashField, value, when);
         }
 
         /// <summary>
