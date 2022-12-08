@@ -40,7 +40,7 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.12" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.8" />
     <PackageReference Include="MyLab.Log.Dsl" Version="3.5.3" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Nito.AsyncEx" Version="5.0.0" />
     <PackageReference Include="StackExchange.Redis" Version="2.6.66" />
     <PackageReference Include="System.Linq.Async" Version="4.1.1" />
