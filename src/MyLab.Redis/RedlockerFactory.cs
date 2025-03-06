@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using MyLab.Redis.ObjectModel;
+using MyLab.Redis.Options;
 
 namespace MyLab.Redis
 {

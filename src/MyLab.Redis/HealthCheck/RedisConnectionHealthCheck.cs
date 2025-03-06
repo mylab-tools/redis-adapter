@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using MyLab.Redis.Connection;
+using MyLab.Redis.Options;
 
 namespace MyLab.Redis.HealthCheck
 {

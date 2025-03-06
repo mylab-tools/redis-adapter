@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MyLab.Redis;
 using MyLab.Redis.ObjectModel;
+using MyLab.Redis.Options;
 using Xunit;
 using Xunit.Abstractions;
 

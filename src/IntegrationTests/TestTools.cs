@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using MyLab.Redis;
 using MyLab.Redis.Connection;
+using MyLab.Redis.Options;
 using MyLab.Redis.Services;
 using Xunit.Abstractions;
 

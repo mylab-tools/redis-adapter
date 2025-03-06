@@ -1,4 +1,5 @@
-﻿using StackExchange.Redis;
+﻿using MyLab.Redis.Options;
+using StackExchange.Redis;
 
 namespace MyLab.Redis
 {

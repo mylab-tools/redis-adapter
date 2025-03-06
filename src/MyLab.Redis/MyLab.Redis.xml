@@ -93,31 +93,6 @@
         <member name="M:MyLab.Redis.HealthCheck.RedisConnectionHealthCheck.CheckHealthAsync(Microsoft.Extensions.Diagnostics.HealthChecks.HealthCheckContext,System.Threading.CancellationToken)">
             <inheritdoc/>
         </member>
-        <member name="T:MyLab.Redis.RedisIntegration">
-            <summary>
-            Contains extensions for <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.RedisIntegration.AddRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,MyLab.Redis.Connection.IRedisConnectionPolicy)">
-            <summary>
-            Adds Redis services
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.RedisIntegration.AddRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,MyLab.Redis.Connection.RedisConnectionStrategy)">
-            <summary>
-            Adds Redis services
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.RedisIntegration.ConfigureRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String)">
-            <summary>
-            Configures Redis options with configuration section
-            </summary>
-        </member>
-        <member name="M:MyLab.Redis.RedisIntegration.ConfigureRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{MyLab.Redis.RedisOptions})">
-            <summary>
-            Configures Redis options with configuration action
-            </summary>
-        </member>
         <member name="M:MyLab.Redis.KeyNameBuilder.#ctor(System.String)">
             <summary>
             Initializes a new instance of <see cref="T:MyLab.Redis.KeyNameBuilder"/>
@@ -1201,6 +1176,107 @@
             <returns>The length of the string after it was modified by the command.</returns>
             <remarks>https://redis.io/commands/setrange</remarks>
         </member>
+        <member name="T:MyLab.Redis.Options.CacheOptions">
+            <summary>
+            Cache options
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.CacheOptions.Name">
+            <summary>
+            Cache name
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.CacheOptions.DefaultExpiry">
+            <summary>
+            Default expiry for cache items
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Options.CachingOptions">
+            <summary>
+            Contains caching options
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.CachingOptions.KeyPrefix">
+            <summary>
+            Gets Redis-key name prefix
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.CachingOptions.Caches">
+            <summary>
+            Get named cache options
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Options.LockingOptions">
+            <summary>
+            Contains licking options
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.LockingOptions.KeyPrefix">
+            <summary>
+            Gets Redis-key name prefix
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.LockingOptions.Locks">
+            <summary>
+            Gets named lock options
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Options.LockOptions">
+            <summary>
+            Lock options
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.LockOptions.Name">
+            <summary>
+            Lock name
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.LockOptions.Expiry">
+            <summary>
+            Determines key expiry
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.LockOptions.DefaultTimeout">
+            <summary>
+            Determines the timeout for a locking attempt
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.LockOptions.RetryPeriod">
+            <summary>
+            Determines a waiting period between locking attempts
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.Options.RedisOptions">
+            <summary>
+            Contains Redis configuration
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.RedisOptions.ConnectionString">
+            <summary>
+            Connection string
+            </summary>
+            <remarks>https://stackexchange.github.io/StackExchange.Redis/Configuration</remarks>
+        </member>
+        <member name="P:MyLab.Redis.Options.RedisOptions.Password">
+            <summary>
+            Overrides password from <see cref="P:MyLab.Redis.Options.RedisOptions.ConnectionString"/>
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.RedisOptions.BackgroundRetryPeriodSec">
+            <summary>
+            Retry period in seconds when 'background' connection mode
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.RedisOptions.Caching">
+            <summary>
+            Caching options
+            </summary>
+        </member>
+        <member name="P:MyLab.Redis.Options.RedisOptions.Locking">
+            <summary>
+            Locking options
+            </summary>
+        </member>
         <member name="T:MyLab.Redis.Properties.Resources">
             <summary>
               A strongly-typed resource class, for looking up localized strings, etc.
@@ -1251,7 +1327,7 @@
             Creates Redis cache
             </summary>
         </member>
-        <member name="M:MyLab.Redis.RedisCacheFactory.#ctor(MyLab.Redis.RedisDbLink,MyLab.Redis.RedisOptions)">
+        <member name="M:MyLab.Redis.RedisCacheFactory.#ctor(MyLab.Redis.RedisDbLink,MyLab.Redis.Options.RedisOptions)">
             <summary>
             Initializes a new instance of <see cref="T:MyLab.Redis.RedisCacheFactory"/>
             </summary>
@@ -1347,107 +1423,6 @@
             Initializes a new instance of <see cref="T:MyLab.Redis.RedisOperationException"/>
             </summary>
         </member>
-        <member name="T:MyLab.Redis.RedisOptions">
-            <summary>
-            Contains Redis configuration
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.RedisOptions.ConnectionString">
-            <summary>
-            Connection string
-            </summary>
-            <remarks>https://stackexchange.github.io/StackExchange.Redis/Configuration</remarks>
-        </member>
-        <member name="P:MyLab.Redis.RedisOptions.Password">
-            <summary>
-            Overrides password from <see cref="P:MyLab.Redis.RedisOptions.ConnectionString"/>
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.RedisOptions.BackgroundRetryPeriodSec">
-            <summary>
-            Retry period in seconds when 'background' connection mode
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.RedisOptions.Caching">
-            <summary>
-            Caching options
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.RedisOptions.Locking">
-            <summary>
-            Locking options
-            </summary>
-        </member>
-        <member name="T:MyLab.Redis.CacheOptions">
-            <summary>
-            Cache options
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.CacheOptions.Name">
-            <summary>
-            Cache name
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.CacheOptions.DefaultExpiry">
-            <summary>
-            Default expiry for cache items
-            </summary>
-        </member>
-        <member name="T:MyLab.Redis.CachingOptions">
-            <summary>
-            Contains caching options
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.CachingOptions.KeyPrefix">
-            <summary>
-            Gets Redis-key name prefix
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.CachingOptions.Caches">
-            <summary>
-            Get named cache options
-            </summary>
-        </member>
-        <member name="T:MyLab.Redis.LockOptions">
-            <summary>
-            Lock options
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.LockOptions.Name">
-            <summary>
-            Lock name
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.LockOptions.Expiry">
-            <summary>
-            Determines key expiry
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.LockOptions.DefaultTimeout">
-            <summary>
-            Determines the timeout for a locking attempt
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.LockOptions.RetryPeriod">
-            <summary>
-            Determines a waiting period between locking attempts
-            </summary>
-        </member>
-        <member name="T:MyLab.Redis.LockingOptions">
-            <summary>
-            Contains licking options
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.LockingOptions.KeyPrefix">
-            <summary>
-            Gets Redis-key name prefix
-            </summary>
-        </member>
-        <member name="P:MyLab.Redis.LockingOptions.Locks">
-            <summary>
-            Gets named lock options
-            </summary>
-        </member>
         <member name="T:MyLab.Redis.RedisServerProvider">
             <summary>
             Provides Redis server object
@@ -1513,7 +1488,7 @@
             Creates Redlock
             </summary>
         </member>
-        <member name="M:MyLab.Redis.RedlockerFactory.#ctor(MyLab.Redis.RedisDbLink,MyLab.Redis.RedisOptions)">
+        <member name="M:MyLab.Redis.RedlockerFactory.#ctor(MyLab.Redis.RedisDbLink,MyLab.Redis.Options.RedisOptions)">
             <summary>
             Initializes a new instance of <see cref="T:MyLab.Redis.RedlockerFactory"/>
             </summary>
@@ -1614,6 +1589,26 @@
         <member name="M:MyLab.Redis.Scripting.RedisScriptTools.BySha(System.String)">
             <summary>
             Creates evaluation builder for script by SHA1
+            </summary>
+        </member>
+        <member name="T:MyLab.Redis.ServiceCollectionExtensions">
+            <summary>
+            Contains extensions for <see cref="T:Microsoft.Extensions.DependencyInjection.IServiceCollection"/>
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.ServiceCollectionExtensions.AddRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,MyLab.Redis.Connection.IRedisConnectionPolicy)">
+            <summary>
+            Adds Redis services
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.ServiceCollectionExtensions.ConfigureRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration,System.String)">
+            <summary>
+            Configures Redis options with configuration section
+            </summary>
+        </member>
+        <member name="M:MyLab.Redis.ServiceCollectionExtensions.ConfigureRedis(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.Action{MyLab.Redis.Options.RedisOptions})">
+            <summary>
+            Configures Redis options with configuration action
             </summary>
         </member>
         <member name="T:MyLab.Redis.Services.IRedisService">

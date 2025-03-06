@@ -2,6 +2,7 @@
 using System.Net;
 using Microsoft.Extensions.Options;
 using MyLab.Redis.Connection;
+using MyLab.Redis.Options;
 
 namespace MyLab.Redis.Services
 {

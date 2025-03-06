@@ -1,7 +1,10 @@
 ﻿using System;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 using MyLab.Redis.Connection;
+using MyLab.Redis.Options;
 using MyLab.Redis.Services;
 
 namespace MyLab.Redis
@@ -9,7 +12,7 @@ namespace MyLab.Redis
     /// <summary>
     /// Contains extensions for <see cref="IServiceCollection"/>
     /// </summary>
-    public static class RedisIntegration
+    public static class ServiceCollectionExtensions
     {
         /// <summary>
         /// Adds Redis services
@@ -19,35 +22,12 @@ namespace MyLab.Redis
             if (services == null) throw new ArgumentNullException(nameof(services));
             if (connectionPolicy == null) throw new ArgumentNullException(nameof(connectionPolicy));
 
-            services.AddSingleton<IRedisService, RedisService>();
+            services.AddSingleton<IRedisService, RedisService>()
+                .TryAddEnumerable(
+                    ServiceDescriptor.Singleton
+                        <IValidateOptions<RedisOptions>, RedisOptionsValidator>());
 
             connectionPolicy.RegisterDependencies(services);
-
-            return services;
-        }
-
-        /// <summary>
-        /// Adds Redis services
-        /// </summary>
-        [Obsolete("Use AddRedis(this IServiceCollection services, IRedisConnectionPolicy connectionPolicy) instead", true)]
-        public static IServiceCollection AddRedis(this IServiceCollection services, RedisConnectionStrategy redisConnectionStrategy)
-        {
-            services.AddSingleton<IRedisService, RedisService>();
-
-            switch (redisConnectionStrategy)
-            {
-                case RedisConnectionStrategy.Lazy:
-                    services.AddSingleton<IRedisConnectionProvider, LazyRedisConnectionProvider>();
-                    break;
-                case RedisConnectionStrategy.Background:
-                    services
-                        .AddSingleton<IRedisConnectionProvider, BackgroundRedisConnectionProvider>()
-                        .AddSingleton<IBackgroundRedisConnectionManager, BackgroundRedisConnectionManager>()
-                        .AddHostedService<RedisConnectionStarter>();
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(redisConnectionStrategy), "Redis connection strategy must be defined");
-            }
 
             return services;
         }

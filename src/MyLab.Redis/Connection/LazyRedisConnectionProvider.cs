@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MyLab.Log.Dsl;
+using MyLab.Redis.Options;
 using StackExchange.Redis;
 
 namespace MyLab.Redis.Connection

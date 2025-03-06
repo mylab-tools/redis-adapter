@@ -2,6 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using MyLab.Log.Dsl;
+using MyLab.Redis.Options;
 using StackExchange.Redis;
 
 namespace MyLab.Redis.Connection
