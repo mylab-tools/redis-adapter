@@ -5,7 +5,7 @@ using MyLab.Redis.Options;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests
+namespace IntegrationTests.ExtendedTools
 {
     public class RedisCacheBehavior
     {
@@ -52,7 +52,7 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldAddItem()
         {
-            await TestTools.PerformTest(_output, async(redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var cache = redis.Db().Cache(CacheDefaultName);
@@ -147,7 +147,7 @@ namespace IntegrationTests
                     cacheItem = await cache.FetchAsync("foo", () => new CacheItem
                     {
                         Id = i,
-                        Value = i+1
+                        Value = i + 1
                     });
                 }
 
@@ -168,11 +168,11 @@ namespace IntegrationTests
                 var cache = redis.Db().Cache(Cache100MsName);
 
                 //Act
-                await cache.FetchAsync("foo", () => new CacheItem{ Id = 1 });
+                await cache.FetchAsync("foo", () => new CacheItem { Id = 1 });
 
                 await Task.Delay(150);
-                
-                var cacheItem = await cache.FetchAsync("foo", () => new CacheItem{ Id = 2 });
+
+                var cacheItem = await cache.FetchAsync("foo", () => new CacheItem { Id = 2 });
 
                 //Assert
                 Assert.Equal(2, cacheItem.Id);
@@ -220,7 +220,7 @@ namespace IntegrationTests
 
                 //Assert
                 Assert.Equal(260, count);
-                
+
             }, _editOptions);
         }
 

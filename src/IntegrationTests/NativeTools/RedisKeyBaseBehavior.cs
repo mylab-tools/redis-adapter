@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests
+namespace IntegrationTests.NativeTools
 {
     public class RedisKeyBaseBehavior
     {

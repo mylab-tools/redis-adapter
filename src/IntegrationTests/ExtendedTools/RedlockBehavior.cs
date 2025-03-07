@@ -5,7 +5,7 @@ using MyLab.Redis.Options;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests
+namespace IntegrationTests.ExtendedTools
 {
     public class RedlockBehavior
     {
@@ -78,7 +78,7 @@ namespace IntegrationTests
                 var locker = redis.Db().CreateLocker("foo");
 
                 await using var lockAttempt = await locker.TryLockOnceAsync();
-               
+
                 //Act
                 await lockAttempt.Lock.ProlongAsync(TimeSpan.FromSeconds(5));
                 await Task.Delay(600);

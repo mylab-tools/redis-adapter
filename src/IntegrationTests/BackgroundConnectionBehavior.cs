@@ -43,7 +43,7 @@ namespace IntegrationTests
             {
                 ev.Set();
             };
-            
+
             RedisValue echoResult;
 
             try
@@ -52,7 +52,7 @@ namespace IntegrationTests
                 await host.StartAsync();
 
                 var eventOccurred = ev.WaitOne(TimeSpan.FromSeconds(3));
-                                if(!eventOccurred) throw new TimeoutException("Test connection timeout");
+                if (!eventOccurred) throw new TimeoutException("Test connection timeout");
 
                 echoResult = await redisService.Server().EchoAsync("foo");
             }

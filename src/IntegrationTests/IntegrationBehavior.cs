@@ -23,7 +23,7 @@ namespace IntegrationTests
         {
             //Arrange
             var serviceCollection = new ServiceCollection();
-            
+
             //Act
             serviceCollection.AddRedis(new LazyRedisConnectionPolicy());
             serviceCollection.ConfigureRedis(TestTools.ConfigureOptions);

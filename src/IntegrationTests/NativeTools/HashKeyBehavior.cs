@@ -5,7 +5,7 @@ using MyLab.Redis.ObjectModel;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests
+namespace IntegrationTests.NativeTools
 {
     public class HashKeyBehavior
     {
@@ -19,14 +19,14 @@ namespace IntegrationTests
         [Fact]
         public async Task ShouldAddItem()
         {
-            await TestTools.PerformTest(_output, async(redis, testKey) =>
+            await TestTools.PerformTest(_output, async (redis, testKey) =>
             {
                 //Arrange
                 var hash = redis.Db().Hash(testKey);
 
                 //Act
                 await hash.SetAsync("foo-field", "foo-value");
-                
+
                 var testFiledValue = await hash.GetAsync("foo-field");
 
                 //Assert

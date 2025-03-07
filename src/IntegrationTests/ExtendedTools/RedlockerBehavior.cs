@@ -5,7 +5,7 @@ using MyLab.Redis.Options;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests
+namespace IntegrationTests.ExtendedTools
 {
     public class RedlockerBehavior
     {
@@ -159,11 +159,11 @@ namespace IntegrationTests
                 //Arrange
                 var locker1 = redis.Db().CreateLocker("foo");
                 var locker2 = redis.Db().CreateLocker("foo");
-                
+
                 //Act
                 await locker1.TryLockOnceAsync(); // <-- will be expired 
                 await using var lockAttempt = await locker2.TryLockAsync();
-                
+
                 //Assert
                 Assert.True(lockAttempt.Acquired);
 

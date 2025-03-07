@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace IntegrationTests
+namespace IntegrationTests.NativeTools
 {
     public class ServerToolsBehavior
     {
@@ -32,7 +32,7 @@ namespace IntegrationTests
 
             //Assert
             Assert.Equal("foo", db0Value.ToString());
-            Assert.True( db1Value.IsNull);
+            Assert.True(db1Value.IsNull);
         }
 
         [Fact]
