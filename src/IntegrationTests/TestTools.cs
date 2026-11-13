@@ -1,6 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
+using MyLab.Log;
+using MyLab.Log.XUnit;
 using MyLab.Redis.Options;
+using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
@@ -42,18 +46,37 @@ namespace IntegrationTests
             opt.Password = source.Password;
         };
 
-        public static async Task StartHosted(IServiceProvider sp)
+        public static async Task StartHostedAsync(IServiceProvider sp)
         {
             var hostedServices = sp.GetServices<IHostedService>().ToArray();
             foreach (var hostedService in hostedServices)
                 await hostedService.StartAsync(CancellationToken.None);
         }
 
-        public static async Task StopHosted(IServiceProvider sp)
+        public static async Task StopHostedAsync(IServiceProvider sp)
         {
             var hostedServices = sp.GetServices<IHostedService>().ToArray();
             foreach (var hostedService in hostedServices)
                 await hostedService.StopAsync(CancellationToken.None);
+        }
+
+        public static IServiceCollection CreateAndConfigApp
+            (
+                Action<RedisOptions> configureOptions,
+                ITestOutputHelper output
+            )
+        {
+            var services = new ServiceCollection();
+
+            services
+                .AddLogging(c => c
+                    .AddMyLabConsole()
+                    .AddXUnit(output)
+                )
+                .AddRedis()
+                .ConfigureRedis(configureOptions);
+
+            return services;
         }
     }
 }

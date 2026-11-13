@@ -14,35 +14,22 @@ public class ConnectionBackgroundServiceBehavior(ITestOutputHelper output)
     public async Task ShouldBeConnectedWhenHostServicesStart()
     {
         // Arrange
-        var services = new ServiceCollection();
-
-        services
-            .AddLogging(c => c
-                .AddMyLabConsole()
-                .AddXUnit(output)
-            )
-            .AddRedis()
-            .ConfigureRedis(TestTools.ConfigureRedis);
-
-        await using var serviceProvider = services.BuildServiceProvider();
-        var hostedServices = serviceProvider.GetServices<IHostedService>().ToArray();
+        await using var serviceProvider = TestTools
+            .CreateAndConfigApp(TestTools.ConfigureRedis, output)
+            .BuildServiceProvider();
+        await TestTools.StartHostedAsync(serviceProvider);
 
         bool connected;
 
         // Act
         try
         {
-                
-            foreach (var hostedService in hostedServices)
-                await hostedService.StartAsync(CancellationToken.None);
-
             var redisService = serviceProvider.GetRequiredService<IRedisService>();
             connected = redisService.Connected;
         }
         finally
         {
-            foreach (var hostedService in hostedServices)
-                await hostedService.StopAsync(CancellationToken.None);
+            await TestTools.StopHostedAsync(serviceProvider);
         }
 
         // Assert
@@ -53,35 +40,22 @@ public class ConnectionBackgroundServiceBehavior(ITestOutputHelper output)
     public async Task ShouldNotBeConnectedWhenNotConfig()
     {
         // Arrange
-        var services = new ServiceCollection();
-
-        services
-            .AddLogging(c => c
-                .AddMyLabConsole()
-                .AddXUnit(output)
-            )
-            .AddRedis();
-            //.ConfigureRedis(TestTools.ConfigureRedis);
-
-        await using var serviceProvider = services.BuildServiceProvider();
-        var hostedServices = serviceProvider.GetServices<IHostedService>().ToArray();
+        await using var serviceProvider = TestTools
+            .CreateAndConfigApp(opt =>{}, output)
+            .BuildServiceProvider();
+        await TestTools.StartHostedAsync(serviceProvider);
 
         bool connected;
 
         // Act
         try
         {
-
-            foreach (var hostedService in hostedServices)
-                await hostedService.StartAsync(CancellationToken.None);
-
             var redisService = serviceProvider.GetRequiredService<IRedisService>();
             connected = redisService.Connected;
         }
         finally
         {
-            foreach (var hostedService in hostedServices)
-                await hostedService.StopAsync(CancellationToken.None);
+            await TestTools.StopHostedAsync(serviceProvider);
         }
 
         // Assert

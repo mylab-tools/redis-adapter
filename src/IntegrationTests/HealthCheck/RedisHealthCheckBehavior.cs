@@ -12,22 +12,14 @@ namespace IntegrationTests.HealthCheck
         public async Task ShouldBeHealthyWhenRedisIsConnected()
         {
             // Arrange
-            var services = new ServiceCollection();
-
-            services
-                .AddLogging(c => c
-                    .AddMyLabConsole()
-                    .AddXUnit(output)
-                )
-                .AddRedis()
-                .ConfigureRedis(TestTools.ConfigureRedis);
+            var services = TestTools.CreateAndConfigApp(TestTools.ConfigureRedis, output);
 
             services
                 .AddHealthChecks()
                 .AddRedis();
 
             await using var serviceProvider = services.BuildServiceProvider();
-            await TestTools.StartHosted(serviceProvider);
+            await TestTools.StartHostedAsync(serviceProvider);
 
             var healthCheckService = serviceProvider.GetRequiredService<HealthCheckService>();
             HealthReport report;
@@ -39,7 +31,7 @@ namespace IntegrationTests.HealthCheck
             }
             finally
             {
-                await TestTools.StopHosted(serviceProvider);
+                await TestTools.StopHostedAsync(serviceProvider);
             }
 
             // Assert
@@ -50,26 +42,19 @@ namespace IntegrationTests.HealthCheck
         public async Task ShouldBeHealthyWhenConnectionIsMissingAndOptional()
         {
             // Arrange
-            var services = new ServiceCollection();
-
-            services
-                .AddLogging(c => c
-                    .AddMyLabConsole()
-                    .AddXUnit(output)
-                )
-                .AddRedis()
-                .ConfigureRedis(options =>
+            var services = TestTools.CreateAndConfigApp(
+                options =>
                 {
                     options.Optional = true;
                     options.ConnectionString = null;
-                });
+                }, output);
 
             services
                 .AddHealthChecks()
                 .AddRedis();
 
             await using var serviceProvider = services.BuildServiceProvider();
-            await TestTools.StartHosted(serviceProvider);
+            await TestTools.StartHostedAsync(serviceProvider);
 
             var healthCheckService = serviceProvider.GetRequiredService<HealthCheckService>();
             HealthReport report;
@@ -81,7 +66,7 @@ namespace IntegrationTests.HealthCheck
             }
             finally
             {
-                await TestTools.StopHosted(serviceProvider);
+                await TestTools.StopHostedAsync(serviceProvider);
             }
 
             // Assert
@@ -92,26 +77,19 @@ namespace IntegrationTests.HealthCheck
         public async Task ShouldBeUnhealthyWhenConnectionIsMissingAndRequired()
         {
             // Arrange
-            var services = new ServiceCollection();
-
-            services
-                .AddLogging(c => c
-                    .AddMyLabConsole()
-                    .AddXUnit(output)
-                )
-                .AddRedis()
-                .ConfigureRedis(options =>
+            var services = TestTools.CreateAndConfigApp(
+                options =>
                 {
                     options.Optional = false;
                     options.ConnectionString = null;
-                });
+                }, output);
 
             services
                 .AddHealthChecks()
                 .AddRedis();
 
             await using var serviceProvider = services.BuildServiceProvider();
-            await TestTools.StartHosted(serviceProvider);
+            await TestTools.StartHostedAsync(serviceProvider);
 
             var healthCheckService = serviceProvider.GetRequiredService<HealthCheckService>();
             HealthReport report;
@@ -123,7 +101,7 @@ namespace IntegrationTests.HealthCheck
             }
             finally
             {
-                await TestTools.StopHosted(serviceProvider);
+                await TestTools.StopHostedAsync(serviceProvider);
             }
 
             // Assert

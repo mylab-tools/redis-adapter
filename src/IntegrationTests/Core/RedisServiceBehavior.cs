@@ -1,7 +1,4 @@
 using Microsoft.Extensions.DependencyInjection;
-using MyLab.Log;
-using MyLab.Log.XUnit;
-using MyLab.Redis;
 using MyLab.Redis.Abstractions;
 using Xunit.Abstractions;
 
@@ -13,18 +10,10 @@ namespace IntegrationTests.Core
         public async Task ShouldReturnAllServersWhenConnectedToThreeRedis()
         {
             // Arrange
-            var services = new ServiceCollection();
-
-            services
-                .AddLogging(c => c
-                    .AddMyLabConsole()
-                    .AddXUnit(output)
-                )
-                .AddRedis()
-                .ConfigureRedis(TestTools.ConfigureThreeRedis);
-
-            await using var serviceProvider = services.BuildServiceProvider();
-            await TestTools.StartHosted(serviceProvider);
+            await using var serviceProvider = TestTools
+                .CreateAndConfigApp(TestTools.ConfigureThreeRedis, output)
+                .BuildServiceProvider();
+            await TestTools.StartHostedAsync(serviceProvider);
 
             var redisService = serviceProvider.GetRequiredService<IRedisService>();
             string[] echoes;
@@ -40,7 +29,7 @@ namespace IntegrationTests.Core
             }
             finally
             {
-                await TestTools.StopHosted(serviceProvider);
+                await TestTools.StopHostedAsync(serviceProvider);
             }
 
             // Assert
@@ -52,18 +41,10 @@ namespace IntegrationTests.Core
         public async Task ShouldReturnEachServerWhenRequestedByHostAndPort()
         {
             // Arrange
-            var services = new ServiceCollection();
-
-            services
-                .AddLogging(c => c
-                    .AddMyLabConsole()
-                    .AddXUnit(output)
-                )
-                .AddRedis()
-                .ConfigureRedis(TestTools.ConfigureThreeRedis);
-
-            await using var serviceProvider = services.BuildServiceProvider();
-            await TestTools.StartHosted(serviceProvider);
+            await using var serviceProvider = TestTools
+                .CreateAndConfigApp(TestTools.ConfigureThreeRedis, output)
+                .BuildServiceProvider();
+            await TestTools.StartHostedAsync(serviceProvider);
 
             var redisService = serviceProvider.GetRequiredService<IRedisService>();
             var echoes = new List<string>();
@@ -79,7 +60,7 @@ namespace IntegrationTests.Core
             }
             finally
             {
-                await TestTools.StopHosted(serviceProvider);
+                await TestTools.StopHostedAsync(serviceProvider);
             }
 
             // Assert
@@ -91,18 +72,10 @@ namespace IntegrationTests.Core
         public async Task ShouldReturnServerWhenConnectedToSingleRedis()
         {
             // Arrange
-            var services = new ServiceCollection();
-
-            services
-                .AddLogging(c => c
-                    .AddMyLabConsole()
-                    .AddXUnit(output)
-                )
-                .AddRedis()
-                .ConfigureRedis(TestTools.ConfigureRedis);
-
-            await using var serviceProvider = services.BuildServiceProvider();
-            await TestTools.StartHosted(serviceProvider);
+            await using var serviceProvider = TestTools
+                .CreateAndConfigApp(TestTools.ConfigureRedis, output)
+                .BuildServiceProvider();
+            await TestTools.StartHostedAsync(serviceProvider);
 
             var redisService = serviceProvider.GetRequiredService<IRedisService>();
             string echo;
@@ -115,7 +88,7 @@ namespace IntegrationTests.Core
             }
             finally
             {
-                await TestTools.StopHosted(serviceProvider);
+                await TestTools.StopHostedAsync(serviceProvider);
             }
 
             // Assert
