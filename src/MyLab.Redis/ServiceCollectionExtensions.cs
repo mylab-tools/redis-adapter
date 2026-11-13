@@ -1,6 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MyLab.Redis.Abstractions;
 using MyLab.Redis.Connection;
+using MyLab.Redis.Core;
+using MyLab.Redis.Options;
 
 namespace MyLab.Redis;
 
@@ -8,9 +11,20 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRedis(this IServiceCollection services)
     {
-        return services.AddSingleton<RedisConnectionProvider>()
-            .AddSingleton<IRedisConnectionProvider>(p => p.GetRequiredService<RedisConnectionProvider>())
-            .AddSingleton<IRedisConnectionStorageCore>(p => p.GetRequiredService<RedisConnectionProvider>())
+        return services.AddSingleton<RedisService>()
+            .AddSingleton<IRedisConnectionProvider>(p => p.GetRequiredService<RedisService>())
+            .AddSingleton<IRedisConnectionStorageCore>(p => p.GetRequiredService<RedisService>())
+            .AddSingleton<IRedisService>(p => p.GetRequiredService<RedisService>())
             .AddHostedService<ConnectionBackgroundService>();
+    }
+
+    public static IServiceCollection ConfigureRedis(this IServiceCollection services, IConfiguration config, string sectionName = RedisOptions.SectionName)
+    {
+        return services.Configure<RedisOptions>(config.GetSection(sectionName));
+    }
+
+    public static IServiceCollection ConfigureRedis(this IServiceCollection services, Action<RedisOptions> configureOptions)
+    {
+        return services.Configure(configureOptions);
     }
 }

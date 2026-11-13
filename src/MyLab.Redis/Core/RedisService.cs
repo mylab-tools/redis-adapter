@@ -1,11 +1,14 @@
 ﻿using MyLab.Redis.Abstractions;
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Connection
+namespace MyLab.Redis.Core
 {
-    class RedisConnectionProvider : IRedisConnectionProvider, IRedisConnectionStorageCore
+    class RedisService : IRedisConnectionProvider, IRedisConnectionStorageCore, IRedisService
     {
         private IConnectionMultiplexer? _connectionMultiplexer;
+
+        public bool Connected => _connectionMultiplexer?.IsConnected ?? false;
+
         public IConnectionMultiplexer? Provide()
         {
             return _connectionMultiplexer;
