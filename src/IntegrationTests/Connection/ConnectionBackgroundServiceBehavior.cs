@@ -32,22 +32,26 @@ namespace IntegrationTests.Connection
             await using var serviceProvider = services.BuildServiceProvider();
             var hostedServices = serviceProvider.GetServices<IHostedService>().ToArray();
 
+            bool connected;
+
+            // Act
             try
             {
-                // Act
+                
                 foreach (var hostedService in hostedServices)
                     await hostedService.StartAsync(CancellationToken.None);
 
                 var redisService = serviceProvider.GetRequiredService<IRedisService>();
-
-                // Assert
-                Assert.True(redisService.Connected);
+                connected = redisService.Connected;
             }
             finally
             {
                 foreach (var hostedService in hostedServices)
                     await hostedService.StopAsync(CancellationToken.None);
             }
+
+            // Assert
+            Assert.True(connected);
         }
     }
 }
