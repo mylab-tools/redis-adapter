@@ -1,5 +1,6 @@
 ﻿using MyLab.Redis.Abstractions;
 using StackExchange.Redis;
+using System.Net;
 
 namespace MyLab.Redis.Core
 {
@@ -9,6 +10,49 @@ namespace MyLab.Redis.Core
 
         public bool Connected => _connectionMultiplexer?.IsConnected ?? false;
 
+        public IRedisServer GetServer()
+        {
+            CheckConnection();
+
+            var innerServer = _connectionMultiplexer!.GetServer(
+                _connectionMultiplexer.GetEndPoints().First());
+            return new RedisServer(innerServer);
+        }
+
+        public IRedisServer GetServer(EndPoint endpoint)
+        {
+            CheckConnection();
+
+            var innerServer = _connectionMultiplexer!.GetServer(endpoint);
+            return new RedisServer(innerServer);
+        }
+
+        public IRedisServer GetServer(string hostAndPort)
+        {
+            CheckConnection();
+
+            var innerServer = _connectionMultiplexer!.GetServer(hostAndPort);
+            return new RedisServer(innerServer);
+        }
+
+        public IRedisServer GetServer(string host, int port)
+        {
+            CheckConnection();
+
+            var innerServer = _connectionMultiplexer!.GetServer(host, port);
+            return new RedisServer(innerServer);
+        }
+
+        public IRedisServer[] GetServers()
+        {
+            CheckConnection();
+
+            return _connectionMultiplexer!.GetServers()
+                .Select(s => new RedisServer(s))
+                .Cast<IRedisServer>()
+                .ToArray();
+        }
+
         public IConnectionMultiplexer? Provide()
         {
             return _connectionMultiplexer;
@@ -17,6 +61,14 @@ namespace MyLab.Redis.Core
         public void SaveConnection(IConnectionMultiplexer connectionMultiplexer)
         {
             _connectionMultiplexer = connectionMultiplexer;
+        }
+
+        void CheckConnection()
+        {
+            if (_connectionMultiplexer == null)
+            {
+                throw new InvalidOperationException("Redis is not connected");
+            }
         }
     }
 }

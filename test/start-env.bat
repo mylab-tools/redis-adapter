@@ -1,1 +1,1 @@
-docker compose -p mylab-serach-indexer-test up -d
+docker compose -p mylab-redis-test up -d

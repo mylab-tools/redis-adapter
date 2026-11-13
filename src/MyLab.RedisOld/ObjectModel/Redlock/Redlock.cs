@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using MyLab.Redis.Properties;
 using MyLab.Redis.Scripting;
 using StackExchange.Redis;
 
@@ -57,7 +56,7 @@ namespace MyLab.Redis.ObjectModel
         public async Task<bool> ProlongAsync(TimeSpan timeSpan)
         {
             var scriptEval = _scriptTools
-                .Inline(Resources.ProlongRedlockLua)
+                .Inline(/*Resources.ProlongRedlockLua*/"")
                 .WithArgs(_id)
                 .WithArgs(timeSpan.TotalSeconds)
                 .WithKey(_key);
@@ -71,7 +70,7 @@ namespace MyLab.Redis.ObjectModel
         public async ValueTask DisposeAsync()
         {
             var scriptEval = _scriptTools
-                .Inline(Resources.DeleteRedlockLua)
+                .Inline(/*Resources.DeleteRedlockLua*/"")
                 .WithArgs(_id)
                 .WithKey(_key);
 

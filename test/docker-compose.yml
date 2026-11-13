@@ -1,7 +1,7 @@
 services:
 
-  redis:
-    container_name: redis
+  redis0:
+    container_name: redis0
     image: redis:8.10
     volumes:
     - ./redis/redis.conf:/etc/redis/redis.conf
@@ -10,6 +10,28 @@ services:
     command: redis-server /etc/redis/redis.conf --bind 0.0.0.0 --protected-mode no
     ports:
     - 16379:6379
+
+  redis1:
+    container_name: redis1
+    image: redis:8.10
+    volumes:
+    - ./redis/redis.conf:/etc/redis/redis.conf
+    - ./redis/users.acl:/etc/redis/users.acl
+    - redis-data:/data
+    command: redis-server /etc/redis/redis.conf --bind 0.0.0.0 --protected-mode no
+    ports:
+    - 16380:6379
+
+  redis2:
+    container_name: redis2
+    image: redis:8.10
+    volumes:
+    - ./redis/redis.conf:/etc/redis/redis.conf
+    - ./redis/users.acl:/etc/redis/users.acl
+    - redis-data:/data
+    command: redis-server /etc/redis/redis.conf --bind 0.0.0.0 --protected-mode no
+    ports:
+    - 16381:6379
 
 volumes:
   redis-data:

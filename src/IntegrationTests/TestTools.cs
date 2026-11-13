@@ -20,6 +20,28 @@ namespace IntegrationTests
             opt.Password = RedisOptions.Password;
         };
 
+        public static (string Host, int Port)[] RedisEndpoints =>
+        [
+            ("localhost", 16379),
+            ("localhost", 16380),
+            ("localhost", 16381)
+        ];
+
+        public static RedisOptions ThreeRedisOptions => new()
+        {
+            ConnectionString = string.Join(",", RedisEndpoints.Select(endpoint => $"{endpoint.Host}:{endpoint.Port}")),
+            User = RedisOptions.User,
+            Password = RedisOptions.Password
+        };
+
+        public static Action<RedisOptions> ConfigureThreeRedis => opt =>
+        {
+            var source = ThreeRedisOptions;
+            opt.ConnectionString = source.ConnectionString;
+            opt.User = source.User;
+            opt.Password = source.Password;
+        };
+
         public static async Task StartHosted(IServiceProvider sp)
         {
             var hostedServices = sp.GetServices<IHostedService>().ToArray();
