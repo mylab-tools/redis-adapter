@@ -1,6 +1,4 @@
-﻿using MyLab.Redis.Core;
-using StackExchange.Redis;
-using System.Net;
+﻿using System.Net;
 
 namespace MyLab.Redis.Abstractions;
 
@@ -17,21 +15,4 @@ public interface IRedisService
     IRedisServer GetServer(string host, int port);
 
     IRedisServer[] GetServers();
-}
-
-public interface IRedisServer
-{
-    Task<TimeSpan> PingAsync();
-
-    Task<RedisValue> EchoAsync(RedisValue value);
-
-    RedisKeyEnumerable GetKeys
-    (
-        long cursor0,
-        string? pattern = null,
-        int count = 250,
-        int offset = 0
-    );
-
-    Task FlushAllAsync();
 }

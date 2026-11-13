@@ -1,0 +1,23 @@
+﻿using MyLab.Redis.Core;
+using StackExchange.Redis;
+
+namespace MyLab.Redis.Abstractions;
+
+public interface IRedisServer
+{
+    Task<TimeSpan> PingAsync();
+
+    Task<RedisValue> EchoAsync(RedisValue value);
+
+    RedisKeyEnumerable GetKeys
+    (
+        long cursor0,
+        string? pattern = null,
+        int count = 250,
+        int offset = 0
+    );
+
+    Task FlushAllAsync();
+
+    IRedisDb Db(int dbIndex0 = -1);
+}

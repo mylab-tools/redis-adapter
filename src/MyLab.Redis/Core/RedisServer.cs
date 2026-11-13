@@ -36,5 +36,8 @@ class RedisServer(IServer redisServer) : IRedisServer
 
     public Task FlushAllAsync() => redisServer.FlushAllDatabasesAsync();
 
+    public IRedisDb Db(int dbIndex0 = -1) =>
+        new RedisDb(redisServer.Multiplexer.GetDatabase(dbIndex0), redisServer);
+
     public IServer GetUnderlineServer() => redisServer;
 }
