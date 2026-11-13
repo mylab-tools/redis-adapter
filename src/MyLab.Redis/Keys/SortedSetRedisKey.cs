@@ -1,0 +1,262 @@
+using StackExchange.Redis;
+
+namespace MyLab.Redis.Keys;
+
+/// <summary>
+/// Represent Redis SORTEDSET
+/// </summary>
+public class SortedSetRedisKey : SortedRedisKey
+{
+    public SortedSetRedisKey(string keyName, IDatabaseAsync redisDb)
+        : base(keyName, redisDb)
+    {
+    }
+
+    /// <summary>
+    /// Adds the specified member with the specified score to the sorted set stored at key.
+    /// If the specified member is already a member of the sorted set, the score is updated and the element reinserted at the right position to ensure the correct ordering.
+    /// </summary>
+    /// <param name="member">The member to add to the sorted set.</param>
+    /// <param name="score">The score for the member to add to the sorted set.</param>
+    /// <param name="when">What conditions to add the element under (defaults to always).</param>
+    /// <returns>True if the value was added, False if it already existed (the score is still updated)</returns>
+    public Task<bool> AddAsync(RedisValue member, double score, SortedSetWhen when = SortedSetWhen.Always)
+        => _db.SortedSetAddAsync(KeyName, member, score, when);
+
+    /// <summary>
+    /// Adds all the specified members with the specified scores to the sorted set stored at key.
+    /// If a specified member is already a member of the sorted set, the score is updated and the element reinserted at the right position to ensure the correct ordering.
+    /// </summary>
+    /// <param name="values">The members and values to add to the sorted set.</param>
+    /// <param name="when">What conditions to add the element under (defaults to always).</param>
+    /// <returns>The number of elements added to the sorted sets, not including elements already existing for which the score was updated.</returns>
+    public Task<long> AddAsync(SortedSetEntry[] values, SortedSetWhen when = SortedSetWhen.Always)
+        => _db.SortedSetAddAsync(KeyName, values, when);
+
+    /// <summary>
+    /// Decrements the score of member in the sorted set stored at key by decrement.
+    /// If member does not exist in the sorted set, it is added with -decrement as its score (as if its previous score was 0.0).
+    /// </summary>
+    /// <param name="member">The member to decrement.</param>
+    /// <param name="value">The amount to decrement by.</param>
+    /// <returns>The new score of member.</returns>
+    public Task<double> DecrementAsync(RedisValue member, double value = 1)
+        => _db.SortedSetDecrementAsync(KeyName, member, value);
+
+    /// <summary>
+    /// Increments the score of member in the sorted set stored at key by increment.
+    /// If member does not exist in the sorted set, it is added with increment as its score (as if its previous score was 0.0).
+    /// </summary>
+    /// <param name="member">The member to increment.</param>
+    /// <param name="value">The amount to increment by.</param>
+    /// <returns>The new score of member.</returns>
+    public Task<double> IncrementAsync(RedisValue member, double value = 1)
+        => _db.SortedSetIncrementAsync(KeyName, member, value);
+
+    /// <summary>
+    /// Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
+    /// </summary>
+    /// <param name="min">The min score to filter by (defaults to negative infinity).</param>
+    /// <param name="max">The max score to filter by (defaults to positive infinity).</param>
+    /// <param name="exclude">Whether to exclude <paramref name="min"/> and <paramref name="max"/> from the range check (defaults to both inclusive).</param>
+    /// <returns>The cardinality (number of elements) of the sorted set, or 0 if key does not exist.</returns>
+    public Task<long> LengthAsync(
+        double min = double.NegativeInfinity,
+        double max = double.PositiveInfinity,
+        Exclude exclude = Exclude.None)
+        => _db.SortedSetLengthAsync(KeyName, min, max, exclude);
+
+    /// <summary>
+    /// When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering,
+    /// this command returns the number of elements in the sorted set at key with a value between min and max.
+    /// </summary>
+    /// <param name="min">The min value to filter by.</param>
+    /// <param name="max">The max value to filter by.</param>
+    /// <param name="exclude">Whether to exclude <paramref name="min"/> and <paramref name="max"/> from the range check (defaults to both inclusive).</param>
+    /// <returns>The number of elements in the specified score range.</returns>
+    public Task<long> LengthByValueAsync(RedisValue min, RedisValue max, Exclude exclude = Exclude.None)
+        => _db.SortedSetLengthByValueAsync(KeyName, min, max, exclude);
+
+    /// <summary>
+    /// Returns the specified range of elements in the sorted set stored at key.
+    /// By default the elements are considered to be ordered from the lowest to the highest score.
+    /// Lexicographical order is used for elements with equal score.
+    /// Both start and stop are zero-based indexes, where 0 is the first element, 1 is the next element and so on.
+    /// They can also be negative numbers indicating offsets from the end of the sorted set, with -1 being the last element of the sorted set, -2 the penultimate element and so on.
+    /// </summary>
+    /// <param name="start">The start index to get.</param>
+    /// <param name="stop">The stop index to get.</param>
+    /// <param name="order">The order to sort by (defaults to ascending).</param>
+    /// <returns>List of elements in the specified range.</returns>
+    public Task<RedisValue[]> RangeByRankAsync(long start = 0, long stop = -1, Order order = Order.Ascending)
+        => _db.SortedSetRangeByRankAsync(KeyName, start, stop, order);
+
+    /// <summary>
+    /// Returns the specified range of elements in the sorted set stored at key.
+    /// By default the elements are considered to be ordered from the lowest to the highest score.
+    /// Lexicographical order is used for elements with equal score.
+    /// Both start and stop are zero-based indexes, where 0 is the first element, 1 is the next element and so on.
+    /// They can also be negative numbers indicating offsets from the end of the sorted set, with -1 being the last element of the sorted set, -2 the penultimate element and so on.
+    /// </summary>
+    /// <param name="start">The start index to get.</param>
+    /// <param name="stop">The stop index to get.</param>
+    /// <param name="order">The order to sort by (defaults to ascending).</param>
+    /// <returns>List of elements in the specified range.</returns>
+    public Task<SortedSetEntry[]> RangeByRankWithScoresAsync(long start = 0, long stop = -1, Order order = Order.Ascending)
+        => _db.SortedSetRangeByRankWithScoresAsync(KeyName, start, stop, order);
+
+    /// <summary>
+    /// Returns the specified range of elements in the sorted set stored at key.
+    /// Start and stop are used to specify the min and max range for score values. Similar to other range methods the values are inclusive.
+    /// </summary>
+    /// <param name="start">The minimum score to filter by.</param>
+    /// <param name="stop">The maximum score to filter by.</param>
+    /// <param name="exclude">Which of <paramref name="start"/> and <paramref name="stop"/> to exclude (defaults to both inclusive).</param>
+    /// <param name="order">The order to sort by (defaults to ascending).</param>
+    /// <param name="skip">How many items to skip.</param>
+    /// <param name="take">How many items to take.</param>
+    /// <returns>List of elements in the specified score range.</returns>
+    public Task<RedisValue[]> RangeByScoreAsync(
+        double start = double.NegativeInfinity,
+        double stop = double.PositiveInfinity,
+        Exclude exclude = Exclude.None,
+        Order order = Order.Ascending,
+        long skip = 0,
+        long take = -1)
+        => _db.SortedSetRangeByScoreAsync(KeyName, start, stop, exclude, order, skip, take);
+
+    /// <summary>
+    /// Returns the specified range of elements in the sorted set stored at key.
+    /// Start and stop are used to specify the min and max range for score values. Similar to other range methods the values are inclusive.
+    /// </summary>
+    /// <param name="start">The minimum score to filter by.</param>
+    /// <param name="stop">The maximum score to filter by.</param>
+    /// <param name="exclude">Which of <paramref name="start"/> and <paramref name="stop"/> to exclude (defaults to both inclusive).</param>
+    /// <param name="order">The order to sort by (defaults to ascending).</param>
+    /// <param name="skip">How many items to skip.</param>
+    /// <param name="take">How many items to take.</param>
+    /// <returns>List of elements in the specified score range.</returns>
+    public Task<SortedSetEntry[]> RangeByScoreWithScoresAsync(
+        double start = double.NegativeInfinity,
+        double stop = double.PositiveInfinity,
+        Exclude exclude = Exclude.None,
+        Order order = Order.Ascending,
+        long skip = 0,
+        long take = -1)
+        => _db.SortedSetRangeByScoreWithScoresAsync(KeyName, start, stop, exclude, order, skip, take);
+
+    /// <summary>
+    /// When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering,
+    /// this command returns all the elements in the sorted set at key with a value between min and max.
+    /// </summary>
+    /// <param name="min">The min value to filter by.</param>
+    /// <param name="max">The max value to filter by.</param>
+    /// <param name="exclude">Which of <paramref name="min"/> and <paramref name="max"/> to exclude (defaults to both inclusive).</param>
+    /// <param name="order">Whether to order the data ascending or descending.</param>
+    /// <param name="skip">How many items to skip.</param>
+    /// <param name="take">How many items to take.</param>
+    /// <returns>list of elements in the specified score range.</returns>
+    public Task<RedisValue[]> RangeByValueAsync(
+        RedisValue min = default,
+        RedisValue max = default,
+        Exclude exclude = Exclude.None,
+        Order order = Order.Ascending,
+        long skip = 0,
+        long take = -1)
+        => _db.SortedSetRangeByValueAsync(KeyName, min, max, exclude, order, skip, take);
+
+    /// <summary>
+    /// Returns the rank of member in the sorted set stored at key, by default with the scores ordered from low to high.
+    /// The rank (or index) is 0-based, which means that the member with the lowest score has rank 0.
+    /// </summary>
+    /// <param name="member">The member to get the rank of.</param>
+    /// <param name="order">The order to sort by (defaults to ascending).</param>
+    /// <returns>If member exists in the sorted set, the rank of member; If member does not exist in the sorted set or key does not exist, null</returns>
+    public Task<long?> RankAsync(RedisValue member, Order order = Order.Ascending)
+        => _db.SortedSetRankAsync(KeyName, member, order);
+
+    /// <summary>
+    /// Removes the specified member from the sorted set stored at key. Non existing members are ignored.
+    /// </summary>
+    /// <param name="member">The member to remove.</param>
+    /// <returns>True if the member existed in the sorted set and was removed; False otherwise.</returns>
+    public Task<bool> RemoveMemberAsync(RedisValue member)
+        => _db.SortedSetRemoveAsync(KeyName, member);
+
+    /// <summary>
+    /// Removes the specified members from the sorted set stored at key. Non existing members are ignored.
+    /// </summary>
+    /// <param name="members">The members to remove.</param>
+    /// <returns>The number of members removed from the sorted set, not including non existing members.</returns>
+    public Task<long> RemoveMembersAsync(RedisValue[] members)
+        => _db.SortedSetRemoveAsync(KeyName, members);
+
+    /// <summary>
+    /// Removes all elements in the sorted set stored at key with rank between start and stop.
+    /// Both start and stop are 0-based indexes with 0 being the element with the lowest score.
+    /// These indexes can be negative numbers, where they indicate offsets starting at the element with the highest score.
+    /// </summary>
+    /// <param name="start">The minimum rank to remove.</param>
+    /// <param name="stop">The maximum rank to remove.</param>
+    /// <returns>The number of elements removed.</returns>
+    public Task<long> RemoveRangeByRankAsync(long start, long stop)
+        => _db.SortedSetRemoveRangeByRankAsync(KeyName, start, stop);
+
+    /// <summary>
+    /// Removes all elements in the sorted set stored at key with a score between min and max (inclusive by default).
+    /// </summary>
+    /// <param name="start">The minimum score to remove.</param>
+    /// <param name="stop">The maximum score to remove.</param>
+    /// <param name="exclude">Which of <paramref name="start"/> and <paramref name="stop"/> to exclude (defaults to both inclusive).</param>
+    /// <returns>The number of elements removed.</returns>
+    public Task<long> RemoveRangeByScoreAsync(double start, double stop, Exclude exclude = Exclude.None)
+        => _db.SortedSetRemoveRangeByScoreAsync(KeyName, start, stop, exclude);
+
+    /// <summary>
+    /// When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering,
+    /// this command removes all elements in the sorted set stored at key between the lexicographical range specified by min and max.
+    /// </summary>
+    /// <param name="min">The minimum value to remove.</param>
+    /// <param name="max">The maximum value to remove.</param>
+    /// <param name="exclude">Which of <paramref name="min"/> and <paramref name="max"/> to exclude (defaults to both inclusive).</param>
+    /// <returns>the number of elements removed.</returns>
+    public Task<long> RemoveRangeByValueAsync(RedisValue min, RedisValue max, Exclude exclude = Exclude.None)
+        => _db.SortedSetRemoveRangeByValueAsync(KeyName, min, max, exclude);
+
+    /// <summary>
+    /// Incrementally iterate over a sorted set.
+    /// </summary>
+    /// <param name="pattern">The pattern to match.</param>
+    /// <param name="pageSize">The page size to iterate by.</param>
+    /// <param name="cursor">The cursor position to start at.</param>
+    /// <param name="pageOffset">The page offset to start at.</param>
+    /// <returns>Yields all matching elements of the sorted set.</returns>
+    public IAsyncEnumerable<SortedSetEntry> ScanAsync(string pattern, int pageSize = 250, long cursor = 0, int pageOffset = 0)
+        => _db.SortedSetScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
+
+    /// <summary>
+    /// Returns the score of member in the sorted set at key.
+    /// If member does not exist in the sorted set, or key does not exist, nil is returned.
+    /// </summary>
+    /// <param name="member">The member to get a score for.</param>
+    /// <returns>The score of the member.</returns>
+    public Task<double?> ScoreAsync(RedisValue member)
+        => _db.SortedSetScoreAsync(KeyName, member);
+
+    /// <summary>
+    /// Removes and returns the first element from the sorted set stored at key, by default with the scores ordered from low to high.
+    /// </summary>
+    /// <param name="order">The order to sort by (defaults to ascending).</param>
+    /// <returns>The removed element, or nil when key does not exist.</returns>
+    public Task<SortedSetEntry?> PopAsync(Order order = Order.Ascending)
+        => _db.SortedSetPopAsync(KeyName, order);
+
+    /// <summary>
+    /// Removes and returns the specified number of first elements from the sorted set stored at key, by default with the scores ordered from low to high.
+    /// </summary>
+    /// <param name="count">The number of elements to return.</param>
+    /// <param name="order">The order to sort by (defaults to ascending).</param>
+    /// <returns>An array of elements, or an empty array when key does not exist.</returns>
+    public Task<SortedSetEntry[]> PopAsync(long count, Order order = Order.Ascending)
+        => _db.SortedSetPopAsync(KeyName, count, order);
+}

@@ -3,7 +3,10 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
 using MyLab.Log;
 using MyLab.Log.XUnit;
+using MyLab.Redis;
+using MyLab.Redis.Abstractions;
 using MyLab.Redis.Options;
+using StackExchange.Redis;
 using Xunit.Abstractions;
 
 namespace IntegrationTests
@@ -77,6 +80,40 @@ namespace IntegrationTests
                 .ConfigureRedis(configureOptions);
 
             return services;
+        }
+
+        public static async Task<RedisSession> OpenRedisAsync(ITestOutputHelper output)
+        {
+            var provider = CreateAndConfigApp(ConfigureRedis, output).BuildServiceProvider();
+
+            try
+            {
+                await StartHostedAsync(provider);
+
+                var multiplexer = provider.GetRequiredService<IRedisConnectionProvider>().Provide()
+                    ?? throw new InvalidOperationException("Redis is not connected");
+
+                return new RedisSession(provider, multiplexer.GetDatabase());
+            }
+            catch
+            {
+                await StopHostedAsync(provider);
+                await provider.DisposeAsync();
+                throw;
+            }
+        }
+    }
+
+    public sealed class RedisSession(ServiceProvider provider, IDatabase database) : IAsyncDisposable
+    {
+        public IDatabase Database { get; } = database;
+
+        public string NewKeyName() => "k_" + Guid.NewGuid().ToString("N");
+
+        public async ValueTask DisposeAsync()
+        {
+            await TestTools.StopHostedAsync(provider);
+            await provider.DisposeAsync();
         }
     }
 }
