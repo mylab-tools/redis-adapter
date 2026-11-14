@@ -14,7 +14,7 @@ class RedisServer(IServer redisServer) : IRedisServer
 
     public Task<RedisValue> EchoAsync(RedisValue value) => redisServer.EchoAsync(value);
 
-    public RedisKeyEnumerable GetKeys
+    public ScanningEnumerable<RedisKey> GetKeys
     (
         long cursor0,
         string? pattern = null,
@@ -31,7 +31,7 @@ class RedisServer(IServer redisServer) : IRedisServer
             cursor: cursor0
         );
 
-        return new RedisKeyEnumerable(keyEnumerable);
+        return new ScanningEnumerable<RedisKey>(keyEnumerable);
     }
 
     public Task FlushAllAsync() => redisServer.FlushAllDatabasesAsync();

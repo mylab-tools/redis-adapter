@@ -6,9 +6,12 @@ namespace MyLab.Redis.ObjectModel
     /// <summary>
     /// Represent a key with sorting abilities
     /// </summary>
-    public class SortedRedisKey : RedisKeyBase
+    public class SortedRedisKeyBase : RedisKeyBase
     {
-        protected SortedRedisKey(RedisDbProvider dbProvider, string keyName) : base(dbProvider, keyName)
+        /// <summary>
+        /// Initializes a new instance of <see cref="SortedRedisKeyBase"/>
+        /// </summary>
+        protected SortedRedisKeyBase(RedisDbProvider dbProvider, string keyName) : base(dbProvider, keyName)
         {
         }
 

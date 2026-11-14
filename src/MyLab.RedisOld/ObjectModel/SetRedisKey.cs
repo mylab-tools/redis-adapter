@@ -7,7 +7,7 @@ namespace MyLab.Redis.ObjectModel
     /// <summary>
     /// Represent Redis SET
     /// </summary>
-    public class SetRedisKey : SortedRedisKey
+    public class SetRedisKey : SortedRedisKeyBase
     {
         /// <summary>
         /// Initializes a new instance of <see cref="SetRedisKey"/>

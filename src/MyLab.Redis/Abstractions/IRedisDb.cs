@@ -1,10 +1,11 @@
 ﻿using MyLab.Redis.Core;
+using StackExchange.Redis;
 
 namespace MyLab.Redis.Abstractions;
 
 public interface IRedisDb
 {
-    RedisKeyEnumerable GetKeys
+    ScanningEnumerable<RedisKey> GetKeys
     (
         long cursor0,
         string? pattern = null,

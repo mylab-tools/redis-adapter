@@ -1,3 +1,4 @@
+using MyLab.Redis.Core;
 using StackExchange.Redis;
 
 namespace MyLab.Redis.Keys;
@@ -7,6 +8,9 @@ namespace MyLab.Redis.Keys;
 /// </summary>
 public class HashRedisKey : RedisKeyBase
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="HashRedisKey"/>
+    /// </summary>
     public HashRedisKey(string keyName, IDatabaseAsync redisDb)
         : base(keyName, redisDb)
     {
@@ -21,7 +25,7 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="value">The amount to decrement by.</param>
     /// <returns>The value at field after the decrement operation.</returns>
     public Task<long> DecrementAsync(string hashField, long value = 1)
-        => _db.HashDecrementAsync(KeyName, hashField, value);
+        => RedisDb.HashDecrementAsync(KeyName, hashField, value);
 
     /// <summary>
     /// Decrement the specified field of a hash stored at key, and representing a floating point number, by the specified decrement.
@@ -32,7 +36,7 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="value">The amount to decrement by.</param>
     /// <returns>The value at field after the decrement operation.</returns>
     public Task<double> DecrementAsync(string hashField, double value)
-        => _db.HashDecrementAsync(KeyName, hashField, value);
+        => RedisDb.HashDecrementAsync(KeyName, hashField, value);
 
     /// <summary>
     /// Removes the specified field from the hash stored at key.
@@ -41,7 +45,7 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="hashField">The field in the hash to delete.</param>
     /// <returns><see langword="true"/> if the field was removed.</returns>
     public Task<bool> DeleteFieldAsync(string hashField)
-        => _db.HashDeleteAsync(KeyName, hashField);
+        => RedisDb.HashDeleteAsync(KeyName, hashField);
 
     /// <summary>
     /// Removes the specified fields from the hash stored at key.
@@ -50,7 +54,7 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="hashFields">The fields in the hash to delete.</param>
     /// <returns>The number of fields that were removed.</returns>
     public Task<long> DeleteFieldsAsync(string[] hashFields)
-        => _db.HashDeleteAsync(KeyName, hashFields.Select(field => (RedisValue)field).ToArray());
+        => RedisDb.HashDeleteAsync(KeyName, hashFields.Select(field => (RedisValue)field).ToArray());
 
     /// <summary>
     /// Returns if field is an existing field in the hash stored at key.
@@ -58,7 +62,7 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="hashField">The field in the hash to check.</param>
     /// <returns>1 if the hash contains field. 0 if the hash does not contain field, or key does not exist.</returns>
     public Task<bool> FieldExistsAsync(string hashField)
-        => _db.HashExistsAsync(KeyName, hashField);
+        => RedisDb.HashExistsAsync(KeyName, hashField);
 
     /// <summary>
     /// Returns the value associated with field in the hash stored at key.
@@ -66,7 +70,7 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="hashField">The field in the hash to get.</param>
     /// <returns>The value associated with field, or nil when field is not present in the hash or key does not exist.</returns>
     public Task<RedisValue> GetAsync(string hashField)
-        => _db.HashGetAsync(KeyName, hashField);
+        => RedisDb.HashGetAsync(KeyName, hashField);
 
     /// <summary>
     /// Returns the values associated with the specified fields in the hash stored at key.
@@ -76,26 +80,26 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="hashFields">The fields in the hash to get.</param>
     /// <returns>List of values associated with the given fields, in the same order as they are requested.</returns>
     public Task<RedisValue[]> GetAsync(string[] hashFields)
-        => _db.HashGetAsync(KeyName, hashFields.Select(field => (RedisValue)field).ToArray());
+        => RedisDb.HashGetAsync(KeyName, hashFields.Select(field => (RedisValue)field).ToArray());
 
     /// <summary>
     /// Returns all fields and values of the hash stored at key.
     /// </summary>
     /// <returns>List of fields and their values stored in the hash, or an empty list when key does not exist.</returns>
     public Task<HashEntry[]> GetAllAsync()
-        => _db.HashGetAllAsync(KeyName);
+        => RedisDb.HashGetAllAsync(KeyName);
 
     /// <summary>
     /// Increments the number stored at field in the hash stored at key by increment.
     /// If key does not exist, a new key holding a hash is created.
     /// If field does not exist or holds a string that cannot be interpreted as integer, the value is set to 0 before the operation is performed.
-    /// The range of values supported by HINCRBY is limited to 64 bit signed integers.
+    /// The range of values supported by HINCRBY is limited to 64-bit signed integers.
     /// </summary>
     /// <param name="hashField">The field in the hash to increment.</param>
     /// <param name="value">The amount to increment by.</param>
     /// <returns>The value at field after the increment operation.</returns>
     public Task<long> IncrementAsync(string hashField, long value = 1)
-        => _db.HashIncrementAsync(KeyName, hashField, value);
+        => RedisDb.HashIncrementAsync(KeyName, hashField, value);
 
     /// <summary>
     /// Increment the specified field of a hash stored at key, and representing a floating point number, by the specified increment.
@@ -106,21 +110,21 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="value">The amount to increment by.</param>
     /// <returns>The value at field after the increment operation.</returns>
     public Task<double> IncrementAsync(string hashField, double value)
-        => _db.HashIncrementAsync(KeyName, hashField, value);
+        => RedisDb.HashIncrementAsync(KeyName, hashField, value);
 
     /// <summary>
     /// Returns all field names in the hash stored at key.
     /// </summary>
     /// <returns>List of fields in the hash, or an empty list when key does not exist.</returns>
     public Task<RedisValue[]> KeysAsync()
-        => _db.HashKeysAsync(KeyName);
+        => RedisDb.HashKeysAsync(KeyName);
 
     /// <summary>
     /// Returns the number of fields contained in the hash stored at key.
     /// </summary>
     /// <returns>The number of fields in the hash, or 0 when key does not exist.</returns>
     public Task<long> LengthAsync()
-        => _db.HashLengthAsync(KeyName);
+        => RedisDb.HashLengthAsync(KeyName);
 
     /// <summary>
     /// Incrementally iterate over a hash.
@@ -130,8 +134,12 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="cursor">The cursor position to start at.</param>
     /// <param name="pageOffset">The page offset to start at.</param>
     /// <returns>Yields all elements of the hash matching the pattern.</returns>
-    public IAsyncEnumerable<HashEntry> ScanAsync(string pattern, int pageSize = 250, long cursor = 0, int pageOffset = 0)
-        => _db.HashScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
+    public IAsyncEnumerable<HashEntry> ScanAsync(string pattern, int pageSize = 250, long cursor = 0,
+        int pageOffset = 0)
+    {
+        var enumerable = RedisDb.HashScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
+        return new ScanningEnumerable<HashEntry>(enumerable);
+    }
 
     /// <summary>
     /// Sets the specified fields to their respective values in the hash stored at key.
@@ -140,7 +148,7 @@ public class HashRedisKey : RedisKeyBase
     /// </summary>
     /// <param name="hashFields">The entries to set in the hash.</param>
     public Task SetAsync(HashEntry[] hashFields)
-        => _db.HashSetAsync(KeyName, hashFields);
+        => RedisDb.HashSetAsync(KeyName, hashFields);
 
     /// <summary>
     /// Sets field in the hash stored at key to value.
@@ -151,7 +159,7 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="when">Which conditions under which to set the field value (defaults to always).</param>
     /// <returns><see langword="true"/> if field is a new field in the hash and value was set, <see langword="false"/> if field already exists in the hash and the value was updated.</returns>
     public Task<bool> SetAsync(string hashField, RedisValue value, When when = When.Always)
-        => _db.HashSetAsync(KeyName, hashField, value, when);
+        => RedisDb.HashSetAsync(KeyName, hashField, value, when);
 
     /// <summary>
     /// Returns the string length of the value associated with field in the hash stored at key.
@@ -159,12 +167,12 @@ public class HashRedisKey : RedisKeyBase
     /// <param name="hashField">The field containing the string.</param>
     /// <returns>the length of the string at field, or 0 when key does not exist.</returns>
     public Task<long> StringLengthAsync(string hashField)
-        => _db.HashStringLengthAsync(KeyName, hashField);
+        => RedisDb.HashStringLengthAsync(KeyName, hashField);
 
     /// <summary>
     /// Returns all values in the hash stored at key.
     /// </summary>
     /// <returns>List of values in the hash, or an empty list when key does not exist.</returns>
     public Task<RedisValue[]> ValuesAsync()
-        => _db.HashValuesAsync(KeyName);
+        => RedisDb.HashValuesAsync(KeyName);
 }

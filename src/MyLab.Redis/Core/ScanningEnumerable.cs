@@ -2,11 +2,11 @@
 
 namespace MyLab.Redis.Core
 {
-    public class RedisKeyEnumerable(IAsyncEnumerable<RedisKey> enumerable) : IAsyncEnumerable<RedisKey>
+    public class ScanningEnumerable<T>(IAsyncEnumerable<T> enumerable) : IAsyncEnumerable<T>
     {
         public IScanningCursor? ScanningCursor { get; } = enumerable as IScanningCursor;
 
-        public IAsyncEnumerator<RedisKey> GetAsyncEnumerator(CancellationToken cancellationToken = new CancellationToken())
+        public IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
             return enumerable.GetAsyncEnumerator(cancellationToken);
         }

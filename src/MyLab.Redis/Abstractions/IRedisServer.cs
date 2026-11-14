@@ -9,7 +9,7 @@ public interface IRedisServer
 
     Task<RedisValue> EchoAsync(RedisValue value);
 
-    RedisKeyEnumerable GetKeys
+    ScanningEnumerable<RedisKey> GetKeys
     (
         long cursor0,
         string? pattern = null,

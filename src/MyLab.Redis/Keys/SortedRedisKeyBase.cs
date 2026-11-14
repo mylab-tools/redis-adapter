@@ -5,9 +5,12 @@ namespace MyLab.Redis.Keys;
 /// <summary>
 /// Represent a key with sorting abilities
 /// </summary>
-public class SortedRedisKey : RedisKeyBase
+public class SortedRedisKeyBase : RedisKeyBase
 {
-    protected SortedRedisKey(string keyName, IDatabaseAsync redisDb)
+    /// <summary>
+    /// Initializes a new instance of <see cref="SortedRedisKeyBase"/>
+    /// </summary>
+    protected SortedRedisKeyBase(string keyName, IDatabaseAsync redisDb)
         : base(keyName, redisDb)
     {
     }
@@ -33,7 +36,7 @@ public class SortedRedisKey : RedisKeyBase
         SortType sortType = SortType.Numeric,
         RedisValue by = default,
         RedisValue[]? get = null)
-        => _db.SortAsync(KeyName, skip, take, order, sortType, by, get);
+        => RedisDb.SortAsync(KeyName, skip, take, order, sortType, by, get);
 
     /// <summary>
     /// Sorts a list, set or sorted set (numerically or alphabetically, ascending by default); By default, the elements themselves are compared, but the values can also be
@@ -58,5 +61,5 @@ public class SortedRedisKey : RedisKeyBase
         SortType sortType = SortType.Numeric,
         RedisValue by = default,
         RedisValue[]? get = null)
-        => _db.SortAndStoreAsync(destination, KeyName, skip, take, order, sortType, by, get);
+        => RedisDb.SortAndStoreAsync(destination, KeyName, skip, take, order, sortType, by, get);
 }

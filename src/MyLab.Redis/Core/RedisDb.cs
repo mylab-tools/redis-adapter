@@ -5,9 +5,7 @@ namespace MyLab.Redis.Core;
 
 class RedisDb(IDatabaseAsync db, IServer server) : IRedisDb
 {
-
-
-    public RedisKeyEnumerable GetKeys
+    public ScanningEnumerable<RedisKey> GetKeys
     (
         long cursor0,
         string? pattern = null,
@@ -25,6 +23,6 @@ class RedisDb(IDatabaseAsync db, IServer server) : IRedisDb
             database: db.Database
         );
 
-        return new RedisKeyEnumerable(keyEnumerable);
+        return new ScanningEnumerable<RedisKey>(keyEnumerable);
     }
 }

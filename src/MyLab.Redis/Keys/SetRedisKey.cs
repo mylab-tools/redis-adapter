@@ -1,3 +1,4 @@
+using MyLab.Redis.Core;
 using StackExchange.Redis;
 
 namespace MyLab.Redis.Keys;
@@ -5,8 +6,11 @@ namespace MyLab.Redis.Keys;
 /// <summary>
 /// Represent Redis SET
 /// </summary>
-public class SetRedisKey : SortedRedisKey
+public class SetRedisKey : SortedRedisKeyBase
 {
+    /// <summary>
+    /// Initializes a new instance of <see cref="SetRedisKey"/>
+    /// </summary>
     public SetRedisKey(string keyName, IDatabaseAsync redisDb)
         : base(keyName, redisDb)
     {
@@ -20,7 +24,7 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="value">The value to add to the set.</param>
     /// <returns>True if the specified member was not already present in the set, else False</returns>
     public Task<bool> AddAsync(RedisValue value)
-        => _db.SetAddAsync(KeyName, value);
+        => RedisDb.SetAddAsync(KeyName, value);
 
     /// <summary>
     /// Add the specified members to the set stored at key.
@@ -30,7 +34,7 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="values">The values to add to the set.</param>
     /// <returns>The number of elements that were added to the set, not including all the elements already present into the set.</returns>
     public Task<long> AddAsync(RedisValue[] values)
-        => _db.SetAddAsync(KeyName, values);
+        => RedisDb.SetAddAsync(KeyName, values);
 
     /// <summary>
     /// Returns if member is a member of the set stored at key.
@@ -38,21 +42,21 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="value">The value to check for.</param>
     /// <returns><see langword="true"/> if the element is a member of the set. <see langword="false"/> if the element is not a member of the set, or if key does not exist.</returns>
     public Task<bool> ContainsAsync(RedisValue value)
-        => _db.SetContainsAsync(KeyName, value);
+        => RedisDb.SetContainsAsync(KeyName, value);
 
     /// <summary>
     /// Returns the set cardinality (number of elements) of the set stored at key.
     /// </summary>
     /// <returns>The cardinality (number of elements) of the set, or 0 if key does not exist.</returns>
     public Task<long> LengthAsync()
-        => _db.SetLengthAsync(KeyName);
+        => RedisDb.SetLengthAsync(KeyName);
 
     /// <summary>
     /// Returns all the members of the set value stored at key.
     /// </summary>
     /// <returns>All elements of the set.</returns>
     public Task<RedisValue[]> MembersAsync()
-        => _db.SetMembersAsync(KeyName);
+        => RedisDb.SetMembersAsync(KeyName);
 
     /// <summary>
     /// Move member from the set at source to the set at destination. This operation is atomic.
@@ -63,14 +67,14 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="value">The value to move.</param>
     /// <returns>1 if the element is moved. 0 if the element is not a member of source and no operation was performed.</returns>
     public Task<bool> MoveMemberAsync(string destination, RedisValue value)
-        => _db.SetMoveAsync(KeyName, destination, value);
+        => RedisDb.SetMoveAsync(KeyName, destination, value);
 
     /// <summary>
     /// Removes and returns a random element from the set value stored at key.
     /// </summary>
     /// <returns>The removed element, or nil when key does not exist.</returns>
     public Task<RedisValue> PopAsync()
-        => _db.SetPopAsync(KeyName);
+        => RedisDb.SetPopAsync(KeyName);
 
     /// <summary>
     /// Removes and returns the specified number of random elements from the set value stored at key.
@@ -78,14 +82,14 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="count">The number of elements to return.</param>
     /// <returns>An array of elements, or an empty array when key does not exist.</returns>
     public Task<RedisValue[]> PopAsync(long count)
-        => _db.SetPopAsync(KeyName, count);
+        => RedisDb.SetPopAsync(KeyName, count);
 
     /// <summary>
     /// Return a random element from the set value stored at key.
     /// </summary>
     /// <returns>The randomly selected element, or nil when key does not exist</returns>
     public Task<RedisValue> RandomMemberAsync()
-        => _db.SetRandomMemberAsync(KeyName);
+        => RedisDb.SetRandomMemberAsync(KeyName);
 
     /// <summary>
     /// Return an array of count distinct elements if count is positive.
@@ -94,7 +98,7 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="count">The count of members to get.</param>
     /// <returns>An array of elements, or an empty array when key does not exist</returns>
     public Task<RedisValue[]> RandomMembersAsync(long count)
-        => _db.SetRandomMembersAsync(KeyName, count);
+        => RedisDb.SetRandomMembersAsync(KeyName, count);
 
     /// <summary>
     /// Remove the specified member from the set stored at key.
@@ -103,16 +107,16 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="value">The value to remove.</param>
     /// <returns>True if the specified member was already present in the set, else False</returns>
     public Task<bool> RemoveMemberAsync(RedisValue value)
-        => _db.SetRemoveAsync(KeyName, value);
+        => RedisDb.SetRemoveAsync(KeyName, value);
 
     /// <summary>
     /// Remove the specified members from the set stored at key.
     /// Specified members that are not a member of this set are ignored.
     /// </summary>
     /// <param name="values">The values to remove.</param>
-    /// <returns>The number of members that were removed from the set, not including non existing members.</returns>
+    /// <returns>The number of members that were removed from the set, not including non-existing members.</returns>
     public Task<long> RemoveMembersAsync(RedisValue[] values)
-        => _db.SetRemoveAsync(KeyName, values);
+        => RedisDb.SetRemoveAsync(KeyName, values);
 
     /// <summary>
     /// Incrementally iterate over a set.
@@ -122,6 +126,10 @@ public class SetRedisKey : SortedRedisKey
     /// <param name="cursor">The cursor position to start at.</param>
     /// <param name="pageOffset">The page offset to start at.</param>
     /// <returns>Yields all matching elements of the set.</returns>
-    public IAsyncEnumerable<RedisValue> ScanAsync(RedisValue pattern, int pageSize = 250, long cursor = 0, int pageOffset = 0)
-        => _db.SetScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
+    public ScanningEnumerable<RedisValue> ScanAsync(RedisValue pattern, int pageSize = 250, long cursor = 0,
+        int pageOffset = 0)
+    {
+        var enumerable = RedisDb.SetScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
+        return new ScanningEnumerable<RedisValue>(enumerable);
+    }
 }

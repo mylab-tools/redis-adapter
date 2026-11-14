@@ -797,12 +797,12 @@
             <returns>Yields all matching elements of the set.</returns>
             <remarks>https://redis.io/commands/sscan</remarks>
         </member>
-        <member name="T:MyLab.Redis.ObjectModel.SortedRedisKey">
+        <member name="T:MyLab.Redis.ObjectModel.SortedRedisKeyBase">
             <summary>
             Represent a key with sorting abilities
             </summary>
         </member>
-        <member name="M:MyLab.Redis.ObjectModel.SortedRedisKey.SortAsync(System.Int64,System.Int64,StackExchange.Redis.Order,StackExchange.Redis.SortType,StackExchange.Redis.RedisValue,StackExchange.Redis.RedisValue[])">
+        <member name="M:MyLab.Redis.ObjectModel.SortedRedisKeyBase.SortAsync(System.Int64,System.Int64,StackExchange.Redis.Order,StackExchange.Redis.SortType,StackExchange.Redis.RedisValue,StackExchange.Redis.RedisValue[])">
             <summary>
             Sorts a list, set or sorted set (numerically or alphabetically, ascending by default); By default, the elements themselves are compared, but the values can also be
             used to perform external key-lookups using the <c>by</c> parameter. By default, the elements themselves are returned, but external key-lookups (one or many) can
@@ -819,7 +819,7 @@
             <returns>The sorted elements, or the external values if <c>get</c> is specified.</returns>
             <remarks>https://redis.io/commands/sort</remarks>
         </member>
-        <member name="M:MyLab.Redis.ObjectModel.SortedRedisKey.SortAndStoreAsync(StackExchange.Redis.RedisKey,System.Int64,System.Int64,StackExchange.Redis.Order,StackExchange.Redis.SortType,StackExchange.Redis.RedisValue,StackExchange.Redis.RedisValue[])">
+        <member name="M:MyLab.Redis.ObjectModel.SortedRedisKeyBase.SortAndStoreAsync(StackExchange.Redis.RedisKey,System.Int64,System.Int64,StackExchange.Redis.Order,StackExchange.Redis.SortType,StackExchange.Redis.RedisValue,StackExchange.Redis.RedisValue[])">
             <summary>
             Sorts a list, set or sorted set (numerically or alphabetically, ascending by default); By default, the elements themselves are compared, but the values can also be
             used to perform external key-lookups using the <c>by</c> parameter. By default, the elements themselves are returned, but external key-lookups (one or many) can
