@@ -27,6 +27,12 @@ namespace IntegrationTests
             opt.Password = RedisOptions.Password;
         };
 
+        public static Action<RedisOptions> ConfigureRedisAdmin => opt =>
+        {
+            ConfigureRedis(opt);
+            opt.ConnectionString += ",allowAdmin=true";
+        };
+
         public static (string Host, int Port)[] RedisEndpoints =>
         [
             ("localhost", 16379),
@@ -82,9 +88,12 @@ namespace IntegrationTests
             return services;
         }
 
-        public static async Task<RedisSession> OpenRedisAsync(ITestOutputHelper output)
+        public static Task<RedisSession> OpenRedisAsync(ITestOutputHelper output)
+            => OpenRedisAsync(output, ConfigureRedis);
+
+        public static async Task<RedisSession> OpenRedisAsync(ITestOutputHelper output, Action<RedisOptions> configureOptions)
         {
-            var provider = CreateAndConfigApp(ConfigureRedis, output).BuildServiceProvider();
+            var provider = CreateAndConfigApp(configureOptions, output).BuildServiceProvider();
 
             try
             {
