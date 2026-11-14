@@ -19,7 +19,8 @@ class RedisServer(IServer redisServer) : IRedisServer
         long cursor0,
         string? pattern = null,
         int count = 250,
-        int offset = 0
+        int offset = 0,
+        int dbIndex = 0
     )
     {
         RedisValue redisPattern = pattern ?? default(RedisValue);
@@ -35,9 +36,6 @@ class RedisServer(IServer redisServer) : IRedisServer
     }
 
     public Task FlushAllAsync() => redisServer.FlushAllDatabasesAsync();
-
-    public IRedisDb Db(int dbIndex0 = -1) =>
-        new RedisDb(redisServer.Multiplexer.GetDatabase(dbIndex0), redisServer);
 
     public IServer GetUnderlineServer() => redisServer;
 }

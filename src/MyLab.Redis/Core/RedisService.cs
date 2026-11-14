@@ -53,6 +53,13 @@ namespace MyLab.Redis.Core
                 .ToArray();
         }
 
+        public IRedisDb Db(int dbIndex0 = -1)
+        {
+            CheckConnection();
+
+            return new RedisDb(_connectionMultiplexer!.GetDatabase(dbIndex0));
+        }
+
         public IConnectionMultiplexer? Provide()
         {
             return _connectionMultiplexer;

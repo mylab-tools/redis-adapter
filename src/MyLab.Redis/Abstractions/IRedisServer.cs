@@ -14,10 +14,9 @@ public interface IRedisServer
         long cursor0,
         string? pattern = null,
         int count = 250,
-        int offset = 0
+        int offset = 0,
+        int dbIndex = 0
     );
 
     Task FlushAllAsync();
-
-    IRedisDb Db(int dbIndex0 = -1);
 }

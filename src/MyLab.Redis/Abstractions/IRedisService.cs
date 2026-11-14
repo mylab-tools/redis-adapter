@@ -15,4 +15,6 @@ public interface IRedisService
     IRedisServer GetServer(string host, int port);
 
     IRedisServer[] GetServers();
+
+    IRedisDb Db(int dbIndex0 = -1);
 }

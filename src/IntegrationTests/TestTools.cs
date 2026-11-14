@@ -93,7 +93,9 @@ namespace IntegrationTests
                 var multiplexer = provider.GetRequiredService<IRedisConnectionProvider>().Provide()
                     ?? throw new InvalidOperationException("Redis is not connected");
 
-                return new RedisSession(provider, multiplexer.GetDatabase());
+                var service = provider.GetRequiredService<IRedisService>();
+
+                return new RedisSession(provider, multiplexer.GetDatabase(), service);
             }
             catch
             {
@@ -104,9 +106,11 @@ namespace IntegrationTests
         }
     }
 
-    public sealed class RedisSession(ServiceProvider provider, IDatabase database) : IAsyncDisposable
+    public sealed class RedisSession(ServiceProvider provider, IDatabase database, IRedisService service) : IAsyncDisposable
     {
         public IDatabase Database { get; } = database;
+
+        public IRedisService Service { get; } = service;
 
         public string NewKeyName() => "k_" + Guid.NewGuid().ToString("N");
 
