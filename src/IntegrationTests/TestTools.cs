@@ -1,3 +1,4 @@
+using System.Xml.Schema;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.VisualStudio.TestPlatform.Utilities;
@@ -72,16 +73,21 @@ namespace IntegrationTests
         public static IServiceCollection CreateAndConfigApp
             (
                 Action<RedisOptions> configureOptions,
-                ITestOutputHelper output
+                ITestOutputHelper? output
             )
         {
             var services = new ServiceCollection();
 
             services
-                .AddLogging(c => c
-                    .AddMyLabConsole()
-                    .AddXUnit(output)
-                )
+                .AddLogging(c =>
+                {
+                    c = c.AddMyLabConsole();
+
+                    if (output != null)
+                    {
+                        c.AddXUnit(output);
+                    }
+                })
                 .AddRedis()
                 .ConfigureRedis(configureOptions);
 

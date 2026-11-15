@@ -231,16 +231,10 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// Incrementally iterate over a sorted set.
     /// </summary>
     /// <param name="pattern">The pattern to match.</param>
-    /// <param name="pageSize">The page size to iterate by.</param>
-    /// <param name="cursor">The cursor position to start at.</param>
-    /// <param name="pageOffset">The page offset to start at.</param>
+    /// <param name="batchSize">The page size to iterate by.</param>
     /// <returns>Yields all matching elements of the sorted set.</returns>
-    public ScanningEnumerable<SortedSetEntry> ScanAsync(string pattern, int pageSize = 250, long cursor = 0,
-        int pageOffset = 0)
-    {
-        var enumerable = RedisDb.SortedSetScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
-        return new ScanningEnumerable<SortedSetEntry>(enumerable);
-    }
+    public IAsyncEnumerable<SortedSetEntry> ScanAsync(string pattern, int batchSize = 250)
+    => RedisDb.SortedSetScanAsync(KeyName, pattern, batchSize);
 
     /// <summary>
     /// Returns the score of member in the sorted set at key.

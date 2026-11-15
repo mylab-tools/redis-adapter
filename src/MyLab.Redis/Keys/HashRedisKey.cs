@@ -130,16 +130,10 @@ public class HashRedisKey : RedisKeyBase
     /// Incrementally iterate over a hash.
     /// </summary>
     /// <param name="pattern">The pattern of keys to get entries for.</param>
-    /// <param name="pageSize">The page size to iterate by.</param>
-    /// <param name="cursor">The cursor position to start at.</param>
-    /// <param name="pageOffset">The page offset to start at.</param>
+    /// <param name="batchSize">The page size to iterate by.</param>
     /// <returns>Yields all elements of the hash matching the pattern.</returns>
-    public IAsyncEnumerable<HashEntry> ScanAsync(string pattern, int pageSize = 250, long cursor = 0,
-        int pageOffset = 0)
-    {
-        var enumerable = RedisDb.HashScanAsync(KeyName, pattern, pageSize, cursor, pageOffset);
-        return new ScanningEnumerable<HashEntry>(enumerable);
-    }
+    public IAsyncEnumerable<HashEntry> ScanAsync(string pattern, int batchSize = 250)
+    => RedisDb.HashScanAsync(KeyName, pattern, batchSize);
 
     /// <summary>
     /// Sets the specified fields to their respective values in the hash stored at key.

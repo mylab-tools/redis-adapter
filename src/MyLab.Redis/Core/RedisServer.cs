@@ -1,6 +1,7 @@
-﻿using System.Net;
-using MyLab.Redis.Abstractions;
+﻿using MyLab.Redis.Abstractions;
 using StackExchange.Redis;
+using System.Net;
+using YamlDotNet.Core;
 
 namespace MyLab.Redis.Core;
 
@@ -13,26 +14,20 @@ class RedisServer(IServer redisServer) : IRedisServer
     public Task<TimeSpan> PingAsync() => redisServer.PingAsync();
 
     public Task<RedisValue> EchoAsync(RedisValue value) => redisServer.EchoAsync(value);
-
-    public ScanningEnumerable<RedisKey> GetKeys
+    public IAsyncEnumerable<RedisKey> GetKeys
     (
-        long cursor0,
         string? pattern = null,
-        int count = 250,
-        int offset = 0,
-        int dbIndex = 0
+        int dbIndex = -1,
+        int batchSize = 250
     )
     {
         RedisValue redisPattern = pattern ?? default(RedisValue);
-        var keyEnumerable = redisServer.KeysAsync
+        return redisServer.KeysAsync
         (
             pattern: redisPattern,
-            pageSize: count,
-            pageOffset: offset,
-            cursor: cursor0
+            pageSize: batchSize,
+            database: dbIndex
         );
-
-        return new ScanningEnumerable<RedisKey>(keyEnumerable);
     }
 
     public Task FlushAllAsync() => redisServer.FlushAllDatabasesAsync();
