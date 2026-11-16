@@ -4,11 +4,37 @@
 
 Формат лога изменений базируется на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [Новое]
+## [2.0.0] - 2026-11-16
 
 ### Добавлено
 
-* контроль обязательных параметров в конфигурации
+* целевая платформа `.NET 10`
+* `IRedisService.Connected`, выбор сервера по адресу и `GetAllServers`
+* команды сервера `PingAsync`, `EchoAsync`, `GetKeys` и `FlushAllAsync`
+* распределённая блокировка Redlock по большинству мастеров: `Lock`, `TryAcquireOnceAsync`, `TryAcquireAsync`, продление и проверка аренды
+* кэш `IRedisCache` и `IRedisCacheItem`: значение в JSON, одноразовая блокировка записи, `CacheGetResult`, подсчёт ключей, инвалидация и оставшийся срок жизни
+* настройки `User` и `Optional`, разделы `Cache` и `Redlock`
+* переопределения отдельных кэшей в `Cache.Overrides`
+
+### Изменено
+
+* `AddRedis` регистрирует сервисы и фоновое подключение при старте приложения
+* `Db` возвращает `IRedisDb`, `Server` возвращает `IRedisServer`
+* ключ элемента кэша собирается как `{BaseKey}:{itemId}`, по умолчанию без срока жизни
+* ключ блокировки собирается как `{Redlock.BaseKey}:{lockId}`
+* значения кэша сериализуются через `System.Text.Json`
+* `DeleteAsync` возвращает признак удаления ключа
+* проверка работоспособности успешна при установленном соединении и при `Optional: true`, если соединения нет
+
+### Удалено
+
+* аргумент `AddRedis` с политикой подключения
+* стратегии подключения `Lazy` и `Background`
+* параметр `BackgroundRetryPeriodSec`
+* разделы конфигурации `Caching` и `Locking`
+* методы кэша `AddAsync`, `FetchAsync` и `TryFetchAsync`
+* одноузловая блокировка `Redlocker`
+* зависимость от `Newtonsoft.Json`
 
 ## [1.7.3] - 2022-10-27
 
