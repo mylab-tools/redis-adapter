@@ -4,579 +4,308 @@
 
 ## Обзор
 
-Совместима с платформами `.NET Core 3.1+`.
+Библиотека для `.NET 10`. Даёт асинхронный доступ к ключам Redis, распределённую блокировку, кэш, Lua-скрипты и проверку работоспособности. Основана на [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis).
 
-`MyLab.Redis` предоставляет асинхронную объектную модель для работы с ключами `Redis`, ряд решений на базе этой объектной модели, конфигурирование и интеграцию с использованием механизмов `.NET Core`. Базируется на [StackExchange.Redis](https://github.com/StackExchange/StackExchange.Redis).
+Команды базы данных собраны в объекты ключей:
 
-При работе с инструментами `Redis` применяется подход с уклоном в DSL (Domain Specific Language):
-
- ```C#
-await redis.Db().String("foo").SetAsync("bar"); 
- ```
-
-### Пример применения
-
-Интеграция в приложение:
-
-```C#
-public class Startup
-{
-    public IConfiguration Configuration { get; }
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        //...
-        
-        serviceCollection
-            .AddRedis(RedisConnectionStrategy.Lazy)
-            .ConfigureRedis(Configuration);
-            
-        //...
-    }
-}
-```
-
-Применение:
-
-```C#
-class PingService
-{
-    private readonly IRedisService _redis;
-
-    public PingService(IRedisService redis)
-    {
-    	_redis = redis;
-    }
-
-    public Task<TimeSpan> PingAsync()
-    {
-    	return _redis.Server().PingAsync();
-    }
-}
-```
-
-## Интеграция
-
-Интеграция осуществляется стандартным способом - добавлением сервисов библиотеки в коллекцию сервисов в методе  `ConfigureService` стартового класса приложения.
-
-```C#
-public class Startup
-{
-    public IConfiguration Configuration { get; }
-
-    public void ConfigureServices(IServiceCollection services)
-    {
-        //...
-        
-        serviceCollection.AddRedis(RedisConnectionStrategy.Lazy)
-            
-        //...
-    }
-}
-```
-
-В целевые классы инструменты библиотеки интегрируются через сервис с интерфейсом `MyLab.Redis.IRedisService`.
-
-В методе `AddRedis` требуется указание стратегии подключения к `Redis`  типа `RedisConnectionStrategy`:
-
-* `Lazy` - подключение устанавливается при попытке отправить запрос в `Redis`, если подключение не установлено. Особенности:
-  * происодит блокировка потоков в момент проверки состояния подключения и на время процесса подключения;
-  * попытка подключения происходит по требованию: если `Redis` не используется, то и подключение не будет установлено;
-* `Background` - подключение устанавливается сразу после запуска приложения. Особенности:
-  * при неудачах, повторные попытки первичного подключения будут повторяться бесконечно;
-  * при разрыве, будут осуществляться бесконечные попытки восстановить подключение;
-  * при попытке сделать запрос в `Redis`, если подключение не устновлено, будет выдано исключение `RedisNotConnectedException`.
-
-## Конфигурация
-
-По умолчанию конфигурация загружается из секции `Redis`. Ниже приведён пример указания кастомной секции:
-
-```c#
-serviceCollection.ConfigureRedis(Configuration, "CustomSection");
-```
-
- Кроме того, опции настройки сервиса можно определять в коде:
-
-```c#
-serviceCollection.ConfigureRedis(opt => opt.Password = "***");
-```
-
-Класс настроек:
-
-```C#
-/// <summary>
-/// Contains Redis configuration
-/// </summary>
-public class RedisOptions 
-{
-    /// <summary>
-    /// Connection string
-    /// </summary>
-    /// <remarks>https://stackexchange.github.io/StackExchange.Redis/Configuration</remarks>
-    public string ConnectionString { get; set; }
-
-    /// <summary>
-    /// Overrides password from <see cref="ConnectionString"/>
-    /// </summary>
-    public string Password { get; set; }
-    
-    /// <summary>
-    /// Retry period in seconds when 'background' connection mode
-    /// </summary>
-    public int BackgroundRetryPeriodSec { get; set; } = 10;
-
-    //...
-}
-```
-
-Смотрите также:
-
-* [Конфигурирование кэша](#Конфигурирование-кэша)
-* [Конфигурирование блокировок](#Конфигурирование-блокировок)
-
-## Инструменты сервера
-
-Для выполнения команд уровня сервера, такие как `ECHO`, `PING`, `KEYS`, `SCAN`, получите доступ через метод `Server` сервиса Redis:
-
-```c#
-await redis.Server().PingAsync();
-```
-
-Метод `Server` предоставляет доступ к серверу по умолчанию - первому в списке серверов в строке подключения. Для выбора конкретного сервера, необходимо воспользоваться перегрузкой этого метода: `Server(EndPoint endPoint)`.
-
-## Инструменты базы данных
-
-Доступ к инструментам уровня баз данных получите через метод `Db` сервиса Redis:
-
-```C#
+```csharp
 await redis.Db().String("foo").SetAsync("bar");
 ```
 
-Метод `Db` предоставляет доступ к базе данных по умолчанию - с индексом 0 или соответствующим значением из строки подключения. Для выбора конкретной бfps данных, необходимо воспользоваться перегрузкой этого метода: `Db(int dbIndex)`.
+Точка входа после запуска приложения — `IRedisService`.
 
-### Ключи
+## Интеграция
 
-Команды уровня базы данных для работы с ключами сгруппированы по объектным моделям основных типов ключей. Доступ к этим ключам можно получить через соответствующие методы:
+`AddRedis` регистрирует `IRedisService` и фоновую службу, которая подключается к Redis при старте приложения.
 
-* **String** - `_redis.Db().String(string key)`
-
-* **Hash** - `_redis.Db().Hash(string key)`
-* **Set** - `_redis.Db().Set(string key)`
-* **SortedSet** - `_redis.Db().SortedSet(string key)`
-* **List** - `_redis.Db().List(string key)`
-
-Пример:
-
-```C#
-await redis.Db().String("foo").ExpireAsync(TimeSpan.FromMilliseconds(100));
+```csharp
+services
+    .AddRedis()
+    .ConfigureRedis(Configuration);
 ```
 
-### Транзакции
+Настройки по умолчанию читаются из секции `Redis`. Имя секции можно заменить:
 
-Этот функционал временно недоступен.
+```csharp
+services.ConfigureRedis(Configuration, "CustomSection");
+```
 
-### RedisCache 
+Те же параметры задаются в коде:
 
-`RedisCahce` - реализация распределённого кэша на базе `Redis`. 
-
-Для того, чтобы начать работать с кэшем необходимо:
-
-* сконфигурировать кэш
-* получить кэш в коде по имени
-
-#### Конфигурирование кэша
-
-Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Caching`:
-
-```c#
-/// <summary>
-/// Contains Redis configuration
-/// </summary>
-public class RedisOptions 
+```csharp
+services.ConfigureRedis(opt =>
 {
-    //...
+    opt.ConnectionString = "localhost:6379";
+    opt.User = "app";
+    opt.Password = "***";
+});
+```
 
-    /// <summary>
-    /// Caching options
-    /// </summary>
-    public CachingOptions Caching { get; set; }
+Если `ConnectionString` не задан, подключение не открывается. При `Optional: true` проверка работоспособности в этом случае остаётся успешной.
 
-    //...
-}
+Пример исполдьзования:
 
-/// <summary>
-/// Contains caching options
-/// </summary>
-public class CachingOptions
+```csharp
+public class PingService(IRedisService redis)
 {
-    /// <summary>
-    /// Gets Redis-key name prefix
-    /// </summary>
-    public string KeyPrefix { get; set; }
-
-    /// <summary>
-    /// Get named cache options
-    /// </summary>
-    public CacheOptions[] Caches { get; set; }
-}
-
-/// <summary>
-/// Cache options
-/// </summary>
-public class CacheOptions
-{
-    /// <summary>
-    /// Cache name
-    /// </summary>
-    public string Name { get; set; }
-
-    /// <summary>
-    /// Default expiry for cache items
-    /// </summary>
-    public string DefaultExpiry { get; set; }
+    public Task<TimeSpan> PingAsync() => redis.Server().PingAsync();
 }
 ```
 
-Смотрите также: [Конфигурация](#Конфигурация)
-
-##### Имя ключа кэша
-
-Имя ключа для хранения кэша формируется из префикса имени ключа `Redis.Caching.KeyPrefix` и имени конкретного кэша `Redis.Caches[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет значение `cache`.
-
-##### Экспирация кэша
-
-Время экспирации указываетя только для конкретного кэша в поле `Redis.Caches[].DefaultExpiry`. Это значение используется по умолчанию для элементов кэша, если  в коде не указано другое значение при добавлении этого элемента.
-
-Значение по умолчанию - 1 мин.
-
-Возможные форматы:
-
-* `int` - число секунд;
-* `TimeStemp` - временной интервал. Например `00:00:10` - 10 секунд. [Подробнее тут](https://learn.microsoft.com/en-us/dotnet/api/system.timespan.parse?view=netcore-3.1).
-
-##### Пример конфига кэша
+## Конфигурация
 
 ```json
 {
-    "ConnectionString" : "localhost:9110,allowAdmin=true",
-	"Cache": [
+  "Redis": {
+    "ConnectionString": "localhost:6379",
+    "User": "app",
+    "Password": "***",
+    "Optional": false,
+    "Cache": {
+      "ExpirySec": 60,
+      "DbIndex": -1,
+      "BaseKey": "cache",
+      "LockIdPrefix": "cache",
+      "Overrides": [
         {
-            "Name": "test",
-            "DefaultExpiry": "24"
+          "Id": "orders",
+          "ExpirySec": 300,
+          "BaseKey": "orders"
         }
-    ]
+      ]
+    },
+    "Redlock": {
+      "ExpirySec": 60,
+      "LockingTimeoutSec": 5,
+      "RetryPeriodSec": 1,
+      "BaseKey": "redlock",
+      "DbIndex": -1
+    }
+  }
 }
 ```
 
-#### Применение
+Секция по умолчанию называется `Redis`. Если раздела `Cache` или `Redlock` нет, используются значения по умолчанию соответствующих классов.
 
-##### Добавление элемента `AddAsync`
+### `ConnectionString`
 
-Добавляет или заменяет значение в кэше, обновляет `TTL` на значение по умолчанию:
+Строка подключения [StackExchange.Redis](https://stackexchange.github.io/StackExchange.Redis/Configuration.html): адреса, база по умолчанию, таймауты, `allowAdmin` и остальные параметры клиента. Пример: `localhost:6379,defaultDatabase=0`. Несколько адресов через запятую задают несколько серверов одного подключения.
 
-```C#
-await redis.Db().Cache("test").AddAsync("foo", obj);
+Если значение не задано, фоновая служба не открывает соединение. При `Optional: false` в журнал пишется ошибка. При `Optional: true` пропуск молчаливый.
+
+### `User`
+
+Имя пользователя ACL. Если задано, подставляется в параметры подключения и заменяет пользователя из `ConnectionString`. Если не задано, остаётся значение из строки подключения.
+
+### `Password`
+
+Пароль ACL. Если задан, заменяет пароль из `ConnectionString`. Если не задан, остаётся значение из строки подключения.
+
+### `Optional`
+
+Обязательность Redis для приложения. По умолчанию `false`.
+
+Проверка работоспособности `redis` успешна, когда соединение установлено. Если соединения нет и `Optional` равен `true`, проверка тоже успешна. Если соединения нет и `Optional` равен `false`, проверка неуспешна.
+
+### `Cache`
+
+Общие настройки кэша. `Cache(cacheId)` берёт этот раздел. Если среди `Overrides` есть элемент с тем же `Id`, к нему применяется правило замены, описанное ниже.
+
+#### `Cache.ExpirySec`
+
+Время жизни записанного элемента в секундах. По умолчанию `0`: ключ хранится без срока, `TtlRemainingAsync` для такого ключа возвращает `TimeSpan.Zero`. Положительное значение передаётся в `SET` как срок `PX`.
+
+#### `Cache.DbIndex`
+
+Номер базы, в которой лежат элементы кэша и по которой `GetItemsCountAsync` считает ключи. По умолчанию `-1`: база из `ConnectionString` (`defaultDatabase`), а если она там не указана — база `0`. Ноль и положительное число выбирают эту базу явно.
+
+#### `Cache.BaseKey`
+
+Префикс ключа элемента. Ключ собирается как `{BaseKey}:{itemId}`. По умолчанию префикс `cache`, поэтому элемент `42` получает ключ `cache:42`.
+
+`GetItemsCountAsync` считает ключи, имя которых начинается с этого префикса.
+
+#### `Cache.LockIdPrefix`
+
+Префикс идентификатора блокировки, которую `SetAsync` берёт перед записью. Идентификатор собирается как `{LockIdPrefix}:{itemId}`. По умолчанию префикс `cache`.
+
+Дальше этот идентификатор проходит через настройки `Redlock`: ключ в Redis будет `{Redlock.BaseKey}:{LockIdPrefix}:{itemId}`. При значениях по умолчанию это `redlock:cache:42`.
+
+#### `Cache.Overrides`
+
+Список настроек отдельных кэшей. У элемента обязательное поле `Id`: оно сравнивается с аргументом `Cache(cacheId)`. Берётся первое совпадение.
+
+Поля элемента те же, что у корневого `Cache`: `ExpirySec`, `DbIndex`, `BaseKey`, `LockIdPrefix`. В результат попадают только три из них, и только когда в корне ещё стоит значение по умолчанию:
+
+* `ExpirySec` берётся из элемента, если в корне `0`;
+* `DbIndex` берётся из элемента, если в корне `-1`;
+* `BaseKey` берётся из элемента, если в корне `cache`.
+
+Если корень уже изменён, остаётся корневое значение, а поле элемента игнорируется. `LockIdPrefix` при замене не переносится: у кэша с совпавшим `Id` префикс блокировки снова `cache`.
+
+Кэш без совпадения в `Overrides` использует корневой раздел целиком, включая заданный там `LockIdPrefix`.
+
+### `Redlock`
+
+Настройки распределённой блокировки. Один набор на всё подключение: и для `Lock(lockId)`, и для блокировки записи в кэш. Если раздела нет, действуют значения по умолчанию.
+
+#### `Redlock.ExpirySec`
+
+Срок ключа блокировки в секундах, если её не сняли и не продлили. По умолчанию `60`. Тот же срок задаёт `ProlongAsync`.
+
+Из срока вычитаются время захвата и допуск на расхождение часов (1% срока плюс 2 мс). Блокировка считается взятой, только если после этого остаток положительный.
+
+#### `Redlock.LockingTimeoutSec`
+
+Сколько секунд `TryAcquireAsync()` без аргумента повторяет захват. По умолчанию `5`. `TryAcquireOnceAsync` это поле не использует: у него одна попытка. `TryAcquireAsync(timeout)` использует переданный предел вместо этого поля.
+
+#### `Redlock.RetryPeriodSec`
+
+Пауза в секундах между неудачными попытками внутри `TryAcquireAsync`. По умолчанию `1`. Если до конца ожидания осталось меньше, пауза сокращается до остатка.
+
+#### `Redlock.BaseKey`
+
+Префикс ключа блокировки. Ключ собирается как `{BaseKey}:{lockId}`. По умолчанию префикс `redlock`, поэтому `Lock("orders:42")` пишет ключ `redlock:orders:42`.
+
+Для записи в кэш `lockId` уже содержит префикс кэша, поэтому ключ получается `{BaseKey}:{LockIdPrefix}:{itemId}`.
+
+#### `Redlock.DbIndex`
+
+Номер базы, в которой создаются ключи блокировки. По умолчанию `-1`: база из `ConnectionString`, иначе база `0`. Ноль и положительное число выбирают эту базу явно. Команды уходят на каждый мастер подключения.
+
+## Сервер
+
+`Server()` возвращает первый сервер из строки подключения. Конкретный сервер выбирается перегрузкой с адресом, `host:port` или парой хост и порт. `GetAllServers()` возвращает все известные серверы.
+
+```csharp
+await redis.Server().PingAsync();
+await redis.Server("localhost", 6379).EchoAsync("redis");
+
+await foreach (var key in redis.Server().GetKeys("order:*"))
+    Console.WriteLine(key);
 ```
 
-Можно указать кастомное значение `TTL`:
+`GetKeys` обходит ключи командой `SCAN`. `pattern` — шаблон glob, `batchSize` — подсказка `COUNT`. `FlushAllAsync` удаляет ключи во всех базах сервера и требует административного подключения.
 
-```C#
-await redis.Db().Cache("test").AddAsync("foo", obj, TimeSpan.FromSeconds(5));
+## База данных и ключи
+
+`Db()` открывает базу по умолчанию. `Db(index)` открывает базу с указанным индексом.
+
+```csharp
+await redis.Db().String("foo").SetAsync("bar", TimeSpan.FromMinutes(1));
+await redis.Db().Hash("user:1").SetAsync("name", "Ann");
+await redis.Db().List("queue").RightPushAsync("job");
+await redis.Db().Set("tags").AddAsync("redis");
+await redis.Db().SortedSet("rating").AddAsync("ann", 10);
 ```
 
-##### Удаление элемента `RemoveAsync`
+Методы соответствуют типам ключей:
 
-Удаляет элемент из кэша:
+* `String` — строка;
+* `Hash` — хэш;
+* `Set` — множество;
+* `SortedSet` — упорядоченное множество;
+* `List` — список.
 
-```C#
-await redis.Db().Cache("test").Remove("foo")
-```
+Общие операции ключа доступны на каждом из этих объектов: существование, удаление, тип, срок жизни и время простоя. Срок жизни задаётся через `SetExpirationAsync`.
 
-##### Изменение TTL `UpdateExpiryAsync`
+## Кэш
 
-Изменяет время жизни элемента кэша:
+Кэш берётся у сервиса по идентификатору. Настройки раздела `Cache` и переопределение с тем же `Id` применяются к этому кэшу.
 
-```C#
-await redis.Db().Cache("test").UpdateExpiryAsync("foo", TimeSpan.FromSeconds(5));
-```
+Ключ элемента — `{BaseKey}:{itemId}`. По умолчанию это `cache:{itemId}`. Значение хранится как JSON. Перед записью берётся одноразовая блокировка с идентификатором `{LockIdPrefix}:{itemId}`.
 
-##### Попытка получить элемент `TryFetchAsync`
+`ExpirySec` задаёт время жизни в секундах. Ноль означает хранение без срока.
 
-Получает значение из кэша или значение по умолчанию:
+```csharp
+var orders = redis.Cache("orders");
+var entry = orders.Item("42");
 
-```C#
-var found = await redis.Db().Cache("test").TryFetchAsync<T>("foo");
+var saved = await entry.SetAsync(order);
 
-if(found != null)
+var found = await entry.GetAsync<Order>();
+if (found.Hit)
 {
-    // found
+    var order = found.Value;
 }
-else
-{
-	// not found    
-}
+
+var loaded = await entry.GetAsync<Order>(id => LoadOrderAsync(id));
+
+var ttl = await entry.TtlRemainingAsync();
+var removed = await entry.InvalidateAsync();
+var count = await orders.GetItemsCountAsync();
 ```
 
-##### Получение или кэширование `FetchAsync`
+`GetAsync<T>()` при отсутствии ключа возвращает `Hit = false` и значение по умолчанию. Перегрузка с поставщиком в этом случае получает значение и сохраняет его тем же способом, что `SetAsync`. `Hit` остаётся `false`, если блокировку взять не удалось и значение не записано.
 
-Получает значение из кэша или создаёт новый объект, кэширует его и возвращает, как результат:
+`TtlRemainingAsync` возвращает оставшийся срок. Для отсутствующего ключа и ключа без срока результат — `TimeSpan.Zero`. `GetItemsCountAsync` считает ключи, имя которых начинается с `BaseKey`.
 
-```C#
-var found = await cache.FetchAsync("foo", 
- 	() => new CacheItem
+## Блокировка
+
+Блокировка следует алгоритму [Redlock](https://redis.io/docs/latest/develop/use/patterns/distributed-locks/): один и тот же ключ записывается на мастеры подключения и считается взятым, когда его приняло большинство, а оставшееся время жизни положительно.
+
+Ключ блокировки — `{Redlock.BaseKey}:{lockId}`, по умолчанию `redlock:{lockId}`.
+
+`ExpirySec` — срок ключа, если блокировку не сняли и не продлили. По умолчанию 60 секунд. `LockingTimeoutSec` — сколько ждать захват в `TryAcquireAsync()`. По умолчанию 5 секунд. `RetryPeriodSec` — пауза между попытками. По умолчанию 1 секунда.
+
+```csharp
+var locker = redis.Lock("orders:42");
+
+await using var lease = await locker.TryAcquireOnceAsync();
+if (lease is not null)
+{
+    while (HasWork())
     {
-    	Id = 1
-    });
-```
-
-### Redlock
-
-Реализация алгоритма [распределённой блокировки с пирменением Redis](https://redis.io/docs/reference/patterns/distributed-locks/).
-
-Позволяет синхронизировать процессы. При этом состояние блокировки находится в `Redis`. 
-
-В конфигурации приложения объявляются именованные блокировки и объявляются их временные параметры. В коде приложение может воспользоваться блокировкой с указанием её имени. При этом будут использованы соответствующие параметы из конфигурации.
-
-При необходимости синхронизации, приложение может попытаться заблокировать/захватить состояние и таким образом получить возможность выполнить действия, которые требуют синхронизации. Такая попытка может закончиться неудачно, если за отведённое время состояние не освободилось.   
-
-При необходимости длительной блокировки состояния следует периодически продлевать время блокировки. Например, каждую итерацию в задаче, которая выполняет длительный цикл. 
-
-Такая блокировка работает и при использовании в рамках одного процесса. Т.е. в общем случае, если работает несколько экземпляров приложения (процессы), в которых работает несколько потоков, то они могут конкурировать в независимости от того, в каком процессе они находятся. 
-
-#### Конфигурирование блокировок
-
-Конфигурирование осуществляется через общий узел конфигурации библиотеки - поле `Locking`:
-
-```c#
-/// <summary>
-/// Contains Redis configuration
-/// </summary>
-public class RedisOptions 
-{
-	....
-        
-    /// <summary>
-    /// Locking options
-    /// </summary>
-    public LockingOptions Locking { get; set; }
-    
-    ....
-}
-
-/// <summary>
-/// Contains licking options
-/// </summary>
-public class LockingOptions
-{
-    /// <summary>
-    /// Gets Redis-key name prefix
-    /// </summary>
-    public string KeyPrefix { get; set; }
-
-    /// <summary>
-    /// Gets named lock options
-    /// </summary>
-    public LockOptions[] Locks { get; set; }
-}
-
-/// <summary>
-/// Lock options
-/// </summary>
-public class LockOptions
-{
-    /// <summary>
-    /// Lock name
-    /// </summary>
-    public string Name { get; set; }
-
-    /// <summary>
-    /// Determines key expiry
-    /// </summary>
-    public string Expiry { get; set; }
-
-    /// <summary>
-    /// Determines the timeout for a locking attempt
-    /// </summary>
-    public string DefaultTimeout { get; set; }
-
-    /// <summary>
-    /// Determines a waiting period between locking attempts
-    /// </summary>
-    public string RetryPeriod { get; set; }
-}
-```
-
-Смотрите также: [Конфигурация](#Конфигурация)
-
-##### Имя ключа блокировки
-
-Имя ключа для организации блокировки формируется из префикса имени ключа `Redis.Locking.KeyPrefix` и имени конкретного кэша `Redis.Locks[].Name` по шаблону `prefix:name`. Или используется только имя, если префикс указан, как пустой. По умолчанию, префикс имеет значение `redlock`.
-
-##### Временные параметры блокировки
-
-Параметры конфиграции:
-
-* `Redis.Locking.Locks[].Expiry` - время жизни ключа, используемого для организации блокировки. Значение по умолчанию 1 мин;
-* `Redis.Locking.Locks[].DefaultTimeout` - время, в течении которого происходят попытки блокировки. Используется по умолчанию, если не указано другое значение в коде. Значение по умолчанию - 5 сек;
-* `Redis.Locking.Locks[].RetryPeriod` - период повторов попыток блокировки.
-
-Все эти временные параметры могут быть указаны в следующих форматах:
-
-* `int` - число секунд;
-* `TimeStemp` - временной интервал. Например `00:00:10` - 10 секунд. [Подробнее тут](https://learn.microsoft.com/en-us/dotnet/api/system.timespan.parse?view=netcore-3.1).
-
-#### Применение блокировок
-
-##### Простая блокировка
-
-```c#
-var locker = redis.Db().CreateLocker("foo"); // 1
-
-await using var lockAttempt = await locker.TryLockOnceAsync(); // 2
-
-if(lockAttempt.Acquired) // 3	
-{
-    // 4													
-}
-```
-
-В примере выше:
-
-1. создаётся блокировщик по имени блокировки `foo`;
-2. происходит разовая попытка завладеть состоянием;
-3. проверка успешности захвата состояния;
-4. выполнение работы, требующей синхронизации.
-
-##### Блокировка идентифицированного ресурса
-
-```c#
-var locker = redis.Db().CreateLocker("orders", "c389c0a5e28b42258298a1ab72ff41d0");
-
-//....
-```
-
-В примере выше создаётся блокировщик по имени блокировки `orders` (заявки) и идентификатору конкретной заявки.  
-
-##### Блокировка итеративного процесса
-
-```c#
-var locker = redis.Db().CreateLocker("foo"); // 1
-
-await using var lockAttempt = await locker.TryLockOnceAsync(); // 2
-
-if(lockAttempt.Acquired) // 3
-{
-    while(/*...*/) // 4
-    {
-        // 5
-        
-        await lockAttempt.Lock.ProlongAsync(); // 6
+        await DoWorkAsync();
+        await lease.ProlongAsync();
     }
 }
 ```
 
-В примере выше:
+`TryAcquireOnceAsync` делает одну попытку. `TryAcquireAsync()` повторяет её до `LockingTimeoutSec`. `TryAcquireAsync(timeout)` использует переданный предел. Пустой результат означает, что большинство мастеров блокировку не отдало.
 
-1. создаётся блокировщик по имени блокировки `foo`;
-2. происходит разовая попытка завладеть состоянием;
-3. проверка успешности захвата состояния;
-4. выполнение предположительно длительного цикла;
-5. выполнение работы, требующей синхронизации;
-6. продление действия блокировки;
+`ProlongAsync` продлевает срок, только если большинство всё ещё хранит токен этой аренды. Освобождение `lease` снимает блокировку на мастерах. `IsAcquiredAsync` проверяет, что токен ещё у большинства.
 
-В таком случае при каждой итерации будет обновляться время экспирации блокировки. Поэтому необходимо подбирать параметр блокировки `Expiry` таким образом, чтобы его гарантировано хватало на выполнение одной итерации цикла.    
+Для долгого цикла `ExpirySec` должен покрывать одну итерацию между вызовами `ProlongAsync`.
 
-### LUA скрипты
+## Lua-скрипты
 
-Инструменты для работы со скриптами доступны из объекта БД через метод `Script()`:
+Скрипты доступны через `Db().Script()`.
 
-```C#
-var scripting = redis.Db().Script();
-```
+Скрипт передаётся текстом (`EVAL`) или по SHA1 уже загруженного скрипта (`EVALSHA`):
 
-#### Выполнение скрипта
-
-Для выполнения скрипта используется DSL-методы сборки и выполнения запроса. DSL выражение начинется с определния целевого скрипта. Целевой скрипт может быть передан в качестве аргумента ([EVAL](https://redis.io/commands/eval)) или предварительно загружен в кэш `Redis` ([EVALSHA](https://redis.io/commands/evalsha)).
-
-Пример указания скрипта по месту:
-
-```C#
-redis.Db().Script().Inline("return 10");
-```
-
-Пример указания предварительно загруженного к кэш скрипта:
-
-```c#
-redis.Db().Script().BySha("eb29cbbc2f5f39dfd02b7b8d3046d9ee7754d966");
-```
-
-Остальная часть выражения состоит из необязательных указаний используемых в скрипте ключей и аргументов. Завершает выражение метод выполнения команды.
-
-Пример выполнения скрипта с передачей ключа и аргумента:
-
-```c#
+```csharp
 await redis.Db().Script()
     .Inline("return redis.call('set', KEYS[1], ARGV[1])")
     .WithKey(key)
     .WithArgs("foo")
     .EvaluateAsync();
+
+await redis.Db().Script()
+    .BySha("eb29cbbc2f5f39dfd02b7b8d3046d9ee7754d966")
+    .WithArgs("foo")
+    .EvaluateAsync();
 ```
 
-#### Загрузка скрипта в кэш
+Остальные команды кэша скриптов:
 
-Реализовано с использованием [SCRIPT LOAD](https://redis.io/commands/script-load).
-
-```c#
+```csharp
 var sha1 = await redis.Db().Script().LoadAsync("return 10");
-```
 
-#### Остановка текущего скрипта
+bool exists = await redis.Db().Script().ExistsAsync(sha1);
 
-Реализовано с использованием [SCRIPT KILL](https://redis.io/commands/script-kill).
+bool[] found = await redis.Db().Script().ExistsAsync(sha1, anotherSha1);
 
-```C#
 await redis.Db().Script().KillCurrentAsync();
-```
-
-#### Проверка скрипта в кэше
-
-Реализовано с использованием [SCRIPT EXISTS](https://redis.io/commands/script-exists).
-
-Пример для одного аргумента:
-
-```c#
-bool exists = await redis.Db().Script().ExistsAsync("eb29cbbc2f5f39dfd02b7b8d3046d9ee7754d966");
-```
-
-Пример для проверки нескольких скриптов:
-
-```c#
-bool[] exists = await redis.Db().Script().ExistsAsync(
-    "eb29cbbc2f5f39dfd02b7b8d3046d9ee7754d966",
-    "ed84a94a3ba9d63db7a4255cb8940890ef4a08fc",
-    "70a65c9e5784d36b4f42389fa93da5bbe9578be5"
-);
-```
-
-#### Очистка кэша
-
-Реализовано с использованием [SCRIPT FLUSH SYNC](https://redis.io/commands/script-flush).
-
-```c#
 await redis.Db().Script().FlushCacheAsync();
 ```
 
-### Проверка работоспособности
+`LoadAsync` выполняет `SCRIPT LOAD`. `ExistsAsync` выполняет `SCRIPT EXISTS`. `KillCurrentAsync` выполняет `SCRIPT KILL`. `FlushCacheAsync` выполняет `SCRIPT FLUSH SYNC`.
 
-Проверка работоспособности заключается в проверке наличия подключения к `Redis` и осуществляется через механизм [HealthCheck](https://docs.microsoft.com/en-us/aspnet/core/host-and-deploy/health-checks?view=aspnetcore-3.1).
+## Проверка работоспособности
 
-Для подключения проверки необходимо использовать метод `AddRedis` для построителя проверок, как показано на примере ниже:
+Проверка называется `redis`. Результат успешный, когда подключение установлено. Если подключения нет и `Optional` равен `true`, результат тоже успешный. Иначе проверка неуспешна.
 
-```c#
+```csharp
 services.AddHealthChecks().AddRedis();
 ```
-
-
-
-
-
