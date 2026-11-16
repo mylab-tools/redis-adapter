@@ -1,7 +1,7 @@
-using MyLab.Redis.HealthCheck;
+using Microsoft.Extensions.DependencyInjection;
 
 #pragma warning disable IDE0130
-namespace Microsoft.Extensions.DependencyInjection
+namespace MyLab.Redis.HealthCheck
 #pragma warning restore IDE0130
 {
     public static class HealthChecksBuilderExtensions

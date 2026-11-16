@@ -1,5 +1,5 @@
 ﻿using System.Net;
-using MyLab.Redis.Keys;
+using MyLab.Redis.Locking;
 
 namespace MyLab.Redis.Abstractions;
 
@@ -7,15 +7,17 @@ public interface IRedisService
 {
     bool Connected { get; }
 
-    IRedisServer GetServer();
+    IRedisServer Server();
 
-    IRedisServer GetServer(EndPoint endpoint);
+    IRedisServer Server(EndPoint endpoint);
 
-    IRedisServer GetServer(string hostAndPort);
+    IRedisServer Server(string hostAndPort);
 
-    IRedisServer GetServer(string host, int port);
+    IRedisServer Server(string host, int port);
 
-    IRedisServer[] GetServers();
+    IRedisServer[] GetAllServers();
 
     IRedisDb Db(int dbIndex0 = -1);
+
+    IRedisLocker Lock(string lockId);
 }

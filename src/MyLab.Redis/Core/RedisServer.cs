@@ -1,7 +1,6 @@
 ﻿using MyLab.Redis.Abstractions;
 using StackExchange.Redis;
 using System.Net;
-using YamlDotNet.Core;
 
 namespace MyLab.Redis.Core;
 
@@ -33,4 +32,6 @@ class RedisServer(IServer redisServer) : IRedisServer
     public Task FlushAllAsync() => redisServer.FlushAllDatabasesAsync();
 
     public IServer GetUnderlineServer() => redisServer;
+
+    static int? DatabaseOrDefault(int dbIndex) => dbIndex < 0 ? null : dbIndex;
 }

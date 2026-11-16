@@ -8,5 +8,6 @@
         public string? User { get; set; }
         public string? Password { get; set; }
         public CacheOptions[]? Cache { get; set; }
+        public RedlockOptions? Redlock { get; set; }
     }
 }

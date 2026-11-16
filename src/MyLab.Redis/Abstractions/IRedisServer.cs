@@ -4,6 +4,16 @@ namespace MyLab.Redis.Abstractions;
 
 public interface IRedisServer
 {
+    /// <summary>
+    /// Gets a value indicating whether this server is connected.
+    /// </summary>
+    bool IsConnected { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether this server is a read-only replica.
+    /// </summary>
+    bool IsReplica { get; }
+
     Task<TimeSpan> PingAsync();
 
     Task<RedisValue> EchoAsync(RedisValue value);
@@ -16,4 +26,6 @@ public interface IRedisServer
     );
 
     Task FlushAllAsync();
+
+    IServer GetUnderlineServer();
 }

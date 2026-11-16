@@ -21,7 +21,7 @@ namespace IntegrationTests.Core
             // Act
             try
             {
-                var servers = redisService.GetServers();
+                var servers = redisService.GetAllServers();
                 echoes = new string[servers.Length];
 
                 for (var i = 0; i < servers.Length; i++)
@@ -54,7 +54,7 @@ namespace IntegrationTests.Core
             {
                 foreach (var (host, port) in TestTools.RedisEndpoints)
                 {
-                    var server = redisService.GetServer(host, port);
+                    var server = redisService.Server(host, port);
                     echoes.Add((await server.EchoAsync("redis")).ToString());
                 }
             }
@@ -83,7 +83,7 @@ namespace IntegrationTests.Core
             // Act
             try
             {
-                var server = redisService.GetServer();
+                var server = redisService.Server();
                 echo = (await server.EchoAsync("redis")).ToString();
             }
             finally

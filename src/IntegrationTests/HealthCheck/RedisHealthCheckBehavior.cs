@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using MyLab.Log;
 using MyLab.Log.XUnit;
+using MyLab.Redis.HealthCheck;
 using Xunit.Abstractions;
 
 namespace IntegrationTests.HealthCheck

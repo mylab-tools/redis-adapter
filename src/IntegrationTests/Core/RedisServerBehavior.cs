@@ -11,7 +11,7 @@ namespace IntegrationTests.Core
         {
             // Arrange
             await using var redis = await TestTools.OpenRedisAsync(output);
-            IRedisServer server = redis.Service.GetServer();
+            IRedisServer server = redis.Service.Server();
 
             // Act
             var latency = await server.PingAsync();
@@ -25,7 +25,7 @@ namespace IntegrationTests.Core
         {
             // Arrange
             await using var redis = await TestTools.OpenRedisAsync(output);
-            IRedisServer server = redis.Service.GetServer();
+            IRedisServer server = redis.Service.Server();
 
             // Act
             var value = await server.EchoAsync("redis");
@@ -42,7 +42,7 @@ namespace IntegrationTests.Core
             var keyName = redis.NewKeyName();
             var key = new StringRedisKey(keyName, redis.Database);
             await key.SetAsync("value");
-            IRedisServer server = redis.Service.GetServer();
+            IRedisServer server = redis.Service.Server();
             var names = new List<string>();
 
             // Act
@@ -60,7 +60,7 @@ namespace IntegrationTests.Core
             await using var redis = await TestTools.OpenRedisAsync(output, TestTools.ConfigureRedisAdmin);
             var key = new StringRedisKey(redis.NewKeyName(), redis.Database);
             await key.SetAsync("value");
-            IRedisServer server = redis.Service.GetServer();
+            IRedisServer server = redis.Service.Server();
 
             // Act
             await server.FlushAllAsync();
