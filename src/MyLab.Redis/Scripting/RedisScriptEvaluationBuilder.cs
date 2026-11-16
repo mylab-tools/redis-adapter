@@ -3,6 +3,9 @@ using StackExchange.Redis;
 
 namespace MyLab.Redis.Scripting;
 
+/// <summary>
+/// Collects keys and arguments and evaluates a Lua script.
+/// </summary>
 public class RedisScriptEvaluationBuilder
 {
     private readonly IRedisScriptEvaluator _scriptEvaluator;
@@ -11,6 +14,10 @@ public class RedisScriptEvaluationBuilder
 
     private readonly RedisValue[]? _args;
 
+    /// <summary>
+    /// Initializes a builder for <paramref name="scriptEvaluator"/>.
+    /// </summary>
+    /// <param name="scriptEvaluator">Evaluator that runs the script.</param>
     public RedisScriptEvaluationBuilder(IRedisScriptEvaluator scriptEvaluator)
     {
         _scriptEvaluator = scriptEvaluator;

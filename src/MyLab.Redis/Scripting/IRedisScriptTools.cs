@@ -1,5 +1,8 @@
 ﻿namespace MyLab.Redis.Scripting;
 
+/// <summary>
+/// Lua script commands for one Redis database.
+/// </summary>
 public interface IRedisScriptTools
 {
     /// <summary>

@@ -193,7 +193,7 @@ namespace IntegrationTests.Caching
             // Arrange
             await using var redis = await TestTools.OpenRedisAsync(output);
             var itemId = redis.NewKeyName();
-            await using var held = await redis.Service.Lock(itemId).TryAcquireOnceAsync()
+            await using var held = await redis.Service.Lock($"cache:{itemId}").TryAcquireOnceAsync()
                 ?? throw new InvalidOperationException("Lock was not acquired.");
             IRedisCache cache = redis.Service.Cache("orders");
 

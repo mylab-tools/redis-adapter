@@ -2,9 +2,16 @@
 
 namespace MyLab.Redis.Keys;
 
+/// <summary>
+/// Common operations for a Redis key.
+/// </summary>
 public class RedisKeyBase
 {
     protected IDatabaseAsync RedisDb { get; }
+
+    /// <summary>
+    /// Name of the Redis key.
+    /// </summary>
     public RedisKey Key { get; }
 
     protected RedisKeyBase(RedisKey key, IDatabaseAsync redisDb)

@@ -1,34 +1,25 @@
-﻿using MyLab.Redis.Abstractions;
-using MyLab.Redis.Locking;
-using MyLab.Redis.Options;
+﻿using MyLab.Redis.Options;
 
 namespace MyLab.Redis.Caching;
 
+/// <summary>
+/// A named cache stored in Redis.
+/// </summary>
 public interface IRedisCache
 {
+    /// <summary>
+    /// Cache identifier from configuration.
+    /// </summary>
     string Id { get; }
+
+    /// <summary>
+    /// Returns the cache entry with the specified identifier.
+    /// </summary>
+    /// <param name="itemId">Identifier of the cached item.</param>
     IRedisCacheItem Item(string itemId);
+
+    /// <summary>
+    /// Counts keys whose names start with <see cref="CacheOptions.BaseKey"/>.
+    /// </summary>
     Task<long> GetItemsCountAsync();
-}
-
-class RedisCache(
-    string id,
-    IRedisDb db,
-    IRedisServer server,
-    Func<string, IRedisLocker> lockFactory,
-    CacheOptions opts) : IRedisCache
-{
-    public string Id => id;
-
-    public IRedisCacheItem Item(string itemId)
-        => new RedisCacheItem(itemId, db, lockFactory(itemId), opts);
-
-    public async Task<long> GetItemsCountAsync()
-    {
-        long count = 0;
-        await foreach (var _ in server.GetKeys(opts.BaseKey + "*", opts.DbIndex))
-            count++;
-
-        return count;
-    }
 }

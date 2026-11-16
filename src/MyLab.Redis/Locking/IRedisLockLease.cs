@@ -1,11 +1,21 @@
-﻿using StackExchange.Redis;
+﻿using MyLab.Redis.Abstractions;
+using StackExchange.Redis;
 
 namespace MyLab.Redis.Locking;
 
+/// <summary>
+/// A lock held on a majority of Redis masters.
+/// </summary>
 public interface IRedisLockLease : IAsyncDisposable
 {
+    /// <summary>
+    /// Identifier passed to <see cref="IRedisService.Lock"/>.
+    /// </summary>
     string LockId { get; }
 
+    /// <summary>
+    /// Redis key that stores the lock token.
+    /// </summary>
     RedisKey Key { get; }
 
     /// <summary>

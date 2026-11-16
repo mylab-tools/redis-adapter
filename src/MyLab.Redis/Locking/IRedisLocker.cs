@@ -1,5 +1,8 @@
 ﻿namespace MyLab.Redis.Locking;
 
+/// <summary>
+/// Acquires a distributed lock on a majority of Redis masters.
+/// </summary>
 public interface IRedisLocker
 {
     /// <summary>
