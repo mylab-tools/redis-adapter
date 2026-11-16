@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using MyLab.Redis.Caching;
 using MyLab.Redis.Locking;
 
 namespace MyLab.Redis.Abstractions;
@@ -20,4 +21,6 @@ public interface IRedisService
     IRedisDb Db(int dbIndex0 = -1);
 
     IRedisLocker Lock(string lockId);
+
+    IRedisCache Cache(string cacheId);
 }

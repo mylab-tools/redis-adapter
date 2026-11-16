@@ -10,8 +10,8 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <summary>
     /// Initializes a new instance of <see cref="ListRedisKey"/>
     /// </summary>
-    public ListRedisKey(string keyName, IDatabaseAsync redisDb)
-        : base(keyName, redisDb)
+    public ListRedisKey(RedisKey key, IDatabaseAsync redisDb)
+        : base(key, redisDb)
     {
     }
 
@@ -24,7 +24,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="index">The index position to get the value at.</param>
     /// <returns>The requested element, or nil when index is out of range.</returns>
     public Task<RedisValue> GetByIndexAsync(long index)
-        => RedisDb.ListGetByIndexAsync(KeyName, index);
+        => RedisDb.ListGetByIndexAsync(Key, index);
 
     /// <summary>
     /// Inserts value in the list stored at key after the reference value pivot.
@@ -34,7 +34,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="value">The value to insert.</param>
     /// <returns>The length of the list after the insert operation, or -1 when the value pivot was not found.</returns>
     public Task<long> InsertAfterAsync(RedisValue pivot, RedisValue value)
-        => RedisDb.ListInsertAfterAsync(KeyName, pivot, value);
+        => RedisDb.ListInsertAfterAsync(Key, pivot, value);
 
     /// <summary>
     /// Inserts value in the list stored at key before the reference value pivot.
@@ -44,14 +44,14 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="value">The value to insert.</param>
     /// <returns>The length of the list after the insert operation, or -1 when the value pivot was not found.</returns>
     public Task<long> InsertBeforeAsync(RedisValue pivot, RedisValue value)
-        => RedisDb.ListInsertBeforeAsync(KeyName, pivot, value);
+        => RedisDb.ListInsertBeforeAsync(Key, pivot, value);
 
     /// <summary>
     /// Removes and returns the first element of the list stored at key.
     /// </summary>
     /// <returns>The value of the first element, or nil when key does not exist.</returns>
     public Task<RedisValue> LeftPopAsync()
-        => RedisDb.ListLeftPopAsync(KeyName);
+        => RedisDb.ListLeftPopAsync(Key);
 
     /// <summary>
     /// Insert the specified value at the head of the list stored at key.
@@ -61,7 +61,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="when">Which conditions to add to the list under (defaults to always).</param>
     /// <returns>The length of the list after the push operations.</returns>
     public Task<long> LeftPushAsync(RedisValue value, When when = When.Always)
-        => RedisDb.ListLeftPushAsync(KeyName, value, when);
+        => RedisDb.ListLeftPushAsync(Key, value, when);
 
     /// <summary>
     /// Insert all the specified values at the head of the list stored at key.
@@ -72,7 +72,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="values">The values to add to the head of the list.</param>
     /// <returns>The length of the list after the push operations.</returns>
     public Task<long> LeftPushAsync(RedisValue[] values)
-        => RedisDb.ListLeftPushAsync(KeyName, values);
+        => RedisDb.ListLeftPushAsync(Key, values);
 
     /// <summary>
     /// Returns the length of the list stored at key.
@@ -80,7 +80,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// </summary>
     /// <returns>The length of the list at key.</returns>
     public Task<long> LengthAsync()
-        => RedisDb.ListLengthAsync(KeyName);
+        => RedisDb.ListLengthAsync(Key);
 
     /// <summary>
     /// Returns the specified elements of the list stored at key.
@@ -92,7 +92,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="stop">The stop index of the list.</param>
     /// <returns>List of elements in the specified range.</returns>
     public Task<RedisValue[]> RangeAsync(long start = 0, long stop = -1)
-        => RedisDb.ListRangeAsync(KeyName, start, stop);
+        => RedisDb.ListRangeAsync(Key, start, stop);
 
     /// <summary>
     /// Removes the first count occurrences of elements equal to value from the list stored at key.
@@ -105,14 +105,14 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="count">The count behavior (see method summary).</param>
     /// <returns>The number of removed elements.</returns>
     public Task<long> RemoveElementAsync(RedisValue value, long count = 0)
-        => RedisDb.ListRemoveAsync(KeyName, value, count);
+        => RedisDb.ListRemoveAsync(Key, value, count);
 
     /// <summary>
     /// Removes and returns the last element of the list stored at key.
     /// </summary>
     /// <returns>The element being popped.</returns>
     public Task<RedisValue> RightPopAsync()
-        => RedisDb.ListRightPopAsync(KeyName);
+        => RedisDb.ListRightPopAsync(Key);
 
     /// <summary>
     /// Insert the specified value at the tail of the list stored at key.
@@ -122,7 +122,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="when">Which conditions to add to the list under.</param>
     /// <returns>The length of the list after the push operation.</returns>
     public Task<long> RightPushAsync(RedisValue value, When when = When.Always)
-        => RedisDb.ListRightPushAsync(KeyName, value, when);
+        => RedisDb.ListRightPushAsync(Key, value, when);
 
     /// <summary>
     /// Insert all the specified values at the tail of the list stored at key.
@@ -134,7 +134,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="when">Which conditions to add to the list under.</param>
     /// <returns>The length of the list after the push operation.</returns>
     public Task<long> RightPushAsync(RedisValue[] values, When when = When.Always)
-        => RedisDb.ListRightPushAsync(KeyName, values, when);
+        => RedisDb.ListRightPushAsync(Key, values, when);
 
     /// <summary>
     /// Sets the list element at index to value. An error is returned for out of range indexes.
@@ -142,7 +142,7 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="index">The index to set the value at.</param>
     /// <param name="value">The value to set.</param>
     public Task SetByIndexAsync(long index, RedisValue value)
-        => RedisDb.ListSetByIndexAsync(KeyName, index, value);
+        => RedisDb.ListSetByIndexAsync(Key, index, value);
 
     /// <summary>
     /// Trim an existing list so that it will contain only the specified range of elements specified.
@@ -152,5 +152,5 @@ public class ListRedisKey : SortedRedisKeyBase
     /// <param name="start">The start index of the list to trim to.</param>
     /// <param name="stop">The end index of the list to trim to.</param>
     public Task TrimAsync(long start, long stop)
-        => RedisDb.ListTrimAsync(KeyName, start, stop);
+        => RedisDb.ListTrimAsync(Key, start, stop);
 }

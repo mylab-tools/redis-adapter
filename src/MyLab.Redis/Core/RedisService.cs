@@ -2,6 +2,7 @@
 using StackExchange.Redis;
 using System.Net;
 using Microsoft.Extensions.Options;
+using MyLab.Redis.Caching;
 using MyLab.Redis.Locking;
 using MyLab.Redis.Options;
 
@@ -66,6 +67,22 @@ class RedisService(IOptions<RedisOptions> opts) : IRedisConnectionProvider, IRed
     public IRedisLocker Lock(string lockId)
     {
         return new RedlockLocker(lockId, Masters(), opts.Value.Redlock ?? new RedlockOptions());
+    }
+
+    public IRedisCache Cache(string cacheId)
+    {
+        var cacheOptions = GetCacheOptions(cacheId);
+        var db = Db(cacheOptions.DbIndex);
+
+        return new RedisCache(cacheId, db, Server(), Lock, cacheOptions);
+    }
+
+    CacheOptions GetCacheOptions(string cacheId)
+    {
+        var defaultCfg = opts.Value.Cache ?? new ConfigCacheOptions();
+        var cfgOverride = defaultCfg.Overrides?.FirstOrDefault(o => o.Id == cacheId);
+
+        return cfgOverride != null ? cfgOverride.Override(defaultCfg) : defaultCfg;
     }
 
     public IConnectionMultiplexer? Provide()

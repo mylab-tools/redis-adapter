@@ -10,8 +10,8 @@ public class SortedRedisKeyBase : RedisKeyBase
     /// <summary>
     /// Initializes a new instance of <see cref="SortedRedisKeyBase"/>
     /// </summary>
-    protected SortedRedisKeyBase(string keyName, IDatabaseAsync redisDb)
-        : base(keyName, redisDb)
+    protected SortedRedisKeyBase(RedisKey key, IDatabaseAsync redisDb)
+        : base(key, redisDb)
     {
     }
 
@@ -36,7 +36,7 @@ public class SortedRedisKeyBase : RedisKeyBase
         SortType sortType = SortType.Numeric,
         RedisValue by = default,
         RedisValue[]? get = null)
-        => RedisDb.SortAsync(KeyName, skip, take, order, sortType, by, get);
+        => RedisDb.SortAsync(Key, skip, take, order, sortType, by, get);
 
     /// <summary>
     /// Sorts a list, set or sorted set (numerically or alphabetically, ascending by default); By default, the elements themselves are compared, but the values can also be
@@ -61,5 +61,5 @@ public class SortedRedisKeyBase : RedisKeyBase
         SortType sortType = SortType.Numeric,
         RedisValue by = default,
         RedisValue[]? get = null)
-        => RedisDb.SortAndStoreAsync(destination, KeyName, skip, take, order, sortType, by, get);
+        => RedisDb.SortAndStoreAsync(destination, Key, skip, take, order, sortType, by, get);
 }

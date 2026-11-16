@@ -11,14 +11,14 @@ class RedisDb(IDatabaseAsync db) : IRedisDb
 
     public IRedisScriptTools Script() => new RedisScriptTools(db);
 
-    public StringRedisKey String(string key) => new (key, db);
+    public StringRedisKey String(RedisKey key) => new (key, db);
 
-    public SortedSetRedisKey SortedSet(string key) => new(key, db);
+    public SortedSetRedisKey SortedSet(RedisKey key) => new(key, db);
 
-    public SetRedisKey Set(string key) => new(key, db);
+    public SetRedisKey Set(RedisKey key) => new(key, db);
 
-    public ListRedisKey List(string key) => new(key, db);
+    public ListRedisKey List(RedisKey key) => new(key, db);
 
-    public HashRedisKey Hash(string key) => new(key, db);
+    public HashRedisKey Hash(RedisKey key) => new(key, db);
 
 }

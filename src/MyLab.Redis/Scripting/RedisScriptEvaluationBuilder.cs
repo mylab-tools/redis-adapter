@@ -43,7 +43,7 @@ public class RedisScriptEvaluationBuilder
     /// </summary>
     public RedisScriptEvaluationBuilder WithKey(RedisKeyBase key)
     {
-        return WithKeys(key.KeyName);
+        return WithKeys(key.Key);
     }
 
     /// <summary>

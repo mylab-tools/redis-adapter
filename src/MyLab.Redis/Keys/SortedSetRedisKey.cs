@@ -11,8 +11,8 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <summary>
     /// Initializes a new instance of <see cref="SortedSetRedisKey"/>
     /// </summary>
-    public SortedSetRedisKey(string keyName, IDatabaseAsync redisDb)
-        : base(keyName, redisDb)
+    public SortedSetRedisKey(RedisKey key, IDatabaseAsync redisDb)
+        : base(key, redisDb)
     {
     }
 
@@ -25,7 +25,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="when">What conditions to add the element under (defaults to always).</param>
     /// <returns>True if the value was added, False if it already existed (the score is still updated)</returns>
     public Task<bool> AddAsync(RedisValue member, double score, SortedSetWhen when = SortedSetWhen.Always)
-        => RedisDb.SortedSetAddAsync(KeyName, member, score, when);
+        => RedisDb.SortedSetAddAsync(Key, member, score, when);
 
     /// <summary>
     /// Adds all the specified members with the specified scores to the sorted set stored at key.
@@ -35,7 +35,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="when">What conditions to add the element under (defaults to always).</param>
     /// <returns>The number of elements added to the sorted sets, not including elements already existing for which the score was updated.</returns>
     public Task<long> AddAsync(SortedSetEntry[] values, SortedSetWhen when = SortedSetWhen.Always)
-        => RedisDb.SortedSetAddAsync(KeyName, values, when);
+        => RedisDb.SortedSetAddAsync(Key, values, when);
 
     /// <summary>
     /// Decrements the score of member in the sorted set stored at key by decrement.
@@ -45,7 +45,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="value">The amount to decrement by.</param>
     /// <returns>The new score of member.</returns>
     public Task<double> DecrementAsync(RedisValue member, double value = 1)
-        => RedisDb.SortedSetDecrementAsync(KeyName, member, value);
+        => RedisDb.SortedSetDecrementAsync(Key, member, value);
 
     /// <summary>
     /// Increments the score of member in the sorted set stored at key by increment.
@@ -55,7 +55,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="value">The amount to increment by.</param>
     /// <returns>The new score of member.</returns>
     public Task<double> IncrementAsync(RedisValue member, double value = 1)
-        => RedisDb.SortedSetIncrementAsync(KeyName, member, value);
+        => RedisDb.SortedSetIncrementAsync(Key, member, value);
 
     /// <summary>
     /// Returns the sorted set cardinality (number of elements) of the sorted set stored at key.
@@ -68,7 +68,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
         double min = double.NegativeInfinity,
         double max = double.PositiveInfinity,
         Exclude exclude = Exclude.None)
-        => RedisDb.SortedSetLengthAsync(KeyName, min, max, exclude);
+        => RedisDb.SortedSetLengthAsync(Key, min, max, exclude);
 
     /// <summary>
     /// When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering,
@@ -79,7 +79,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="exclude">Whether to exclude <paramref name="min"/> and <paramref name="max"/> from the range check (defaults to both inclusive).</param>
     /// <returns>The number of elements in the specified score range.</returns>
     public Task<long> LengthByValueAsync(RedisValue min, RedisValue max, Exclude exclude = Exclude.None)
-        => RedisDb.SortedSetLengthByValueAsync(KeyName, min, max, exclude);
+        => RedisDb.SortedSetLengthByValueAsync(Key, min, max, exclude);
 
     /// <summary>
     /// Returns the specified range of elements in the sorted set stored at key.
@@ -93,7 +93,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="order">The order to sort by (defaults to ascending).</param>
     /// <returns>List of elements in the specified range.</returns>
     public Task<RedisValue[]> RangeByRankAsync(long start = 0, long stop = -1, Order order = Order.Ascending)
-        => RedisDb.SortedSetRangeByRankAsync(KeyName, start, stop, order);
+        => RedisDb.SortedSetRangeByRankAsync(Key, start, stop, order);
 
     /// <summary>
     /// Returns the specified range of elements in the sorted set stored at key.
@@ -107,7 +107,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="order">The order to sort by (defaults to ascending).</param>
     /// <returns>List of elements in the specified range.</returns>
     public Task<SortedSetEntry[]> RangeByRankWithScoresAsync(long start = 0, long stop = -1, Order order = Order.Ascending)
-        => RedisDb.SortedSetRangeByRankWithScoresAsync(KeyName, start, stop, order);
+        => RedisDb.SortedSetRangeByRankWithScoresAsync(Key, start, stop, order);
 
     /// <summary>
     /// Returns the specified range of elements in the sorted set stored at key.
@@ -127,7 +127,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
         Order order = Order.Ascending,
         long skip = 0,
         long take = -1)
-        => RedisDb.SortedSetRangeByScoreAsync(KeyName, start, stop, exclude, order, skip, take);
+        => RedisDb.SortedSetRangeByScoreAsync(Key, start, stop, exclude, order, skip, take);
 
     /// <summary>
     /// Returns the specified range of elements in the sorted set stored at key.
@@ -147,7 +147,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
         Order order = Order.Ascending,
         long skip = 0,
         long take = -1)
-        => RedisDb.SortedSetRangeByScoreWithScoresAsync(KeyName, start, stop, exclude, order, skip, take);
+        => RedisDb.SortedSetRangeByScoreWithScoresAsync(Key, start, stop, exclude, order, skip, take);
 
     /// <summary>
     /// When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering,
@@ -167,7 +167,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
         Order order = Order.Ascending,
         long skip = 0,
         long take = -1)
-        => RedisDb.SortedSetRangeByValueAsync(KeyName, min, max, exclude, order, skip, take);
+        => RedisDb.SortedSetRangeByValueAsync(Key, min, max, exclude, order, skip, take);
 
     /// <summary>
     /// Returns the rank of member in the sorted set stored at key, by default with the scores ordered from low to high.
@@ -177,7 +177,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="order">The order to sort by (defaults to ascending).</param>
     /// <returns>If member exists in the sorted set, the rank of member; If member does not exist in the sorted set or key does not exist, null</returns>
     public Task<long?> RankAsync(RedisValue member, Order order = Order.Ascending)
-        => RedisDb.SortedSetRankAsync(KeyName, member, order);
+        => RedisDb.SortedSetRankAsync(Key, member, order);
 
     /// <summary>
     /// Removes the specified member from the sorted set stored at key. Non existing members are ignored.
@@ -185,7 +185,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="member">The member to remove.</param>
     /// <returns>True if the member existed in the sorted set and was removed; False otherwise.</returns>
     public Task<bool> RemoveMemberAsync(RedisValue member)
-        => RedisDb.SortedSetRemoveAsync(KeyName, member);
+        => RedisDb.SortedSetRemoveAsync(Key, member);
 
     /// <summary>
     /// Removes the specified members from the sorted set stored at key. Non existing members are ignored.
@@ -193,7 +193,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="members">The members to remove.</param>
     /// <returns>The number of members removed from the sorted set, not including non existing members.</returns>
     public Task<long> RemoveMembersAsync(RedisValue[] members)
-        => RedisDb.SortedSetRemoveAsync(KeyName, members);
+        => RedisDb.SortedSetRemoveAsync(Key, members);
 
     /// <summary>
     /// Removes all elements in the sorted set stored at key with rank between start and stop.
@@ -204,7 +204,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="stop">The maximum rank to remove.</param>
     /// <returns>The number of elements removed.</returns>
     public Task<long> RemoveRangeByRankAsync(long start, long stop)
-        => RedisDb.SortedSetRemoveRangeByRankAsync(KeyName, start, stop);
+        => RedisDb.SortedSetRemoveRangeByRankAsync(Key, start, stop);
 
     /// <summary>
     /// Removes all elements in the sorted set stored at key with a score between min and max (inclusive by default).
@@ -214,7 +214,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="exclude">Which of <paramref name="start"/> and <paramref name="stop"/> to exclude (defaults to both inclusive).</param>
     /// <returns>The number of elements removed.</returns>
     public Task<long> RemoveRangeByScoreAsync(double start, double stop, Exclude exclude = Exclude.None)
-        => RedisDb.SortedSetRemoveRangeByScoreAsync(KeyName, start, stop, exclude);
+        => RedisDb.SortedSetRemoveRangeByScoreAsync(Key, start, stop, exclude);
 
     /// <summary>
     /// When all the elements in a sorted set are inserted with the same score, in order to force lexicographical ordering,
@@ -225,7 +225,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="exclude">Which of <paramref name="min"/> and <paramref name="max"/> to exclude (defaults to both inclusive).</param>
     /// <returns>the number of elements removed.</returns>
     public Task<long> RemoveRangeByValueAsync(RedisValue min, RedisValue max, Exclude exclude = Exclude.None)
-        => RedisDb.SortedSetRemoveRangeByValueAsync(KeyName, min, max, exclude);
+        => RedisDb.SortedSetRemoveRangeByValueAsync(Key, min, max, exclude);
 
     /// <summary>
     /// Incrementally iterate over a sorted set.
@@ -234,7 +234,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="batchSize">The page size to iterate by.</param>
     /// <returns>Yields all matching elements of the sorted set.</returns>
     public IAsyncEnumerable<SortedSetEntry> ScanAsync(string pattern, int batchSize = 250)
-    => RedisDb.SortedSetScanAsync(KeyName, pattern, batchSize);
+    => RedisDb.SortedSetScanAsync(Key, pattern, batchSize);
 
     /// <summary>
     /// Returns the score of member in the sorted set at key.
@@ -243,7 +243,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="member">The member to get a score for.</param>
     /// <returns>The score of the member.</returns>
     public Task<double?> ScoreAsync(RedisValue member)
-        => RedisDb.SortedSetScoreAsync(KeyName, member);
+        => RedisDb.SortedSetScoreAsync(Key, member);
 
     /// <summary>
     /// Removes and returns the first element from the sorted set stored at key, by default with the scores ordered from low to high.
@@ -251,7 +251,7 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="order">The order to sort by (defaults to ascending).</param>
     /// <returns>The removed element, or nil when key does not exist.</returns>
     public Task<SortedSetEntry?> PopAsync(Order order = Order.Ascending)
-        => RedisDb.SortedSetPopAsync(KeyName, order);
+        => RedisDb.SortedSetPopAsync(Key, order);
 
     /// <summary>
     /// Removes and returns the specified number of first elements from the sorted set stored at key, by default with the scores ordered from low to high.
@@ -260,5 +260,5 @@ public class SortedSetRedisKey : SortedRedisKeyBase
     /// <param name="order">The order to sort by (defaults to ascending).</param>
     /// <returns>An array of elements, or an empty array when key does not exist.</returns>
     public Task<SortedSetEntry[]> PopAsync(long count, Order order = Order.Ascending)
-        => RedisDb.SortedSetPopAsync(KeyName, count, order);
+        => RedisDb.SortedSetPopAsync(Key, count, order);
 }

@@ -10,8 +10,8 @@ public class StringRedisKey : RedisKeyBase
     /// <summary>
     /// Initializes a new instance of <see cref="StringRedisKey"/>
     /// </summary>
-    public StringRedisKey(string keyName, IDatabaseAsync redisDb)
-        : base(keyName, redisDb)
+    public StringRedisKey(RedisKey key, IDatabaseAsync redisDb)
+        : base(key, redisDb)
     {
     }
 
@@ -24,7 +24,7 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="value">The amount to decrement by (defaults to 1).</param>
     /// <returns>The value of key after the decrement.</returns>
     public Task<long> DecrementAsync(long value = 1)
-        => RedisDb.StringDecrementAsync(KeyName, value);
+        => RedisDb.StringDecrementAsync(Key, value);
 
     /// <summary>
     /// Decrements the string representing a floating point number stored at key by the specified decrement.
@@ -34,7 +34,7 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="value">The amount to decrement by (defaults to 1).</param>
     /// <returns>The value of key after the decrement.</returns>
     public Task<double> DecrementAsync(double value)
-        => RedisDb.StringDecrementAsync(KeyName, value);
+        => RedisDb.StringDecrementAsync(Key, value);
 
     /// <summary>
     /// Get the value of key. If the key does not exist the special value nil is returned.
@@ -42,7 +42,7 @@ public class StringRedisKey : RedisKeyBase
     /// </summary>
     /// <returns>The value of key, or nil when key does not exist.</returns>
     public Task<RedisValue> GetAsync()
-        => RedisDb.StringGetAsync(KeyName);
+        => RedisDb.StringGetAsync(Key);
 
     /// <summary>
     /// Returns the substring of the string value stored at key, determined by the offsets start and end (both are inclusive).
@@ -53,7 +53,7 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="end">The end index of the substring to get.</param>
     /// <returns>The substring of the string value stored at key.</returns>
     public Task<RedisValue> GetRangeAsync(long start, long end)
-        => RedisDb.StringGetRangeAsync(KeyName, start, end);
+        => RedisDb.StringGetRangeAsync(Key, start, end);
 
     /// <summary>
     /// Atomically sets key to value and returns the old value stored at key.
@@ -61,7 +61,7 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="value">The value to replace the existing value with.</param>
     /// <returns>The old value stored at key, or nil when key did not exist.</returns>
     public Task<RedisValue> GetSetAsync(RedisValue value)
-        => RedisDb.StringGetSetAsync(KeyName, value);
+        => RedisDb.StringGetSetAsync(Key, value);
 
     /// <summary>
     /// Increments the number stored at key by increment.
@@ -72,7 +72,7 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="value">The amount to increment by (defaults to 1).</param>
     /// <returns>The value of key after the increment.</returns>
     public Task<long> IncrementAsync(long value = 1)
-        => RedisDb.StringIncrementAsync(KeyName, value);
+        => RedisDb.StringIncrementAsync(Key, value);
 
     /// <summary>
     /// Increments the string representing a floating point number stored at key by the specified increment.
@@ -82,14 +82,14 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="value">The amount to increment by (defaults to 1).</param>
     /// <returns>The value of key after the increment.</returns>
     public Task<double> IncrementAsync(double value)
-        => RedisDb.StringIncrementAsync(KeyName, value);
+        => RedisDb.StringIncrementAsync(Key, value);
 
     /// <summary>
     /// Returns the length of the string value stored at key.
     /// </summary>
     /// <returns>the length of the string at key, or 0 when key does not exist.</returns>
     public Task<long> LengthAsync()
-        => RedisDb.StringLengthAsync(KeyName);
+        => RedisDb.StringLengthAsync(Key);
 
     /// <summary>
     /// Set key to hold the string value. If key already holds a value, it is overwritten, regardless of its type.
@@ -99,7 +99,7 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="when">Which condition to set the value under (defaults to always).</param>
     /// <returns><see langword="true"/> if the string was set, <see langword="false"/> otherwise.</returns>
     public Task<bool> SetAsync(RedisValue value, TimeSpan? expiry = null, When when = When.Always)
-        => RedisDb.StringSetAsync(KeyName, value, expiry, when);
+        => RedisDb.StringSetAsync(Key, value, expiry, when);
 
     /// <summary>
     /// Overwrites part of the string stored at key, starting at the specified offset, for the entire length of value.
@@ -110,5 +110,5 @@ public class StringRedisKey : RedisKeyBase
     /// <param name="value">The value to overwrite with.</param>
     /// <returns>The length of the string after it was modified by the command.</returns>
     public Task<RedisValue> SetRangeAsync(long offset, RedisValue value)
-        => RedisDb.StringSetRangeAsync(KeyName, offset, value);
+        => RedisDb.StringSetRangeAsync(Key, offset, value);
 }

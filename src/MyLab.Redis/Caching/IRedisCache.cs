@@ -1,24 +1,34 @@
 ﻿using MyLab.Redis.Abstractions;
+using MyLab.Redis.Locking;
 using MyLab.Redis.Options;
 
 namespace MyLab.Redis.Caching;
 
 public interface IRedisCache
 {
-    string Name { get; }
+    string Id { get; }
     IRedisCacheItem Item(string itemId);
     Task<long> GetItemsCountAsync();
 }
 
-class RedisCache(IRedisDb db, CacheOptions opts) : IRedisCache
+class RedisCache(
+    string id,
+    IRedisDb db,
+    IRedisServer server,
+    Func<string, IRedisLocker> lockFactory,
+    CacheOptions opts) : IRedisCache
 {
-    public string Name { get; } = opts.Name;
+    public string Id => id;
 
     public IRedisCacheItem Item(string itemId)
-        => new RedisCacheItem(itemId, db, opts);
+        => new RedisCacheItem(itemId, db, lockFactory(itemId), opts);
 
-    public Task<long> GetItemsCountAsync()
+    public async Task<long> GetItemsCountAsync()
     {
-        throw new NotImplementedException();
+        long count = 0;
+        await foreach (var _ in server.GetKeys(opts.BaseKey + "*", opts.DbIndex))
+            count++;
+
+        return count;
     }
 }

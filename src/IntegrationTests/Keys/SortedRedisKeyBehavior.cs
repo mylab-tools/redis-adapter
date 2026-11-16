@@ -30,7 +30,7 @@ namespace IntegrationTests.Keys
             await key.RightPushAsync(["10", "2", "1"]);
 
             // Act
-            var stored = await key.SortAndStoreAsync(destination.KeyName);
+            var stored = await key.SortAndStoreAsync(destination.Key);
 
             // Assert
             Assert.Equal(3, stored);

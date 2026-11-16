@@ -88,7 +88,7 @@ namespace IntegrationTests.Keys
             await source.AddAsync("a");
 
             // Act
-            var moved = await source.MoveMemberAsync(destination.KeyName, "a");
+            var moved = await source.MoveMemberAsync(destination.Key, "a");
 
             // Assert
             Assert.True(moved);

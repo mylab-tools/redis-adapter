@@ -1,14 +1,15 @@
 ﻿using MyLab.Redis.Keys;
 using MyLab.Redis.Scripting;
+using StackExchange.Redis;
 
 namespace MyLab.Redis.Abstractions;
 
 public interface IRedisDb
 {
     IRedisScriptTools Script();
-    StringRedisKey String(string key);
-    SortedSetRedisKey SortedSet(string key);
-    SetRedisKey Set(string key);
-    ListRedisKey List(string key);
-    HashRedisKey Hash(string key);
+    StringRedisKey String(RedisKey key);
+    SortedSetRedisKey SortedSet(RedisKey key);
+    SetRedisKey Set(RedisKey key);
+    ListRedisKey List(RedisKey key);
+    HashRedisKey Hash(RedisKey key);
 }
