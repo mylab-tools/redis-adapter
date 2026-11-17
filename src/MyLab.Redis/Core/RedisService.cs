@@ -99,7 +99,7 @@ class RedisService(IOptions<RedisOptions> opts) : IRedisConnectionProvider, IRed
     {
         if (_connectionMultiplexer == null)
         {
-            throw new InvalidOperationException("Redis is not connected");
+            throw new RedisException("Redis is not connected");
         }
     }
 
@@ -107,7 +107,7 @@ class RedisService(IOptions<RedisOptions> opts) : IRedisConnectionProvider, IRed
     {
         var servers = GetAllServers().Where(server => !server.IsReplica).ToArray();
         if (servers.Length == 0)
-            throw new InvalidOperationException("Redis has no master server to lock.");
+            throw new RedisException("Redis has no master server.");
 
         return servers;
     }
