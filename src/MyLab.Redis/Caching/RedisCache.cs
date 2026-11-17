@@ -18,10 +18,11 @@ class RedisCache(
 
     public async Task<long> GetItemsCountAsync()
     {
-        long count = 0;
-        await foreach (var _ in server.GetKeysAsync(opts.BaseKey + "*", opts.DbIndex))
-            count++;
-
-        return count;
+        var hs = new HashSet<string>();
+        
+        await foreach (var k in server.GetKeysAsync(opts.BaseKey + ":*", opts.DbIndex))
+            hs.Add(k.ToString());
+        
+        return hs.Count;
     }
 }
