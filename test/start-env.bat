@@ -1,0 +1,1 @@
+docker compose -p mylab-redis-test up -d

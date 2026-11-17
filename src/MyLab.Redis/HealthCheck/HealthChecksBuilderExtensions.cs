@@ -1,19 +1,21 @@
-﻿using MyLab.Redis.HealthCheck;
+using Microsoft.Extensions.DependencyInjection;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.Extensions.DependencyInjection
+#pragma warning disable IDE0130
+namespace MyLab.Redis.HealthCheck
+#pragma warning restore IDE0130
 {
     /// <summary>
-    /// Extensions for <see cref="IHealthChecksBuilder"/>
+    /// Registers the Redis health check.
     /// </summary>
     public static class HealthChecksBuilderExtensions
     {
         /// <summary>
-        /// Adds Rabbit checks
+        /// Adds the Redis health check named <c>redis</c>.
         /// </summary>
-        public static IHealthChecksBuilder AddRedis(this IHealthChecksBuilder hCh)
+        /// <param name="builder">Health-check builder.</param>
+        public static IHealthChecksBuilder AddRedis(this IHealthChecksBuilder builder)
         {
-            return hCh.AddCheck<RedisConnectionHealthCheck>("redis");
+            return builder.AddCheck<RedisHealthCheck>("redis");
         }
     }
 }

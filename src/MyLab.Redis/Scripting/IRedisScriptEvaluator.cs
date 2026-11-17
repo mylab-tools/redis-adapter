@@ -1,16 +1,17 @@
-﻿using System.Threading.Tasks;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
-namespace MyLab.Redis.Scripting
+namespace MyLab.Redis.Scripting;
+
+/// <summary>
+/// Evaluates a Lua script.
+/// </summary>
+public interface IRedisScriptEvaluator
 {
     /// <summary>
-    /// Defines case relative redis script evaluator
+    /// Evaluates the script with <paramref name="keys"/> and <paramref name="args"/>.
     /// </summary>
-    public interface IRedisScriptEvaluator
-    {
-        /// <summary>
-        /// Evaluates script
-        /// </summary>
-        Task<RedisResult> EvaluateScriptAsync(RedisKey[] keys, RedisValue[] args);
-    }
+    /// <param name="keys">Keys available to the script as <c>KEYS</c>.</param>
+    /// <param name="args">Arguments available to the script as <c>ARGV</c>.</param>
+    /// <returns>The script result.</returns>
+    Task<RedisResult> EvaluateAsync(RedisKey[] keys, RedisValue[] args);
 }
