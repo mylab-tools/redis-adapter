@@ -23,7 +23,7 @@ namespace MyLab.Redis.Connection
         {
             var o = opts.Value;
 
-            if (o.ConnectionString == null)
+            if (string.IsNullOrWhiteSpace(o.ConnectionString))
             {
                 if (!o.Optional)
                     _log?.Error("Redis connection is required but connection string is not specified").Write();
