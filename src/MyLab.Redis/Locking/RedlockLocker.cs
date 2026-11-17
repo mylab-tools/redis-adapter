@@ -49,6 +49,8 @@ class RedlockLocker(string lockId, IRedisServer[] masters, RedlockOptions opts) 
         var started = Stopwatch.GetTimestamp();
         while (true)
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
             var acqRes = await redlock.TryAcquireAsync(key, cancellationToken);
             if (acqRes != null)
                 return new RedlockLease(lockId, redlock, acqRes);

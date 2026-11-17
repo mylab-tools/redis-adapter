@@ -19,22 +19,20 @@ partial class Redlock(IRedisServer[] servers, RedlockOptions opts)
         var quorum = Quorum(servers.Length);
         var token = Guid.NewGuid().ToString("N");
         var started = Stopwatch.GetTimestamp();
-        var acquired = 0;
 
+        bool[] votes;
         try
         {
-            foreach (var server in servers)
-            {
-                cancellationToken.ThrowIfCancellationRequested();
-                if (await TryAcquireOnServerAsync(server, key, token, _expiry))
-                    acquired++;
-            }
+            votes = await Task.WhenAll(servers.Select(server =>
+                TryAcquireOnServerAsync(server, key, token, _expiry)));
         }
         catch
         {
             await ReleaseAsync(key, token);
             throw;
         }
+
+        var acquired = votes.Count(v => v);
 
         var validity = RemainingValidity(_expiry, Stopwatch.GetElapsedTime(started));
         if (acquired >= quorum && validity > TimeSpan.Zero)
