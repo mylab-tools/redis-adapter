@@ -1,27 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
-namespace MyLab.Redis.Scripting
+namespace MyLab.Redis.Scripting;
+
+class ShaRedisScriptEvaluator(IDatabaseAsync redisDb, string scriptSha) : IRedisScriptEvaluator
 {
-    class ShaRedisScriptEvaluator : IRedisScriptEvaluator
-    {
-        private readonly RedisDbProvider _dbProvider;
-        private readonly byte[] _scriptSha;
+    private readonly byte[] _scriptSha= Enumerable.Range(0, scriptSha.Length)
+        .Where(x => x % 2 == 0)
+        .Select(x => Convert.ToByte(scriptSha.Substring(x, 2), 16))
+        .ToArray();
 
-        public ShaRedisScriptEvaluator(RedisDbProvider dbProvider, string scriptSha)
-        {
-            _dbProvider = dbProvider;
-            _scriptSha = Enumerable.Range(0, scriptSha.Length)
-                .Where(x => x % 2 == 0)
-                .Select(x => Convert.ToByte(scriptSha.Substring(x, 2), 16))
-                .ToArray();
-        }
-
-        public Task<RedisResult> EvaluateScriptAsync(RedisKey[] keys, RedisValue[] args)
-        {
-            return _dbProvider.Provide().ScriptEvaluateAsync(_scriptSha, keys, args);
-        }
-    }
+    public Task<RedisResult> EvaluateAsync(RedisKey[] keys, RedisValue[] args)
+        => redisDb.ScriptEvaluateAsync(_scriptSha, keys, args);
 }

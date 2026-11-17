@@ -1,63 +1,138 @@
-﻿using System;
-using System.Threading.Tasks;
+using System.Xml.Schema;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
+using Microsoft.VisualStudio.TestPlatform.Utilities;
+using MyLab.Log;
+using MyLab.Log.XUnit;
 using MyLab.Redis;
-using MyLab.Redis.Connection;
+using MyLab.Redis.Abstractions;
 using MyLab.Redis.Options;
-using MyLab.Redis.Services;
+using StackExchange.Redis;
 using Xunit.Abstractions;
 
 namespace IntegrationTests
 {
     static class TestTools
     {
-        public static Action<RedisOptions> ConfigureOptions => o =>
+        public static RedisOptions RedisOptions => new()
         {
-            o.ConnectionString = "localhost:9110,allowAdmin=true";
+            ConnectionString = "localhost:16379",
+            User = "test",
+            Password = "test"
         };
 
-        public static IRedisService CreateRedisService(ITestOutputHelper output, Action<RedisOptions> editOptions = null)
+        public static Action<RedisOptions> ConfigureRedis => opt =>
         {
-            var serviceCollection = new ServiceCollection();
-            
-            serviceCollection.AddRedis(new LazyRedisConnectionPolicy());
-            serviceCollection.ConfigureRedis(ConfigureOptions);
-            
-            if (editOptions != null)
-            {
-                serviceCollection.ConfigureRedis(editOptions);
-            }
+            opt.ConnectionString = RedisOptions.ConnectionString;
+            opt.User = RedisOptions.User;
+            opt.Password = RedisOptions.Password;
+        };
 
-            serviceCollection.AddLogging(l => l.AddXUnit(output).AddFilter(f => true));
+        public static Action<RedisOptions> ConfigureRedisAdmin => opt =>
+        {
+            ConfigureRedis(opt);
+            opt.ConnectionString += ",allowAdmin=true";
+        };
 
-            var serviceProvider = serviceCollection.BuildServiceProvider();
-            return (IRedisService) serviceProvider.GetService(typeof(IRedisService));
+        public static (string Host, int Port)[] RedisEndpoints =>
+        [
+            ("localhost", 16379),
+            ("localhost", 16380),
+            ("localhost", 16381)
+        ];
+
+        public static RedisOptions ThreeRedisOptions => new()
+        {
+            ConnectionString = string.Join(",", RedisEndpoints.Select(endpoint => $"{endpoint.Host}:{endpoint.Port}")),
+            User = RedisOptions.User,
+            Password = RedisOptions.Password
+        };
+
+        public static Action<RedisOptions> ConfigureThreeRedis => opt =>
+        {
+            var source = ThreeRedisOptions;
+            opt.ConnectionString = source.ConnectionString;
+            opt.User = source.User;
+            opt.Password = source.Password;
+        };
+
+        public static async Task StartHostedAsync(IServiceProvider sp)
+        {
+            var hostedServices = sp.GetServices<IHostedService>().ToArray();
+            foreach (var hostedService in hostedServices)
+                await hostedService.StartAsync(CancellationToken.None);
         }
 
-        public static string NewKeyName()
+        public static async Task StopHostedAsync(IServiceProvider sp)
         {
-            return "foo_" + Guid.NewGuid().ToString("N");
+            var hostedServices = sp.GetServices<IHostedService>().ToArray();
+            foreach (var hostedService in hostedServices)
+                await hostedService.StopAsync(CancellationToken.None);
         }
 
-        public static async Task PerformTest(ITestOutputHelper output, TestInvocation testAct, Action<RedisOptions> editOptions = null)
+        public static IServiceCollection CreateAndConfigApp
+            (
+                Action<RedisOptions> configureOptions,
+                ITestOutputHelper? output
+            )
         {
-            var redis = CreateRedisService(output, editOptions);
+            var services = new ServiceCollection();
+
+            services
+                .AddLogging(c =>
+                {
+                    c = c.AddMyLabConsole();
+
+                    if (output != null)
+                    {
+                        c.AddXUnit(output);
+                    }
+                })
+                .AddRedis()
+                .ConfigureRedis(configureOptions);
+
+            return services;
+        }
+
+        public static Task<RedisSession> OpenRedisAsync(ITestOutputHelper output)
+            => OpenRedisAsync(output, ConfigureRedis);
+
+        public static async Task<RedisSession> OpenRedisAsync(ITestOutputHelper output, Action<RedisOptions> configureOptions)
+        {
+            var provider = CreateAndConfigApp(configureOptions, output).BuildServiceProvider();
 
             try
             {
-                await testAct(redis, NewKeyName());
+                await StartHostedAsync(provider);
+
+                var multiplexer = provider.GetRequiredService<IRedisConnectionProvider>().Provide()
+                    ?? throw new InvalidOperationException("Redis is not connected");
+
+                var service = provider.GetRequiredService<IRedisService>();
+
+                return new RedisSession(provider, multiplexer.GetDatabase(), service);
             }
             catch
             {
-                await redis.Server().FlushDatabaseAsync();
-                await redis.Db().Script().FlushCacheAsync();
+                await StopHostedAsync(provider);
+                await provider.DisposeAsync();
                 throw;
             }
-
-            await Task.Delay(100);
         }
     }
 
-    delegate Task TestInvocation(IRedisService redis, string testKey);
+    public sealed class RedisSession(ServiceProvider provider, IDatabase database, IRedisService service) : IAsyncDisposable
+    {
+        public IDatabase Database { get; } = database;
+
+        public IRedisService Service { get; } = service;
+
+        public string NewKeyName() => "k_" + Guid.NewGuid().ToString("N");
+
+        public async ValueTask DisposeAsync()
+        {
+            await TestTools.StopHostedAsync(provider);
+            await provider.DisposeAsync();
+        }
+    }
 }
