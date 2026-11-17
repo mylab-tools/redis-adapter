@@ -1,14 +1,14 @@
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Locking;
+namespace MyLab.Redis.Locking.Redlock;
 
-sealed class RedlockLease(string lockId, Redlock redlock, AcquireResult acquireRes) : IRedisLockLease
+sealed class RedlockLease(string lockId, RedlockLogic redlock, RedlockAcquireResult redlockAcquireRes) : IRedisLockLease
 {
     private int _disposed;
 
     public string LockId => lockId;
 
-    public RedisKey Key => acquireRes.Key;
+    public RedisKey Key => redlockAcquireRes.Key;
 
     public TimeSpan Validity
     {
@@ -18,21 +18,21 @@ sealed class RedlockLease(string lockId, Redlock redlock, AcquireResult acquireR
             field = value;
             ValidUntil = DateTime.UtcNow + Validity;
         }
-    } = acquireRes.Validity;
+    } = redlockAcquireRes.Validity;
 
     public DateTime ValidUntil { get; private set; }
 
     public Task<bool> IsAcquiredAsync()
     {
         ObjectDisposedException.ThrowIf(_disposed != 0, this);
-        return redlock.IsHeldAsync(acquireRes.Key, acquireRes.Token);
+        return redlock.IsHeldAsync(redlockAcquireRes.Key, redlockAcquireRes.Token);
     }
 
     public async Task<bool> ProlongAsync()
     {
         ObjectDisposedException.ThrowIf(_disposed != 0, this);
 
-        var validity = await redlock.ProlongAsync(acquireRes.Key, acquireRes.Token);
+        var validity = await redlock.ProlongAsync(redlockAcquireRes.Key, redlockAcquireRes.Token);
         if (validity == null)
             return false;
 
@@ -45,6 +45,6 @@ sealed class RedlockLease(string lockId, Redlock redlock, AcquireResult acquireR
         if (Interlocked.Exchange(ref _disposed, 1) != 0)
             return;
 
-        await redlock.ReleaseAsync(acquireRes.Key, acquireRes.Token);
+        await redlock.ReleaseAsync(redlockAcquireRes.Key, redlockAcquireRes.Token);
     }
 }

@@ -193,8 +193,9 @@ namespace IntegrationTests.Caching
             // Arrange
             await using var redis = await TestTools.OpenRedisAsync(output);
             var itemId = redis.NewKeyName();
-            await using var held = await redis.Service.Lock($"cache:{itemId}").TryAcquireOnceAsync()
-                ?? throw new InvalidOperationException("Lock was not acquired.");
+            await using var held = await redis.Service.Lock($"cache:{itemId}").TryAcquireOnceAsync();
+            if (!held.Acquired)
+                throw new InvalidOperationException("Lock was not acquired.");
             IRedisCache cache = redis.Service.Cache("orders");
 
             // Act
@@ -212,8 +213,9 @@ namespace IntegrationTests.Caching
             // Arrange
             await using var redis = await TestTools.OpenRedisAsync(output);
             var itemId = redis.NewKeyName();
-            await using var held = await redis.Service.Lock($"cache:{itemId}").TryAcquireOnceAsync()
-                                   ?? throw new InvalidOperationException("Lock was not acquired.");
+            await using var held = await redis.Service.Lock($"cache:{itemId}").TryAcquireOnceAsync();
+            if (!held.Acquired)
+                throw new InvalidOperationException("Lock was not acquired.");
             IRedisCache cache = redis.Service.Cache("orders");
 
             bool providerCalled = false;

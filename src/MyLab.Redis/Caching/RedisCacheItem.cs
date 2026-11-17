@@ -18,8 +18,8 @@ class RedisCacheItem(string id, IRedisDb db, IRedisLocker locker, CacheOptions c
 
     public async Task<bool> SetAsync<T>(T item)
     {
-        await using var lease = await locker.TryAcquireOnceAsync();
-        if (lease is null)
+        await using var acquisition = await locker.TryAcquireOnceAsync();
+        if (!acquisition.Acquired)
             return false;
 
         return await WriteAsync(item);
@@ -33,8 +33,8 @@ class RedisCacheItem(string id, IRedisDb db, IRedisLocker locker, CacheOptions c
         if (cached.Hit)
             return cached;
 
-        await using var lease = await locker.TryAcquireOnceAsync();
-        if (lease is null)
+        await using var acquisition = await locker.TryAcquireOnceAsync();
+        if (!acquisition.Acquired)
             return CacheGetResult<T>.Default;
 
         var created = await logicAsyncItemProvider(Id);

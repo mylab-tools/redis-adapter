@@ -242,17 +242,17 @@ var count = await orders.GetItemsCountAsync();
 
 ## Блокировка
 
-Блокировка следует алгоритму [Redlock](https://redis.io/docs/latest/develop/use/patterns/distributed-locks/): один и тот же ключ записывается на мастеры подключения и считается взятым, когда его приняло большинство, а оставшееся время жизни положительно.
+Блокировка следует алгоритму [Redlock](https://redis.io/docs/latest/develop/use/patterns/distributed-locks/): один и тот же ключ записывается на мастеры подключения. Запросы уходят на все мастеры одновременно. Блокировка считается взятой, когда ключ приняло большинство и оставшееся время жизни положительно.
 
 Ключ блокировки — `{Redlock.BaseKey}:{lockId}`, по умолчанию `redlock:{lockId}`.
 
 `ExpirySec` — срок ключа, если блокировку не сняли и не продлили. По умолчанию 60 секунд. `LockingTimeoutSec` — сколько ждать захват в `TryAcquireAsync()`. По умолчанию 5 секунд. `RetryPeriodSec` — пауза между попытками. По умолчанию 1 секунда.
 
-```csharp
-var locker = redis.Lock("orders:42");
+Каждая попытка возвращает `RedisAcquisition`. При успехе `Acquired` равен `true`, а `Lease` содержит аренду. Если большинство мастеров блокировку не отдало, `Acquired` равен `false`, а `Lease` пуст.
 
-await using var lease = await locker.TryAcquireOnceAsync();
-if (lease is not null)
+```csharp
+await using var acquisition = await redis.Lock("orders:42").TryAcquireOnceAsync();
+if (acquisition.Acquired)
 {
     while (HasWork())
     {
@@ -262,9 +262,9 @@ if (lease is not null)
 }
 ```
 
-`TryAcquireOnceAsync` делает одну попытку. `TryAcquireAsync()` повторяет её до `LockingTimeoutSec`. `TryAcquireAsync(timeout)` использует переданный предел. Пустой результат означает, что большинство мастеров блокировку не отдало.
+`TryAcquireOnceAsync` делает одну попытку. `TryAcquireAsync()` повторяет её до `LockingTimeoutSec`. `TryAcquireAsync(timeout)` использует переданный предел.
 
-`ProlongAsync` продлевает срок, только если большинство всё ещё хранит токен этой аренды. Освобождение `lease` снимает блокировку на мастерах. `IsAcquiredAsync` проверяет, что токен ещё у большинства.
+`ProlongAsync` продлевает срок, только если большинство всё ещё хранит токен этой аренды. Освобождение `acquisition` снимает блокировку на мастерах. `IsAcquiredAsync` проверяет, что токен ещё у большинства.
 
 Для долгого цикла `ExpirySec` должен покрывать одну итерацию между вызовами `ProlongAsync`.
 
