@@ -10,6 +10,7 @@ partial class Redlock(IRedisServer[] servers, RedlockOptions opts)
     public async Task<AcquireResult?> TryAcquireAsync(RedisKey key, CancellationToken cancellationToken)
     {
         EnsureExpiry(_expiry);
+        EnsureServers(servers);
 
         if (_retryPeriod < TimeSpan.Zero)
             throw new InvalidOperationException("Redlock retry period cannot be negative.");

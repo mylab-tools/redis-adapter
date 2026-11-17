@@ -13,6 +13,11 @@ public interface IRedisServer
     bool IsConnected { get; }
 
     /// <summary>
+    /// Gets server type
+    /// </summary>
+    ServerType ServerType { get; }
+
+    /// <summary>
     /// Gets a value indicating whether this server is a read-only replica.
     /// </summary>
     bool IsReplica { get; }

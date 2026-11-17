@@ -32,6 +32,15 @@ partial class Redlock
             throw new InvalidOperationException("Redlock expiry must be at least 1 millisecond.");
     }
 
+    static void EnsureServers(IRedisServer[] servers)
+    {
+        if (servers.Any(s => s.ServerType == ServerType.Cluster))
+        {
+            throw new InvalidOperationException(
+                "Redlock requires independent Redis masters");
+        }
+    }
+
     static int Quorum(int serverCount) => serverCount / 2 + 1;
 
     Task<bool> TryAcquireOnServerAsync(IRedisServer server, RedisKey key, string token, TimeSpan expiry)

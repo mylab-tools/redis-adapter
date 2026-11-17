@@ -8,6 +8,7 @@ class RedisServer(IServer redisServer) : IRedisServer
 {
     public EndPoint EndPoint => redisServer.EndPoint;
     public bool IsConnected => redisServer.IsConnected;
+    public ServerType ServerType => redisServer.ServerType;
     public bool IsReplica => redisServer.IsReplica;
 
     public Task<TimeSpan> PingAsync() => redisServer.PingAsync();
