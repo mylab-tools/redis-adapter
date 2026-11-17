@@ -26,9 +26,16 @@ partial class Redlock(IRedisServer[] servers, RedlockOptions opts)
             votes = await Task.WhenAll(servers.Select(server =>
                 TryAcquireOnServerAsync(server, key, token, _expiry)));
         }
-        catch
+        catch (Exception acquireException)
         {
-            await ReleaseAsync(key, token);
+            try
+            {
+                await ReleaseAsync(key, token);
+            }
+            catch (Exception releaseException)
+            {
+                throw new AggregateException(acquireException, releaseException);
+            }
             throw;
         }
 
