@@ -21,7 +21,8 @@ public class OverrideCacheOptions : CacheOptions
         {
             ExpirySec = origin.ExpirySec == Default.ExpirySec ? ExpirySec : origin.ExpirySec,
             DbIndex = origin.DbIndex == Default.DbIndex ? DbIndex : origin.DbIndex,
-            BaseKey = origin.BaseKey == Default.BaseKey ? BaseKey : origin.BaseKey
+            BaseKey = origin.BaseKey == Default.BaseKey ? BaseKey : origin.BaseKey,
+            LockIdPrefix = origin.LockIdPrefix == Default.LockIdPrefix ? LockIdPrefix : origin.LockIdPrefix
         };
     }
 }

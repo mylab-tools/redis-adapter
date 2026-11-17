@@ -76,7 +76,7 @@ namespace IntegrationTests.Caching
             var result = await entry.GetAsync<SampleItem>(_ => Task.FromResult(created));
 
             // Assert
-            Assert.True(result.Hit);
+            Assert.False(result.Hit);
             Assert.Equal(created, result.Value);
             var stored = await redis.Database.StringGetAsync($"cache:{itemId}");
             Assert.Equal(created, JsonSerializer.Deserialize<SampleItem>(stored.ToString()));
@@ -203,6 +203,34 @@ namespace IntegrationTests.Caching
             // Assert
             Assert.False(saved);
             var stored = await redis.Database.StringGetAsync($"cache:{itemId}");
+            Assert.True(stored.IsNull);
+        }
+
+        [Fact]
+        public async Task ShouldNotCallProviderWhenItemIsLocked()
+        {
+            // Arrange
+            await using var redis = await TestTools.OpenRedisAsync(output);
+            var itemId = redis.NewKeyName();
+            await using var held = await redis.Service.Lock($"cache:{itemId}").TryAcquireOnceAsync()
+                                   ?? throw new InvalidOperationException("Lock was not acquired.");
+            IRedisCache cache = redis.Service.Cache("orders");
+
+            bool providerCalled = false;
+            
+            // Act
+            var cacheRes = await cache.Item(itemId).GetAsync(_ =>
+            {
+                providerCalled = true;
+                return Task.FromResult(string.Empty);
+            });
+
+            var stored = await redis.Database.StringGetAsync($"cache:{itemId}");
+
+            // Assert
+            Assert.False(providerCalled);
+            Assert.False(cacheRes.Hit);
+            Assert.Null(cacheRes.Value);
             Assert.True(stored.IsNull);
         }
     }

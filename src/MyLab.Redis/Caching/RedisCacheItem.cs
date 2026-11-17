@@ -18,13 +18,11 @@ class RedisCacheItem(string id, IRedisDb db, IRedisLocker locker, CacheOptions c
 
     public async Task<bool> SetAsync<T>(T item)
     {
-        var json = JsonSerializer.Serialize(item);
-
         await using var lease = await locker.TryAcquireOnceAsync();
         if (lease is null)
             return false;
 
-        return await db.String(Key).SetAsync(json, Expiry);
+        return await WriteAsync(item);
     }
 
     public Task<CacheGetResult<T>> GetAsync<T>() => ReadAsync<T>();
@@ -35,9 +33,15 @@ class RedisCacheItem(string id, IRedisDb db, IRedisLocker locker, CacheOptions c
         if (cached.Hit)
             return cached;
 
+        await using var lease = await locker.TryAcquireOnceAsync();
+        if (lease is null)
+            return CacheGetResult<T>.Default;
+
         var created = await logicAsyncItemProvider(Id);
-        var saved = await SetAsync(created);
-        return new CacheGetResult<T>(saved, created);
+        var saved = await WriteAsync(created);
+        return saved 
+            ? new CacheGetResult<T>(false, created)
+            : CacheGetResult<T>.Default;
     }
 
     public Task<bool> InvalidateAsync() => db.String(Key).DeleteAsync();
@@ -53,5 +57,11 @@ class RedisCacheItem(string id, IRedisDb db, IRedisLocker locker, CacheOptions c
 
         var item = JsonSerializer.Deserialize<T>(value.ToString());
         return new CacheGetResult<T>(true, item!);
+    }
+
+    async Task<bool> WriteAsync<T>(T item)
+    {
+        var json = JsonSerializer.Serialize(item);
+        return await db.String(Key).SetAsync(json, Expiry);
     }
 }
