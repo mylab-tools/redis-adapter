@@ -13,7 +13,7 @@ class RedisServer(IServer redisServer) : IRedisServer
     public Task<TimeSpan> PingAsync() => redisServer.PingAsync();
 
     public Task<RedisValue> EchoAsync(RedisValue value) => redisServer.EchoAsync(value);
-    public IAsyncEnumerable<RedisKey> GetKeys
+    public IAsyncEnumerable<RedisKey> GetKeysAsync
     (
         string? pattern = null,
         int dbIndex = -1,

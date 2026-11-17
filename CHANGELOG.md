@@ -4,13 +4,13 @@
 
 Формат лога изменений базируется на [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
-## [2.0.0] - 2026-11-16
+## [2.0.0] - 2026-11-17
 
 ### Добавлено
 
 * целевая платформа `.NET 10`
 * `IRedisService.Connected`, выбор сервера по адресу и `GetAllServers`
-* команды сервера `PingAsync`, `EchoAsync`, `GetKeys` и `FlushAllAsync`
+* команды сервера `PingAsync`, `EchoAsync`, `GetKeysAsync` и `FlushAllAsync`
 * распределённая блокировка Redlock по большинству мастеров: `Lock`, `TryAcquireOnceAsync`, `TryAcquireAsync`, продление и проверка аренды
 * кэш `IRedisCache` и `IRedisCacheItem`: значение в JSON, одноразовая блокировка записи, `CacheGetResult`, подсчёт ключей, инвалидация и оставшийся срок жизни
 * настройки `User` и `Optional`, разделы `Cache` и `Redlock`

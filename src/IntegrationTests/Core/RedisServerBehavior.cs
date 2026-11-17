@@ -46,7 +46,7 @@ namespace IntegrationTests.Core
             var names = new List<string>();
 
             // Act
-            await foreach (var found in server.GetKeys(keyName))
+            await foreach (var found in server.GetKeysAsync(keyName))
                 names.Add(found.ToString());
 
             // Assert

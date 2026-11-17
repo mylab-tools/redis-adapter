@@ -69,8 +69,7 @@ public class PingService(IRedisService redis)
       "Overrides": [
         {
           "Id": "orders",
-          "ExpirySec": 300,
-          "BaseKey": "orders"
+          "ExpirySec": 300
         }
       ]
     },
@@ -181,11 +180,11 @@ public class PingService(IRedisService redis)
 await redis.Server().PingAsync();
 await redis.Server("localhost", 6379).EchoAsync("redis");
 
-await foreach (var key in redis.Server().GetKeys("order:*"))
+await foreach (var key in redis.Server().GetKeysAsync("order:*"))
     Console.WriteLine(key);
 ```
 
-`GetKeys` обходит ключи командой `SCAN`. `pattern` — шаблон glob, `batchSize` — подсказка `COUNT`. `FlushAllAsync` удаляет ключи во всех базах сервера и требует административного подключения.
+`GetKeysAsync` обходит ключи командой `SCAN`. `pattern` — шаблон glob, `batchSize` — подсказка `COUNT`. `FlushAllAsync` удаляет ключи во всех базах сервера и требует административного подключения.
 
 ## База данных и ключи
 

@@ -34,7 +34,7 @@ public interface IRedisServer
     /// <param name="pattern">Glob pattern. <see langword="null"/> matches every key.</param>
     /// <param name="dbIndex">Database index. A negative value selects the configured default database.</param>
     /// <param name="batchSize">Hint for how many keys to request per <c>SCAN</c> call.</param>
-    IAsyncEnumerable<RedisKey> GetKeys
+    IAsyncEnumerable<RedisKey> GetKeysAsync
     (
         string? pattern = null,
         int dbIndex = -1,
