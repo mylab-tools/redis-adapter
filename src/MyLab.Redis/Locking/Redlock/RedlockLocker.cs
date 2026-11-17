@@ -3,31 +3,33 @@ using MyLab.Redis.Options;
 using System.Diagnostics;
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Locking;
+namespace MyLab.Redis.Locking.Redlock;
 
 class RedlockLocker(string lockId, IRedisServer[] masters, RedlockOptions opts) : IRedisLocker
 {
     readonly KeyNameTool _keyNameTool = new(opts.BaseKey);
 
-    public async Task<IRedisLockLease?> TryAcquireOnceAsync(CancellationToken cancellationToken = default)
+    public async Task<RedisAcquisition> TryAcquireOnceAsync(CancellationToken cancellationToken = default)
     {
         var key = _keyNameTool.BuildKey(lockId);
-        var redlock = new Redlock(masters, opts);
+        var redlock = new RedlockLogic(masters, opts);
         var acqRes = await redlock.TryAcquireAsync(key, cancellationToken);
 
-        return acqRes != null
-            ? new RedlockLease(lockId, redlock, acqRes)
-            : null;
+        if (acqRes == null)
+            return RedisAcquisition.NotAcquired;
+
+        var lease = new RedlockLease(lockId, redlock, acqRes);
+        return RedisAcquisition.CreateAcquired(lease);
     }
 
-    public Task<IRedisLockLease?> TryAcquireAsync(CancellationToken cancellationToken = default)
+    public Task<RedisAcquisition> TryAcquireAsync(CancellationToken cancellationToken = default)
     {
         var key = _keyNameTool.BuildKey(lockId);
         var lockingTime = TimeSpan.FromSeconds(opts.LockingTimeoutSec);
         return TryAcquireCoreAsync(key, lockingTime, cancellationToken);
     }
 
-    public Task<IRedisLockLease?> TryAcquireAsync(
+    public Task<RedisAcquisition> TryAcquireAsync(
         TimeSpan timeout,
         CancellationToken cancellationToken = default)
     {
@@ -35,7 +37,7 @@ class RedlockLocker(string lockId, IRedisServer[] masters, RedlockOptions opts) 
         return TryAcquireCoreAsync(key, timeout, cancellationToken);
     }
 
-    async Task<IRedisLockLease?> TryAcquireCoreAsync(
+    async Task<RedisAcquisition> TryAcquireCoreAsync(
         RedisKey key,
         TimeSpan timeout,
         CancellationToken cancellationToken = default)
@@ -44,7 +46,7 @@ class RedlockLocker(string lockId, IRedisServer[] masters, RedlockOptions opts) 
 
         var retryPeriod = TimeSpan.FromSeconds(opts.RetryPeriodSec);
 
-        var redlock = new Redlock(masters, opts);
+        var redlock = new RedlockLogic(masters, opts);
 
         var started = Stopwatch.GetTimestamp();
         while (true)
@@ -53,15 +55,18 @@ class RedlockLocker(string lockId, IRedisServer[] masters, RedlockOptions opts) 
 
             var acqRes = await redlock.TryAcquireAsync(key, cancellationToken);
             if (acqRes != null)
-                return new RedlockLease(lockId, redlock, acqRes);
+            {
+                var lease = new RedlockLease(lockId, redlock, acqRes);
+                return RedisAcquisition.CreateAcquired(lease);
+            }
 
             var remaining = timeout - Stopwatch.GetElapsedTime(started);
             if (remaining <= TimeSpan.Zero)
-                return null;
+                return RedisAcquisition.NotAcquired;
 
             var delay = retryPeriod < remaining ? retryPeriod : remaining;
             if (delay <= TimeSpan.Zero)
-                return null;
+                return RedisAcquisition.NotAcquired;
 
             await Task.Delay(delay, cancellationToken);
         }

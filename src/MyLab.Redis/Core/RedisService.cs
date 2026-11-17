@@ -4,6 +4,7 @@ using System.Net;
 using Microsoft.Extensions.Options;
 using MyLab.Redis.Caching;
 using MyLab.Redis.Locking;
+using MyLab.Redis.Locking.Redlock;
 using MyLab.Redis.Options;
 
 namespace MyLab.Redis.Core;

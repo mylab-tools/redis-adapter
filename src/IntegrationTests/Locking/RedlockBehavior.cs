@@ -14,9 +14,12 @@ namespace IntegrationTests.Locking
             IRedisLocker locker = redis.Service.Lock(lockId);
 
             // Act
-            await using var lease = await locker.TryAcquireOnceAsync();
+            await using var acquisition = await locker.TryAcquireOnceAsync();
+
+            var lease = acquisition.Lease;
 
             // Assert
+            Assert.True(acquisition.Acquired);
             Assert.NotNull(lease);
             Assert.Equal(lockId, lease.LockId);
             Assert.Equal($"redlock:{lockId}", lease.Key.ToString());
@@ -33,11 +36,12 @@ namespace IntegrationTests.Locking
             IRedisLocker locker = redis.Service.Lock(lockId);
 
             // Act
-            await using var lease = await locker.TryAcquireAsync();
+            await using var acquisition = await locker.TryAcquireAsync();
 
             // Assert
-            Assert.NotNull(lease);
-            Assert.True(await lease.IsAcquiredAsync());
+            Assert.True(acquisition.Acquired);
+            Assert.NotNull(acquisition.Lease);
+            Assert.True(await acquisition.Lease.IsAcquiredAsync());
         }
 
         [Fact]
@@ -47,16 +51,18 @@ namespace IntegrationTests.Locking
             await using var redis = await TestTools.OpenRedisAsync(output, TestTools.ConfigureThreeRedis);
             var lockId = redis.NewKeyName();
             IRedisLocker holder = redis.Service.Lock(lockId);
-            await using var held = await holder.TryAcquireOnceAsync()
-                ?? throw new InvalidOperationException("Lock was not acquired.");
+            await using var held = await holder.TryAcquireOnceAsync();
+            if (!held.Acquired || held.Lease is null)
+                throw new InvalidOperationException("Lock was not acquired.");
             IRedisLocker contender = redis.Service.Lock(lockId);
 
             // Act
             await using var second = await contender.TryAcquireOnceAsync();
 
             // Assert
-            Assert.Null(second);
-            Assert.True(await held.IsAcquiredAsync());
+            Assert.False(second.Acquired);
+            Assert.Null(second.Lease);
+            Assert.True(await held.Lease.IsAcquiredAsync());
         }
 
         [Fact]
@@ -66,15 +72,17 @@ namespace IntegrationTests.Locking
             await using var redis = await TestTools.OpenRedisAsync(output, TestTools.ConfigureThreeRedis);
             var lockId = redis.NewKeyName();
             IRedisLocker holder = redis.Service.Lock(lockId);
-            await using var held = await holder.TryAcquireOnceAsync()
-                ?? throw new InvalidOperationException("Lock was not acquired.");
+            await using var held = await holder.TryAcquireOnceAsync();
+            if (!held.Acquired)
+                throw new InvalidOperationException("Lock was not acquired.");
             IRedisLocker contender = redis.Service.Lock(lockId);
 
             // Act
             await using var second = await contender.TryAcquireAsync(TimeSpan.FromMilliseconds(200));
 
             // Assert
-            Assert.Null(second);
+            Assert.False(second.Acquired);
+            Assert.Null(second.Lease);
         }
 
         [Fact]
@@ -84,15 +92,17 @@ namespace IntegrationTests.Locking
             await using var redis = await TestTools.OpenRedisAsync(output, TestTools.ConfigureThreeRedis);
             var lockId = redis.NewKeyName();
             IRedisLocker locker = redis.Service.Lock(lockId);
-            var lease = await locker.TryAcquireOnceAsync()
-                ?? throw new InvalidOperationException("Lock was not acquired.");
+            var acquisition = await locker.TryAcquireOnceAsync();
+            if (!acquisition.Acquired)
+                throw new InvalidOperationException("Lock was not acquired.");
 
             // Act
-            await lease.DisposeAsync();
+            await acquisition.DisposeAsync();
 
             // Assert
             await using var again = await locker.TryAcquireOnceAsync();
-            Assert.NotNull(again);
+            Assert.True(again.Acquired);
+            Assert.NotNull(again.Lease);
         }
 
         [Fact]
@@ -102,16 +112,17 @@ namespace IntegrationTests.Locking
             await using var redis = await TestTools.OpenRedisAsync(output, TestTools.ConfigureThreeRedis);
             var lockId = redis.NewKeyName();
             IRedisLocker locker = redis.Service.Lock(lockId);
-            await using var lease = await locker.TryAcquireOnceAsync()
-                ?? throw new InvalidOperationException("Lock was not acquired.");
+            await using var acquisition = await locker.TryAcquireOnceAsync();
+            if (!acquisition.Acquired || acquisition.Lease is null)
+                throw new InvalidOperationException("Lock was not acquired.");
 
             // Act
-            var prolonged = await lease.ProlongAsync();
+            var prolonged = await acquisition.Lease.ProlongAsync();
 
             // Assert
             Assert.True(prolonged);
-            Assert.True(lease.Validity > TimeSpan.Zero);
-            Assert.True(await lease.IsAcquiredAsync());
+            Assert.True(acquisition.Lease.Validity > TimeSpan.Zero);
+            Assert.True(await acquisition.Lease.IsAcquiredAsync());
         }
 
         [Fact]

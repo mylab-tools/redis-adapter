@@ -1,7 +1,7 @@
 ﻿using MyLab.Redis.Abstractions;
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Locking;
+namespace MyLab.Redis.Locking.Redlock;
 
 internal static class ServerKeysTool
 {

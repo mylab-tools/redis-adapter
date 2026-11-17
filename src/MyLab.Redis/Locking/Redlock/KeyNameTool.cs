@@ -1,6 +1,6 @@
 ﻿using StackExchange.Redis;
 
-namespace MyLab.Redis.Locking;
+namespace MyLab.Redis.Locking.Redlock;
 
 class KeyNameTool(string baseKey)
 {

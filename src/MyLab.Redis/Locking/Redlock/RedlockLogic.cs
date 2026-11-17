@@ -3,11 +3,11 @@ using MyLab.Redis.Options;
 using System.Diagnostics;
 using StackExchange.Redis;
 
-namespace MyLab.Redis.Locking;
+namespace MyLab.Redis.Locking.Redlock;
 
-partial class Redlock(IRedisServer[] servers, RedlockOptions opts)
+partial class RedlockLogic(IRedisServer[] servers, RedlockOptions opts)
 {
-    public async Task<AcquireResult?> TryAcquireAsync(RedisKey key, CancellationToken cancellationToken)
+    public async Task<RedlockAcquireResult?> TryAcquireAsync(RedisKey key, CancellationToken cancellationToken)
     {
         EnsureExpiry(_expiry);
         EnsureServers(servers);
@@ -44,7 +44,7 @@ partial class Redlock(IRedisServer[] servers, RedlockOptions opts)
 
         var validity = RemainingValidity(_expiry, Stopwatch.GetElapsedTime(started));
         if (acquired >= quorum && validity > TimeSpan.Zero)
-            return new AcquireResult(key, token, validity);
+            return new RedlockAcquireResult(key, token, validity);
 
         await ReleaseAsync(key, token);
         return null;
