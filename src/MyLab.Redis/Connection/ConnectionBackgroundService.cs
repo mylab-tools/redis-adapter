@@ -66,14 +66,15 @@ namespace MyLab.Redis.Connection
                     .Write();
 
             _connectionMultiplexer.ServerMaintenanceEvent += (_, ev) =>
-                _log?.Action("Re3dis maintenance")
+                _log?.Action("Redis maintenance")
                     .AndFactIs("message", ev.RawMessage)
                     .AndFactIs("start-time", ev.StartTimeUtc)
                     .Write();
 
             if (_connectionMultiplexer.IsConnected)
             {
-                _log?.Action("Redis connected")
+                _log?.Action("Redis connected").Write();
+                _log?.Debug("Redis connection log")
                     .AndFactIs("log", sb.ToString())
                     .Write();
             }
