@@ -20,7 +20,7 @@ class RedisCache(
     {
         var hs = new HashSet<string>();
         
-        await foreach (var k in server.GetKeysAsync(opts.BaseKey + ":*", opts.DbIndex))
+        await foreach (var k in server.GetKeysAsync(opts.BaseKey + ":*", db.DbIndex))
             hs.Add(k.ToString());
         
         return hs.Count;

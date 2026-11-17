@@ -10,6 +10,11 @@ namespace MyLab.Redis.Abstractions;
 public interface IRedisDb
 {
     /// <summary>
+    /// The numeric identifier of this database 
+    /// </summary>
+    int DbIndex { get; }
+
+    /// <summary>
     /// Server-side Lua script commands for this database.
     /// </summary>
     IRedisScriptTools Script();

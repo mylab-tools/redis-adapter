@@ -7,7 +7,7 @@ namespace MyLab.Redis.Core;
 
 class RedisDb(IDatabaseAsync db) : IRedisDb
 {
-    public int Index => db.Database;
+    public int DbIndex => db.Database;
 
     public IRedisScriptTools Script() => new RedisScriptTools(db);
 
