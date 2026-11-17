@@ -9,10 +9,18 @@ sealed class RedlockLease(string lockId, Redlock redlock, AcquireResult acquireR
     public string LockId => lockId;
 
     public RedisKey Key => acquireRes.Key;
-    
-    public TimeSpan Validity { get; private set; } = acquireRes.Validity;
 
-    public DateTime ValidUntil => DateTime.UtcNow + Validity;
+    public TimeSpan Validity
+    {
+        get;
+        private set
+        {
+            field = value;
+            ValidUntil = DateTime.UtcNow + Validity;
+        }
+    } = acquireRes.Validity;
+
+    public DateTime ValidUntil { get; private set; }
 
     public Task<bool> IsAcquiredAsync()
     {
